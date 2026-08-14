@@ -9,6 +9,7 @@ future = (root / "patch/smali/com/vorflux/gboardai/AiPolishFuture.smali").read_t
 translate_callback = (root / "patch/smali/com/vorflux/gboardai/AiTranslateCallback.smali").read_text()
 patcher = (root / "scripts/apply-smali-patches.py").read_text()
 split_patcher = (root / "scripts/remove-required-split.py").read_text()
+coexist_patcher = (root / "scripts/apply-coexistence-package.py").read_text()
 builder = (root / "scripts/build-ai-gboard.sh").read_text()
 assert '"GET", "/models"' in client
 assert '"POST", "/chat/completions"' in client
@@ -45,5 +46,14 @@ assert '0x72t' in patcher and '-0x15t' in patcher
 assert 'EXPECTED_CERT_SHA256="72f35793e9f17aba292fe6dd1607eca6b783cf779ca52b1561f03e5bc411ebeb"' in builder
 assert 'REQUIRED_SPLIT_TYPES_ID = 0x0101064E' in split_patcher
 assert 'remove-required-split.py' in builder
+assert 'apply-coexistence-package.py' in builder
+assert 'NEW_PACKAGE = "com.vorflux.gboard.inputmethod.latin"' in coexist_patcher
+assert 'EXPECTED_MANIFEST_UTF16 = 15' in coexist_patcher
+assert 'EXPECTED_RESOURCES_UTF16 = 1' in coexist_patcher
+assert 'EXPECTED_RESOURCES_UTF8' not in coexist_patcher
+assert 'EXPECTED_SMALI = 20' in coexist_patcher
+assert 'res/ywe.binarypb' in coexist_patcher
+assert 'res/Mox.xml' in coexist_patcher
+assert 'com_vorflux_gboard_inputmethod_latin_package_metadata.binarypb' in coexist_patcher
 assert not re.search(r'sk-[A-Za-z0-9]{16,}', ''.join(p.read_text(errors='ignore') for p in (root/'patch').rglob('*') if p.is_file()))
 print('static contract checks passed')

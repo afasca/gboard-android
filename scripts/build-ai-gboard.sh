@@ -17,6 +17,7 @@ WORK="$ROOT/build/decoded-raw-$$"
 trap 'rm -rf "$WORK" "$UNSIGNED" "$ALIGNED" "$SIGNED_TMP"' EXIT
 java -jar "$APKTOOL_JAR" d -r "$INPUT_APK" -o "$WORK"
 python3 "$ROOT/scripts/apply-smali-patches.py" "$WORK"
+python3 "$ROOT/scripts/apply-coexistence-package.py" "$WORK"
 # The repository input is a Play-generated base APK whose density split is absent.
 # Make the rebuilt output directly installable without changing app behavior/resources.
 python3 "$ROOT/scripts/remove-required-split.py" "$WORK/AndroidManifest.xml"

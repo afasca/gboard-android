@@ -11,7 +11,7 @@ This repository patches the supplied arm64 Gboard APK without rebuilding its raw
 - Encrypts the API key with a 256-bit Android Keystore AES-GCM key. It is never embedded in the APK or logged.
 - Rejects invalid or non-HTTPS compatible-service URLs before saving, so a third-party key is never silently redirected to the OpenAI default.
 
-The signed APK uses a development certificate and therefore cannot update the official Google-signed Gboard package in place. Uninstall the official package for the same user/profile before installing this build. The supplied APK is arm64-only, matching the repository input.
+The build uses the independent package `com.vorflux.gboard.inputmethod.latin`, so it can be installed alongside the official Google-signed Gboard. It has separate settings, app data, and Android Keystore entries. The supplied APK is arm64-only, matching the repository input.
 
 ## Build
 
@@ -25,4 +25,4 @@ The build removes the Play-generated `requiredSplitTypes="base__density"` marker
 
 ## Runtime limitations
 
-The input contains only `arm64-v8a` libraries, so runtime validation requires an ARM64 Android device. It installs on x86_64 Redroid but cannot load its AArch64 native libraries there. The development certificate is explicitly added to Gboard's existing three-entry certificate whitelist (rather than disabling the check), but the original Google signing key is unavailable and this APK still cannot update official Gboard in place.
+The input contains only `arm64-v8a` libraries, so runtime validation requires an ARM64 Android device. It installs on x86_64 Redroid but cannot load its AArch64 native libraries there. The development certificate is explicitly added to Gboard's existing certificate whitelist (rather than disabling the check). Package/certificate-bound Google services may not recognize the independent clone, while AI translation and polish use the configured OpenAI-compatible service.
