@@ -7,7 +7,7 @@ EXPECTED_INPUT_SHA256="f06d8e42131a3feb7a05e1e42244af43059a67899bf1fa958290f18d8
 EXPECTED_INPUT_CERT_SHA256="f0fd6c5b410f25cb25c3b53346c8972fae30f8ee7411df910480ad6b2d60db83"
 UNSIGNED="$ROOT/build/gboard-ai-unsigned-$$.apk"
 ALIGNED="$ROOT/build/gboard-ai-aligned-$$.apk"
-OUTPUT="${OUTPUT_APK:-$ROOT/build/gboard-ai-signed.apk}"
+OUTPUT="${OUTPUT_APK:-$ROOT/build/MyBoard-AI-v4-minsdk32.apk}"
 KEYSTORE="${KEYSTORE:-$ROOT/build/gboard-ai.keystore}"
 EXPECTED_CERT_SHA256="72f35793e9f17aba292fe6dd1607eca6b783cf779ca52b1561f03e5bc411ebeb"
 SIGNED_TMP="$ROOT/build/gboard-ai-signed-$$.apk"
@@ -27,8 +27,8 @@ trap 'rm -rf "$WORK" "$UNSIGNED" "$ALIGNED" "$SIGNED_TMP"' EXIT
 java -jar "$APKTOOL_JAR" d -r "$INPUT_APK" -o "$WORK"
 python3 "$ROOT/scripts/apply-smali-patches.py" "$WORK"
 python3 "$ROOT/scripts/apply-coexistence-package.py" "$WORK"
-# The repository input is a Play-generated base APK whose density split is absent.
-# Make the rebuilt output directly installable without changing app behavior/resources.
+# Keep the original repository APK's Android 12L support floor and remove any
+# Play split-install marker so this fused-resource build remains a single APK.
 python3 "$ROOT/scripts/remove-required-split.py" "$WORK/AndroidManifest.xml"
 mkdir -p "$WORK/smali_classes4"
 cp -a "$ROOT/patch/smali/." "$WORK/smali_classes4/"
@@ -45,9 +45,9 @@ fi
 "$ZIPALIGN" -P 16 -f 4 "$UNSIGNED" "$ALIGNED"
 "$ZIPALIGN" -c -P 16 4 "$ALIGNED"
 if [[ ! -f "$KEYSTORE" ]]; then
-  keytool -genkeypair -keystore "$KEYSTORE" -storepass android -keypass android \
-    -alias gboard-ai -keyalg RSA -keysize 4096 -validity 10000 \
-    -dname "CN=Gboard AI, OU=Vorflux, O=Vorflux, C=US"
+  echo "Missing development keystore $KEYSTORE; set KEYSTORE=/path/to/the repository development keystore" >&2
+  echo "The signer is pinned by Gboard's internal certificate allowlist and cannot be regenerated." >&2
+  exit 1
 fi
 ACTUAL_CERT_SHA256="$(keytool -list -v -keystore "$KEYSTORE" -storepass android -alias gboard-ai | sed -n 's/^[[:space:]]*SHA256: //p' | tr -d ':[:space:]' | tr 'A-F' 'a-f')"
 if [[ "$ACTUAL_CERT_SHA256" != "$EXPECTED_CERT_SHA256" ]]; then
@@ -57,6 +57,8 @@ fi
 apksigner sign --ks "$KEYSTORE" --ks-key-alias gboard-ai \
   --ks-pass pass:android --key-pass pass:android --out "$SIGNED_TMP" "$ALIGNED"
 apksigner verify --verbose --print-certs "$SIGNED_TMP"
+mkdir -p "$(dirname "$OUTPUT")"
+ZIPALIGN="$ZIPALIGN" INPUT_APK="$INPUT_APK" "$ROOT/scripts/verify-built-apk.sh" "$SIGNED_TMP"
 mkdir -p "$(dirname "$OUTPUT")"
 mv -f "$SIGNED_TMP" "$OUTPUT"
 rm -f "$SIGNED_TMP.idsig" "$OUTPUT.idsig"

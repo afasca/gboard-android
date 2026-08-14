@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Remove the Play-generated requiredSplitTypes attribute from binary AndroidManifest.xml."""
+"""Patch standalone-build requirements in a binary AndroidManifest.xml."""
 
 from pathlib import Path
 import struct
@@ -9,6 +9,8 @@ RES_XML_TYPE = 0x0003
 RES_XML_RESOURCE_MAP_TYPE = 0x0180
 RES_XML_START_ELEMENT_TYPE = 0x0102
 REQUIRED_SPLIT_TYPES_ID = 0x0101064E
+MIN_SDK_VERSION_ID = 0x0101020C
+MIN_SDK_VERSION = 32
 
 
 def u16(data: bytes | bytearray, offset: int) -> int:
@@ -68,13 +70,45 @@ def required_split_attribute(data: bytes | bytearray):
     return matches
 
 
+def set_min_sdk(data: bytearray) -> None:
+    resource_ids: list[int] = []
+    matches = []
+    for offset, chunk_type, header_size, chunk_size in chunks(data):
+        if chunk_type == RES_XML_RESOURCE_MAP_TYPE:
+            if (chunk_size - header_size) % 4:
+                raise SystemExit("binary manifest has an invalid resource map")
+            resource_ids = [
+                u32(data, position)
+                for position in range(offset + header_size, offset + chunk_size, 4)
+            ]
+        elif chunk_type == RES_XML_START_ELEMENT_TYPE and resource_ids:
+            attribute_start = offset + 16 + u16(data, offset + 24)
+            attribute_size = u16(data, offset + 26)
+            attribute_count = u16(data, offset + 28)
+            if attribute_size != 20:
+                raise SystemExit(f"unsupported binary manifest attribute size: {attribute_size}")
+            for index in range(attribute_count):
+                attribute = attribute_start + index * attribute_size
+                name_index = u32(data, attribute + 4)
+                if name_index < len(resource_ids) and resource_ids[name_index] == MIN_SDK_VERSION_ID:
+                    matches.append(attribute)
+    if len(matches) != 1:
+        raise SystemExit(f"binary manifest: expected exactly one minSdkVersion, found {len(matches)}")
+    attribute = matches[0]
+    if data[attribute + 15] not in (0x10, 0x11):
+        raise SystemExit("binary manifest minSdkVersion is not an integer value")
+    struct.pack_into("<I", data, attribute + 16, MIN_SDK_VERSION)
+
+
 def remove_required_split(path: Path) -> None:
     data = bytearray(path.read_bytes())
     if len(data) < 8 or u16(data, 0) != RES_XML_TYPE or u32(data, 4) != len(data):
         raise SystemExit(f"{path}: not a valid binary Android XML file")
+    set_min_sdk(data)
 
     matches = required_split_attribute(data)
     if not matches:
+        path.write_bytes(data)
         return
     if len(matches) != 1:
         raise SystemExit(f"{path}: expected at most one requiredSplitTypes attribute, found {len(matches)}")

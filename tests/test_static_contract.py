@@ -45,6 +45,7 @@ assert 'patch_development_certificate' in patcher
 assert '0x72t' in patcher and '-0x15t' in patcher
 assert 'EXPECTED_CERT_SHA256="72f35793e9f17aba292fe6dd1607eca6b783cf779ca52b1561f03e5bc411ebeb"' in builder
 assert 'REQUIRED_SPLIT_TYPES_ID = 0x0101064E' in split_patcher
+assert 'MIN_SDK_VERSION = 32' in split_patcher
 assert 'remove-required-split.py' in builder
 assert 'apply-coexistence-package.py' in builder
 assert 'fused-gboard-安卓.apk' in builder
@@ -52,6 +53,9 @@ assert 'EXPECTED_INPUT_SHA256="f06d8e42131a3feb7a05e1e42244af43059a67899bf1fa958
 assert 'EXPECTED_INPUT_CERT_SHA256="f0fd6c5b410f25cb25c3b53346c8972fae30f8ee7411df910480ad6b2d60db83"' in builder
 assert '"$ZIPALIGN" -P 16 -f 4' in builder
 assert '"$ZIPALIGN" -c -P 16 4' in builder
+assert 'verify-built-apk.sh' in builder
+assert 'INPUT_APK="$INPUT_APK"' in builder
+assert 'cannot be regenerated' in builder
 assert 'NEW_PACKAGE = "com.vorflux.gboard.inputmethod.latin"' in coexist_patcher
 assert 'EXPECTED_MANIFEST_UTF16 = 15' in coexist_patcher
 assert 'EXPECTED_RESOURCES_UTF16 = 1' in coexist_patcher

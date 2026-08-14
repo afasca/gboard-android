@@ -16,15 +16,34 @@ The build uses the independent package `com.vorflux.gboard.inputmethod.latin`, s
 
 ## Build
 
+The build requires:
+
+- Android Build Tools 35 or newer because `zipalign` must support 16 KiB page alignment (`-P 16`).
+- The existing repository development keystore whose certificate SHA-256 is pinned below. It is intentionally ignored by Git; set `KEYSTORE` to your secured copy. This signer cannot be regenerated because Gboard's internal certificate allowlist is bound to it.
+
+The pinned `fused-gboard-安卓.apk` is used by default. A complete release build is:
+
 ```bash
-./scripts/build-ai-gboard.sh /path/to/fused-gboard.apk
+KEYSTORE=/secure/path/gboard-ai.keystore \
+ZIPALIGN=/path/to/android-sdk/build-tools/35.0.0/zipalign \
+OUTPUT_APK="$PWD/build/MyBoard-AI-v4-minsdk32.apk" \
+  ./scripts/build-ai-gboard.sh
 ```
 
-Output: `build/gboard-ai-signed.apk`
+To test another verified fused input, pass its path as the first argument and update the pinned input checks deliberately:
+
+```bash
+KEYSTORE=/secure/path/gboard-ai.keystore \
+ZIPALIGN=/path/to/android-sdk/build-tools/35.0.0/zipalign \
+OUTPUT_APK="$PWD/build/MyBoard-AI-v4-minsdk32.apk" \
+  ./scripts/build-ai-gboard.sh /path/to/fused-gboard.apk
+```
+
+Output: `build/MyBoard-AI-v4-minsdk32.apk`
 
 Use a fused/standalone APK as input. A Play base APK that declares `requiredSplitTypes="base__density"` does not contain the density drawables needed by Launcher and LatinIME; removing only that marker produces an installable APK that crashes with `Resources$NotFoundException`.
 
-The build removes the Play-generated `requiredSplitTypes="base__density"` marker because the repository contains only the base APK; the output can therefore be installed as one APK. The patched certificate whitelist is bound to the repository development certificate SHA-256 `72f35793e9f17aba292fe6dd1607eca6b783cf779ca52b1561f03e5bc411ebeb`. Preserve `build/gboard-ai.keystore` between builds; using another key is intentionally rejected because it would fail Gboard's certificate-integrity check.
+The build removes any Play-generated `requiredSplitTypes="base__density"` marker and restores `minSdkVersion` 32 from the original repository APK, while the fused input supplies the complete density resources. The patched certificate whitelist is bound to the repository development certificate SHA-256 `72f35793e9f17aba292fe6dd1607eca6b783cf779ca52b1561f03e5bc411ebeb`. Preserve `build/gboard-ai.keystore` between builds; using another key is intentionally rejected because it would fail Gboard's certificate-integrity check.
 
 ## Runtime limitations
 
