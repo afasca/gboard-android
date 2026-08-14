@@ -10,6 +10,7 @@ This repository patches the supplied arm64 Gboard APK without rebuilding its raw
 - Fetches and filters models from `GET /v1/models`, then automatically selects a stable text-generation model.
 - Encrypts the API key with a 256-bit Android Keystore AES-GCM key. It is never embedded in the APK or logged.
 - Rejects invalid or non-HTTPS compatible-service URLs before saving, so a third-party key is never silently redirected to the OpenAI default.
+- Uses the visible name **MyBoard** while keeping the original icon, and preserves 16 KiB native-library alignment for modern ARM64 devices.
 
 The build uses the independent package `com.vorflux.gboard.inputmethod.latin`, so it can be installed alongside the official Google-signed Gboard. It has separate settings, app data, and Android Keystore entries. The supplied APK is arm64-only, matching the repository input.
 

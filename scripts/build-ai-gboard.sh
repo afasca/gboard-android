@@ -24,7 +24,17 @@ python3 "$ROOT/scripts/remove-required-split.py" "$WORK/AndroidManifest.xml"
 mkdir -p "$WORK/smali_classes4"
 cp -a "$ROOT/patch/smali/." "$WORK/smali_classes4/"
 java -jar "$APKTOOL_JAR" b "$WORK" -o "$UNSIGNED"
-zipalign -f -p 4 "$UNSIGNED" "$ALIGNED"
+# Gboard ships uncompressed ARM64 libraries with 16 KiB ELF alignment and
+# extractNativeLibs=false. Preserve 16 KiB APK entry alignment for 16 KiB-page devices.
+# Android Build Tools 35+ is required for -P 16.
+ZIPALIGN="${ZIPALIGN:-zipalign}"
+ZIPALIGN_HELP="$($ZIPALIGN 2>&1 || true)"
+if ! grep -q -- '-P <pagesize_kb>' <<<"$ZIPALIGN_HELP"; then
+  echo "zipalign must be Android Build Tools 35+ (missing -P 16 support)" >&2
+  exit 1
+fi
+"$ZIPALIGN" -P 16 -f 4 "$UNSIGNED" "$ALIGNED"
+"$ZIPALIGN" -c -P 16 4 "$ALIGNED"
 if [[ ! -f "$KEYSTORE" ]]; then
   keytool -genkeypair -keystore "$KEYSTORE" -storepass android -keypass android \
     -alias gboard-ai -keyalg RSA -keysize 4096 -validity 10000 \

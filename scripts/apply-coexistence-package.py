@@ -2,6 +2,7 @@
 """Give the patched APK an independent package identity for side-by-side installation."""
 
 from pathlib import Path
+import struct
 import sys
 
 OLD_PACKAGE = "com.google.android.inputmethod.latin"
@@ -31,6 +32,39 @@ def replace_exact(data: bytes, old: bytes, new: bytes, expected: int, label: str
     return patched
 
 
+def replace_utf8_string_pool_entry(data: bytes, index: int, expected: str, replacement: str) -> bytes:
+    offset = struct.unpack_from("<H", data, 2)[0]
+    while offset < len(data):
+        chunk_type, header_size, chunk_size = struct.unpack_from("<HHI", data, offset)
+        if chunk_type == 0x0001:
+            string_count, style_count, flags, strings_start, styles_start = struct.unpack_from("<IIIII", data, offset + 8)
+            if not flags & 0x100 or index >= string_count or style_count == 0:
+                raise SystemExit("resource string pool or IME label index is unexpected")
+            offsets_start = offset + header_size
+            relative = struct.unpack_from("<I", data, offsets_start + index * 4)[0]
+            value_offset = offset + strings_start + relative
+            encoded = expected.encode()
+            old_value = bytes((len(expected), len(encoded))) + encoded + b"\0"
+            if data[value_offset : value_offset + len(old_value)] != old_value:
+                raise SystemExit("default IME label resource did not match Gboard")
+            new_encoded = replacement.encode()
+            new_value = bytes((len(replacement), len(new_encoded))) + new_encoded + b"\0"
+            if len(new_value) > len(old_value):
+                new_value += b"\0" * ((len(new_value) - len(old_value)) % 4 and (4 - (len(new_value) - len(old_value)) % 4))
+            delta = len(new_value) - len(old_value)
+            patched = bytearray(data)
+            patched[value_offset : value_offset + len(old_value)] = new_value
+            for string_index in range(index + 1, string_count):
+                position = offsets_start + string_index * 4
+                struct.pack_into("<I", patched, position, struct.unpack_from("<I", patched, position)[0] + delta)
+            struct.pack_into("<I", patched, offset + 24, styles_start + delta)
+            struct.pack_into("<I", patched, offset + 4, chunk_size + delta)
+            struct.pack_into("<I", patched, 4, len(patched))
+            return bytes(patched)
+        offset += chunk_size
+    raise SystemExit("resource string pool was not found")
+
+
 def patch_binary_files(root: Path) -> None:
     manifest = root / "AndroidManifest.xml"
     data = manifest.read_bytes()
@@ -52,6 +86,9 @@ def patch_binary_files(root: Path) -> None:
         EXPECTED_RESOURCES_UTF16,
         "resource table UTF-16 package namespace",
     )
+    # Resource 0x7f140525 (ime_name) points to global string-pool index 0x2c90.
+    # Patch exactly that entry so other UI copy containing "Gboard" is unchanged.
+    data = replace_utf8_string_pool_entry(data, 0x2C90, "Gboard", "MyBoard")
     resources.write_bytes(data)
 
     for relative in NAMESPACE_PAYLOADS:

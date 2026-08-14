@@ -47,11 +47,15 @@ assert 'EXPECTED_CERT_SHA256="72f35793e9f17aba292fe6dd1607eca6b783cf779ca52b1561
 assert 'REQUIRED_SPLIT_TYPES_ID = 0x0101064E' in split_patcher
 assert 'remove-required-split.py' in builder
 assert 'apply-coexistence-package.py' in builder
+assert '"$ZIPALIGN" -P 16 -f 4' in builder
+assert '"$ZIPALIGN" -c -P 16 4' in builder
 assert 'NEW_PACKAGE = "com.vorflux.gboard.inputmethod.latin"' in coexist_patcher
 assert 'EXPECTED_MANIFEST_UTF16 = 15' in coexist_patcher
 assert 'EXPECTED_RESOURCES_UTF16 = 1' in coexist_patcher
 assert 'EXPECTED_RESOURCES_UTF8' not in coexist_patcher
 assert 'EXPECTED_SMALI = 20' in coexist_patcher
+assert 'replace_utf8_string_pool_entry' in coexist_patcher
+assert '0x2C90, "Gboard", "MyBoard"' in coexist_patcher
 assert 'res/ywe.binarypb' in coexist_patcher
 assert 'res/Mox.xml' in coexist_patcher
 assert 'com_vorflux_gboard_inputmethod_latin_package_metadata.binarypb' in coexist_patcher
