@@ -45,6 +45,47 @@ def replace_exact(data: bytes, old: bytes, new: bytes, expected: int, label: str
     return patched
 
 
+def global_string_pool(data: bytes):
+    offset = struct.unpack_from("<H", data, 2)[0]
+    while offset < len(data):
+        chunk_type, header_size, chunk_size = struct.unpack_from("<HHI", data, offset)
+        if chunk_type == 0x0001:
+            return offset, header_size, chunk_size
+        offset += chunk_size
+    raise SystemExit("resource string pool was not found")
+
+
+def decode_utf8_pool_string(data: bytes, pool_offset: int, strings_start: int, relative: int):
+    position = pool_offset + strings_start + relative
+    first = data[position]
+    utf16_size = 2 if first & 0x80 else 1
+    utf16_length = ((first & 0x7F) << 8 | data[position + 1]) if utf16_size == 2 else first
+    position += utf16_size
+    first = data[position]
+    utf8_size = 2 if first & 0x80 else 1
+    utf8_length = ((first & 0x7F) << 8 | data[position + 1]) if utf8_size == 2 else first
+    position += utf8_size
+    return utf16_length, utf8_length, position
+
+
+def find_unique_utf8_pool_string(data: bytes, expected: str) -> int:
+    offset, header_size, _ = global_string_pool(data)
+    string_count, _, flags, strings_start, _ = struct.unpack_from("<IIIII", data, offset + 8)
+    if not flags & 0x100:
+        raise SystemExit("resource global string pool is not UTF-8")
+    matches = []
+    offsets_start = offset + header_size
+    expected_encoded = expected.encode()
+    for index in range(string_count):
+        relative = struct.unpack_from("<I", data, offsets_start + index * 4)[0]
+        _, utf8_length, position = decode_utf8_pool_string(data, offset, strings_start, relative)
+        if utf8_length == len(expected_encoded) and data[position : position + utf8_length] == expected_encoded:
+            matches.append(index)
+    if len(matches) != 1:
+        raise SystemExit(f"expected exactly one global string-pool entry {expected!r}, found {len(matches)}")
+    return matches[0]
+
+
 def replace_utf8_string_pool_entry(data: bytes, index: int, expected: str, replacement: str) -> bytes:
     offset = struct.unpack_from("<H", data, 2)[0]
     while offset < len(data):
@@ -116,9 +157,9 @@ def patch_binary_files(root: Path) -> None:
         EXPECTED_RESOURCES_UTF16,
         "resource table UTF-16 package namespace",
     )
-    # Resource 0x7f140525 (ime_name) points to global string-pool index 0x2c90.
-    # Patch exactly that entry so other UI copy containing "Gboard" is unchanged.
-    data = replace_utf8_string_pool_entry(data, 0x2C90, "Gboard", "MyBoard")
+    # ime_name points to the only exact "Gboard" entry in the global pool.
+    # Resolve dynamically because fused standalone and Play base tables differ.
+    data = replace_utf8_string_pool_entry(data, find_unique_utf8_pool_string(data, "Gboard"), "Gboard", "MyBoard")
     resources.write_bytes(data)
 
 

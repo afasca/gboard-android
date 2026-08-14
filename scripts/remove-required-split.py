@@ -74,8 +74,10 @@ def remove_required_split(path: Path) -> None:
         raise SystemExit(f"{path}: not a valid binary Android XML file")
 
     matches = required_split_attribute(data)
+    if not matches:
+        return
     if len(matches) != 1:
-        raise SystemExit(f"{path}: expected exactly one requiredSplitTypes attribute, found {len(matches)}")
+        raise SystemExit(f"{path}: expected at most one requiredSplitTypes attribute, found {len(matches)}")
 
     root_start, attribute_offset, attribute_size, removed_index = matches[0]
     struct.pack_into("<I", data, 4, len(data) - attribute_size)

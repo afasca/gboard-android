@@ -73,6 +73,16 @@ def test_label_mismatch_rejected():
         raise AssertionError("mismatched label was accepted")
 
 
+def test_dynamic_label_lookup_on_repository_tables():
+    import zipfile
+    for apk_name in ("gboard-安卓.apk", "fused-gboard-安卓.apk"):
+        with zipfile.ZipFile(ROOT / apk_name) as archive:
+            resources = archive.read("resources.arsc")
+        index = coexist.find_unique_utf8_pool_string(resources, "Gboard")
+        patched = coexist.replace_utf8_string_pool_entry(resources, index, "Gboard", "MyBoard")
+        assert coexist.find_unique_utf8_pool_string(patched, "MyBoard") == index
+
+
 def test_replace_exact_rejects_wrong_count():
     try:
         coexist.replace_exact(b"old-old", b"old", b"new", 1, "fixture")
@@ -85,5 +95,6 @@ def test_replace_exact_rejects_wrong_count():
 if __name__ == "__main__":
     test_label_growth_updates_offsets_and_sizes()
     test_label_mismatch_rejected()
+    test_dynamic_label_lookup_on_repository_tables()
     test_replace_exact_rejects_wrong_count()
     print("coexistence resource tests passed")

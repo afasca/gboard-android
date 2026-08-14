@@ -17,10 +17,12 @@ The build uses the independent package `com.vorflux.gboard.inputmethod.latin`, s
 ## Build
 
 ```bash
-./scripts/build-ai-gboard.sh
+./scripts/build-ai-gboard.sh /path/to/fused-gboard.apk
 ```
 
 Output: `build/gboard-ai-signed.apk`
+
+Use a fused/standalone APK as input. A Play base APK that declares `requiredSplitTypes="base__density"` does not contain the density drawables needed by Launcher and LatinIME; removing only that marker produces an installable APK that crashes with `Resources$NotFoundException`.
 
 The build removes the Play-generated `requiredSplitTypes="base__density"` marker because the repository contains only the base APK; the output can therefore be installed as one APK. The patched certificate whitelist is bound to the repository development certificate SHA-256 `72f35793e9f17aba292fe6dd1607eca6b783cf779ca52b1561f03e5bc411ebeb`. Preserve `build/gboard-ai.keystore` between builds; using another key is intentionally rejected because it would fail Gboard's certificate-integrity check.
 

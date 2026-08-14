@@ -47,6 +47,9 @@ assert 'EXPECTED_CERT_SHA256="72f35793e9f17aba292fe6dd1607eca6b783cf779ca52b1561
 assert 'REQUIRED_SPLIT_TYPES_ID = 0x0101064E' in split_patcher
 assert 'remove-required-split.py' in builder
 assert 'apply-coexistence-package.py' in builder
+assert 'fused-gboard-安卓.apk' in builder
+assert 'EXPECTED_INPUT_SHA256="f06d8e42131a3feb7a05e1e42244af43059a67899bf1fa958290f18d8106dc5a"' in builder
+assert 'EXPECTED_INPUT_CERT_SHA256="f0fd6c5b410f25cb25c3b53346c8972fae30f8ee7411df910480ad6b2d60db83"' in builder
 assert '"$ZIPALIGN" -P 16 -f 4' in builder
 assert '"$ZIPALIGN" -c -P 16 4' in builder
 assert 'NEW_PACKAGE = "com.vorflux.gboard.inputmethod.latin"' in coexist_patcher
@@ -58,7 +61,7 @@ assert 'AllFlags.smali' in coexist_patcher
 assert 'official backend namespace' in coexist_patcher
 assert 'LauncherActivity;->b(Z)V' in coexist_patcher
 assert 'replace_utf8_string_pool_entry' in coexist_patcher
-assert '0x2C90, "Gboard", "MyBoard"' in coexist_patcher
+assert 'find_unique_utf8_pool_string(data, "Gboard")' in coexist_patcher
 assert 'NAMESPACE_PAYLOADS' not in coexist_patcher
 assert 'com_vorflux_gboard_inputmethod_latin_package_metadata.binarypb' not in coexist_patcher
 assert not re.search(r'sk-[A-Za-z0-9]{16,}', ''.join(p.read_text(errors='ignore') for p in (root/'patch').rglob('*') if p.is_file()))
