@@ -53,11 +53,13 @@ assert 'NEW_PACKAGE = "com.vorflux.gboard.inputmethod.latin"' in coexist_patcher
 assert 'EXPECTED_MANIFEST_UTF16 = 15' in coexist_patcher
 assert 'EXPECTED_RESOURCES_UTF16 = 1' in coexist_patcher
 assert 'EXPECTED_RESOURCES_UTF8' not in coexist_patcher
-assert 'EXPECTED_SMALI = 20' in coexist_patcher
+assert 'SMALI_REPLACEMENTS' in coexist_patcher
+assert 'AllFlags.smali' in coexist_patcher
+assert 'official backend namespace' in coexist_patcher
+assert 'LauncherActivity;->b(Z)V' in coexist_patcher
 assert 'replace_utf8_string_pool_entry' in coexist_patcher
 assert '0x2C90, "Gboard", "MyBoard"' in coexist_patcher
-assert 'res/ywe.binarypb' in coexist_patcher
-assert 'res/Mox.xml' in coexist_patcher
-assert 'com_vorflux_gboard_inputmethod_latin_package_metadata.binarypb' in coexist_patcher
+assert 'NAMESPACE_PAYLOADS' not in coexist_patcher
+assert 'com_vorflux_gboard_inputmethod_latin_package_metadata.binarypb' not in coexist_patcher
 assert not re.search(r'sk-[A-Za-z0-9]{16,}', ''.join(p.read_text(errors='ignore') for p in (root/'patch').rglob('*') if p.is_file()))
 print('static contract checks passed')

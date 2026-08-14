@@ -11,12 +11,25 @@ EXPECTED_MANIFEST_UTF16 = 15
 # In resources.arsc only the UTF-16 resource package-table name is installation
 # identity. UTF-8 occurrences are an external app allowlist and Play Store URLs.
 EXPECTED_RESOURCES_UTF16 = 1
-EXPECTED_SMALI = 20
-NAMESPACE_PAYLOADS = (
-    "res/ywe.binarypb",
-    "res/Mox.xml",
-    "assets/phenotype/com_google_android_inputmethod_latin_package_metadata.binarypb",
-)
+SMALI_REPLACEMENTS = {
+    "smali/aizs.smali": 2,
+    "smali/avqz.smali": 3,
+    "smali_classes2/sdw.smali": 3,
+    "smali_classes2/wew.smali": 1,
+    "smali_classes2/wie.smali": 1,
+    "smali_classes2/wim.smali": 1,
+    "smali_classes2/wlc.smali": 1,
+    "smali_classes2/wlk.smali": 1,
+    "smali_classes2/xeh.smali": 1,
+    "smali_classes2/xei.smali": 1,
+    "smali_classes3/anmx.smali": 1,
+    "smali_classes3/aofi.smali": 1,
+    "smali_classes3/aplp.smali": 1,
+}
+# AllFlags.STATICMENDELPACKAGENAME and afzn are Google backend namespaces,
+# not Android installation identity, so they intentionally stay official.
+EXPECTED_MANIFEST_UTF16_OLD_AFTER = 2
+LAUNCHER_SMALI = "smali_classes3/com/google/android/libraries/inputmethod/launcher/LauncherActivity.smali"
 
 if len(OLD_PACKAGE) != len(NEW_PACKAGE):
     raise RuntimeError("coexistence package must remain the same encoded length")
@@ -68,13 +81,30 @@ def replace_utf8_string_pool_entry(data: bytes, index: int, expected: str, repla
 def patch_binary_files(root: Path) -> None:
     manifest = root / "AndroidManifest.xml"
     data = manifest.read_bytes()
-    data = replace_exact(
-        data,
-        OLD_PACKAGE.encode("utf-16le"),
-        NEW_PACKAGE.encode("utf-16le"),
-        EXPECTED_MANIFEST_UTF16,
-        "binary manifest package namespace",
+    old_utf16 = OLD_PACKAGE.encode("utf-16le")
+    new_utf16 = NEW_PACKAGE.encode("utf-16le")
+    if data.count(old_utf16) != EXPECTED_MANIFEST_UTF16:
+        raise SystemExit(f"binary manifest package namespace: expected {EXPECTED_MANIFEST_UTF16} occurrences, found {data.count(old_utf16)}")
+    # Preserve the two Phenotype registration metadata keys as official Google
+    # backend namespaces. All other manifest uses are installation-local.
+    backend_keys = (
+        "com.google.android.gms.phenotype.registration.binarypb:" + OLD_PACKAGE,
+        "com.google.android.gms.phenotype.registration.xml:" + OLD_PACKAGE,
     )
+    preserved_spans = []
+    for key in backend_keys:
+        encoded = key.encode("utf-16le")
+        if data.count(encoded) != 1:
+            raise SystemExit(f"manifest backend namespace {key}: expected exactly one occurrence")
+        start = data.index(encoded)
+        package_start = start + len(encoded) - len(old_utf16)
+        preserved_spans.append((package_start, old_utf16))
+    data = bytearray(data.replace(old_utf16, new_utf16))
+    for package_start, encoded in preserved_spans:
+        data[package_start : package_start + len(encoded)] = encoded
+    data = bytes(data)
+    if data.count(old_utf16) != EXPECTED_MANIFEST_UTF16_OLD_AFTER:
+        raise SystemExit("manifest official backend namespaces were not preserved")
     manifest.write_bytes(data)
 
     resources = root / "resources.arsc"
@@ -91,38 +121,38 @@ def patch_binary_files(root: Path) -> None:
     data = replace_utf8_string_pool_entry(data, 0x2C90, "Gboard", "MyBoard")
     resources.write_bytes(data)
 
-    for relative in NAMESPACE_PAYLOADS:
-        path = root / relative
-        data = replace_exact(
-            path.read_bytes(),
-            OLD_PACKAGE.encode(),
-            NEW_PACKAGE.encode(),
-            1,
-            f"configuration namespace {relative}",
-        )
-        path.write_bytes(data)
-
-    old_asset = root / "assets/phenotype/com_google_android_inputmethod_latin_package_metadata.binarypb"
-    new_asset = root / "assets/phenotype/com_vorflux_gboard_inputmethod_latin_package_metadata.binarypb"
-    if new_asset.exists():
-        raise SystemExit(f"configuration metadata asset already exists: {new_asset}")
-    old_asset.rename(new_asset)
 
 
 def patch_smali(root: Path) -> None:
-    files = []
-    total = 0
-    for directory in sorted(root.glob("smali*")):
-        for path in sorted(directory.rglob("*.smali")):
-            text = path.read_text(encoding="utf-8")
-            count = text.count(OLD_PACKAGE)
-            if count:
-                files.append((path, text.replace(OLD_PACKAGE, NEW_PACKAGE)))
-                total += count
-    if total != EXPECTED_SMALI:
-        raise SystemExit(f"smali package namespace: expected {EXPECTED_SMALI} occurrences, found {total}")
-    for path, text in files:
-        path.write_text(text, encoding="utf-8")
+    for relative, expected in SMALI_REPLACEMENTS.items():
+        path = root / relative
+        text = path.read_text(encoding="utf-8")
+        count = text.count(OLD_PACKAGE)
+        if count != expected:
+            raise SystemExit(f"{relative}: expected {expected} package occurrences, found {count}")
+        path.write_text(text.replace(OLD_PACKAGE, NEW_PACKAGE), encoding="utf-8")
+
+    backend_files = (
+        "smali/com/google/android/libraries/inputmethod/staticflag/AllFlags.smali",
+        "smali_classes3/afzn.smali",
+    )
+    for relative in backend_files:
+        text = (root / relative).read_text(encoding="utf-8")
+        if text.count(OLD_PACKAGE) != 1:
+            raise SystemExit(f"{relative}: official backend namespace is missing or ambiguous")
+
+    launcher = root / LAUNCHER_SMALI
+    text = launcher.read_text(encoding="utf-8")
+    method_start = text.index(".method public final a()V")
+    method_end = text.index(".end method", method_start) + len(".end method")
+    fallback = """.method public final a()V
+    .locals 1
+    const/4 v0, 0x0
+    invoke-virtual {p0, v0}, Lcom/google/android/libraries/inputmethod/launcher/LauncherActivity;->b(Z)V
+    return-void
+.end method"""
+    text = text[:method_start] + fallback + text[method_end:]
+    launcher.write_text(text, encoding="utf-8")
 
 
 def main() -> None:
