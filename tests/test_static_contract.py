@@ -31,16 +31,33 @@ assert 'String base = normalizeBaseUrl(getStoredBaseUrl(context));' in config
 assert 'if (TextUtils.isEmpty(base)) return "";' in config
 settings = (root / "patch/src/com/vorflux/gboardai/AiSettingsDialog.java").read_text()
 assert 'setText(AiConfig.getStoredBaseUrl(context))' in settings
+assert 'setTitle("MyBoard AI · OpenAI 兼容设置")' in settings
 assert 'setError("请输入有效的 HTTPS API 地址")' in settings
 assert '.implements Lacgc;' in provider
 assert 'sget-object v2, Laciy;->a:Lazfk;' in provider
 assert 'sget-object v2, Laciy;->b:Lazfk;' in provider
+assert 'Laciy;->d(Landroid/content/Context;Ljava/util/Locale;)Ljava/lang/String;' in provider
+assert 'Laciy;->b(Ljava/lang/String;)Ljava/lang/String;' in provider
+assert 'Laciy;->c(Ljava/lang/String;)Ljava/lang/String;' in provider
+assert 'Laqkl;->a(Ljava/lang/String;Ljava/util/Locale;)Ljava/lang/String;' in provider
+assert 'Laqkh;->n(Landroid/content/Context;Ljava/util/Locale;)Ljava/lang/CharSequence;' not in provider
 assert '.implements Lbazc;' in future
 assert 'const/4 v1, 0x2' in translate_callback
 assert 'Lakhf;->g:Lakhf;' in patcher
 assert 'const/4 v5, 0x1' in patcher
 assert 'enable_writing_tools_v2_on_toolbar' in patcher
 assert 'Lcom/vorflux/gboardai/AiTranslateProvider;' in patcher
+translation_settings_patch = patcher[patcher.index('def patch_translation_settings'):patcher.index('def patch_always_reachable_ai_settings')]
+preferences_patch = patcher[patcher.index('def patch_always_reachable_ai_settings'):patcher.index('def patch_writing_tools_toolbar_flag')]
+assert 'AutoTranslatePreferenceFragment.smali' in translation_settings_patch
+assert 'PreferencesSettingsFragment.smali' in preferences_patch
+for settings_patch in (translation_settings_patch, preferences_patch):
+    assert 'MyBoard AI · OpenAI 兼容设置' in settings_patch
+    assert 'gboard_ai_settings' in settings_patch
+    assert 'PreferenceGroup;->l(Ljava/lang/CharSequence;)Landroidx/preference/Preference;' in settings_patch
+    assert 'if-nez v1, :ai_settings_done' in settings_patch
+assert 'auto_show_translate' not in preferences_patch
+assert 'settings_header_translate' not in preferences_patch
 assert 'patch_development_certificate' in patcher
 assert '0x72t' in patcher and '-0x15t' in patcher
 assert 'EXPECTED_CERT_SHA256="72f35793e9f17aba292fe6dd1607eca6b783cf779ca52b1561f03e5bc411ebeb"' in builder

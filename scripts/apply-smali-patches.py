@@ -222,11 +222,18 @@ def patch_translation_settings(root: Path) -> tuple[Path, str]:
 """
         insertion = """    invoke-super {p0}, Lcom/google/android/libraries/inputmethod/preferencewidgets/CommonPreferenceFragment;->ac()V
 
+    invoke-virtual {p0}, Leaq;->n()Landroidx/preference/PreferenceScreen;
+    move-result-object v0
+    const-string v2, "gboard_ai_settings"
+    invoke-virtual {v0, v2}, Landroidx/preference/PreferenceGroup;->l(Ljava/lang/CharSequence;)Landroidx/preference/Preference;
+    move-result-object v1
+    if-nez v1, :ai_settings_done
+
     invoke-virtual {p0}, Lbi;->x()Landroid/content/Context;
     move-result-object v0
     new-instance v1, Landroidx/preference/Preference;
     invoke-direct {v1, v0}, Landroidx/preference/Preference;-><init>(Landroid/content/Context;)V
-    const-string v2, "Gboard AI · OpenAI 兼容设置"
+    const-string v2, "MyBoard AI · OpenAI 兼容设置"
     invoke-virtual {v1, v2}, Landroidx/preference/Preference;->V(Ljava/lang/CharSequence;)V
     const-string v2, "配置 API 地址和密钥；模型自动获取"
     invoke-virtual {v1, v2}, Landroidx/preference/Preference;->n(Ljava/lang/CharSequence;)V
@@ -238,6 +245,7 @@ def patch_translation_settings(root: Path) -> tuple[Path, str]:
     invoke-virtual {p0}, Leaq;->n()Landroidx/preference/PreferenceScreen;
     move-result-object v0
     invoke-virtual {v0, v1}, Landroidx/preference/PreferenceGroup;->an(Landroidx/preference/Preference;)V
+    :ai_settings_done
 
     .line 2
 """
@@ -291,6 +299,54 @@ def patch_translation_settings(root: Path) -> tuple[Path, str]:
     return path, patched
 
 
+def patch_always_reachable_ai_settings(root: Path) -> tuple[Path, str]:
+    path = (
+        root
+        / "smali_classes2/com/google/android/apps/inputmethod/latin/preference/PreferencesSettingsFragment.smali"
+    )
+    text = load(path)
+    insertion = """
+.method public final ac()V
+    .locals 3
+
+    invoke-super {p0}, Lcom/google/android/libraries/inputmethod/preferencewidgets/CommonPreferenceFragment;->ac()V
+
+    invoke-virtual {p0}, Leaq;->n()Landroidx/preference/PreferenceScreen;
+    move-result-object v0
+    const-string v2, "gboard_ai_settings"
+    invoke-virtual {v0, v2}, Landroidx/preference/PreferenceGroup;->l(Ljava/lang/CharSequence;)Landroidx/preference/Preference;
+    move-result-object v1
+    if-nez v1, :ai_settings_done
+
+    invoke-virtual {p0}, Lbi;->x()Landroid/content/Context;
+    move-result-object v0
+    new-instance v1, Landroidx/preference/Preference;
+    invoke-direct {v1, v0}, Landroidx/preference/Preference;-><init>(Landroid/content/Context;)V
+    const-string v2, "MyBoard AI · OpenAI 兼容设置"
+    invoke-virtual {v1, v2}, Landroidx/preference/Preference;->V(Ljava/lang/CharSequence;)V
+    const-string v2, "配置 API 地址和密钥；模型自动获取"
+    invoke-virtual {v1, v2}, Landroidx/preference/Preference;->n(Ljava/lang/CharSequence;)V
+    const-string v2, "gboard_ai_settings"
+    invoke-virtual {v1, v2}, Landroidx/preference/Preference;->P(Ljava/lang/String;)V
+    new-instance v2, Lcom/vorflux/gboardai/AiSettingsClick;
+    invoke-direct {v2, v0}, Lcom/vorflux/gboardai/AiSettingsClick;-><init>(Landroid/content/Context;)V
+    iput-object v2, v1, Landroidx/preference/Preference;->o:Leaf;
+    invoke-virtual {p0}, Leaq;->n()Landroidx/preference/PreferenceScreen;
+    move-result-object v0
+    invoke-virtual {v0, v1}, Landroidx/preference/PreferenceGroup;->an(Landroidx/preference/Preference;)V
+    :ai_settings_done
+
+    return-void
+.end method
+"""
+    return path, replace_once(
+        text,
+        "\n# virtual methods\n",
+        "\n# virtual methods\n" + insertion,
+        "always-reachable AI settings preference",
+    )
+
+
 def patch_writing_tools_toolbar_flag(root: Path) -> tuple[Path, str]:
     path = root / "smali/amaj.smali"
     text = load(path)
@@ -328,6 +384,7 @@ def main() -> None:
         patch_translation_provider(root),
         patch_ai_polish_flow(root),
         patch_translation_settings(root),
+        patch_always_reachable_ai_settings(root),
         patch_writing_tools_toolbar_flag(root),
     )
     for path, patched in patches:

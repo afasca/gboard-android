@@ -144,7 +144,7 @@
     invoke-direct {v2, p0}, Landroid/app/AlertDialog$Builder;-><init>(Landroid/content/Context;)V
 
     .line 36
-    const-string v4, "Gboard AI \u00b7 OpenAI \u517c\u5bb9\u8bbe\u7f6e"
+    const-string v4, "MyBoard AI \u00b7 OpenAI \u517c\u5bb9\u8bbe\u7f6e"
 
     invoke-virtual {v2, v4}, Landroid/app/AlertDialog$Builder;->setTitle(Ljava/lang/CharSequence;)Landroid/app/AlertDialog$Builder;
 

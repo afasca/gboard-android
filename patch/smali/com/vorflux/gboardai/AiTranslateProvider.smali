@@ -16,18 +16,20 @@
 .end method
 
 .method public b(Ljava/util/Locale;Lacga;)V
-    .locals 9
+    .locals 6
     if-eqz p2, :done
+
     new-instance v0, Ljava/util/LinkedHashMap;
     invoke-direct {v0}, Ljava/util/LinkedHashMap;-><init>()V
     new-instance v1, Ljava/util/LinkedHashMap;
     invoke-direct {v1}, Ljava/util/LinkedHashMap;-><init>()V
+
     const-string v2, "auto"
     iget-object v3, p0, Lcom/vorflux/gboardai/AiTranslateProvider;->context:Landroid/content/Context;
-    const v4, 0x7f14121b
-    invoke-virtual {v3, v4}, Landroid/content/Context;->getString(I)Ljava/lang/String;
+    invoke-static {v3, p1}, Laciy;->d(Landroid/content/Context;Ljava/util/Locale;)Ljava/lang/String;
     move-result-object v3
     invoke-interface {v0, v2, v3}, Ljava/util/Map;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+
     sget-object v2, Laciy;->a:Lazfk;
     invoke-virtual {v2}, Ljava/util/AbstractCollection;->iterator()Ljava/util/Iterator;
     move-result-object v2
@@ -38,13 +40,23 @@
     invoke-interface {v2}, Ljava/util/Iterator;->next()Ljava/lang/Object;
     move-result-object v3
     check-cast v3, Ljava/lang/String;
-    invoke-static {v3}, Laqkh;->e(Ljava/lang/String;)Laqkh;
+    const-string v4, "auto"
+    invoke-virtual {v4, v3}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+    move-result v4
+    if-nez v4, :source_loop
+    invoke-static {v3}, Laciy;->b(Ljava/lang/String;)Ljava/lang/String;
+    move-result-object v3
+    invoke-static {v3}, Landroid/text/TextUtils;->isEmpty(Ljava/lang/CharSequence;)Z
+    move-result v4
+    if-nez v4, :source_loop
+    invoke-static {v3, p1}, Laqkl;->a(Ljava/lang/String;Ljava/util/Locale;)Ljava/lang/String;
     move-result-object v4
-    iget-object v5, p0, Lcom/vorflux/gboardai/AiTranslateProvider;->context:Landroid/content/Context;
-    invoke-virtual {v4, v5, p1}, Laqkh;->n(Landroid/content/Context;Ljava/util/Locale;)Ljava/lang/CharSequence;
-    move-result-object v4
+    invoke-static {v4}, Landroid/text/TextUtils;->isEmpty(Ljava/lang/CharSequence;)Z
+    move-result v5
+    if-nez v5, :source_loop
     invoke-interface {v0, v3, v4}, Ljava/util/Map;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
     goto :source_loop
+
     :targets
     sget-object v2, Laciy;->b:Lazfk;
     invoke-virtual {v2}, Ljava/util/AbstractCollection;->iterator()Ljava/util/Iterator;
@@ -56,13 +68,19 @@
     invoke-interface {v2}, Ljava/util/Iterator;->next()Ljava/lang/Object;
     move-result-object v3
     check-cast v3, Ljava/lang/String;
-    invoke-static {v3}, Laqkh;->e(Ljava/lang/String;)Laqkh;
+    invoke-static {v3}, Laciy;->c(Ljava/lang/String;)Ljava/lang/String;
+    move-result-object v3
+    invoke-static {v3}, Landroid/text/TextUtils;->isEmpty(Ljava/lang/CharSequence;)Z
+    move-result v4
+    if-nez v4, :target_loop
+    invoke-static {v3, p1}, Laqkl;->a(Ljava/lang/String;Ljava/util/Locale;)Ljava/lang/String;
     move-result-object v4
-    iget-object v5, p0, Lcom/vorflux/gboardai/AiTranslateProvider;->context:Landroid/content/Context;
-    invoke-virtual {v4, v5, p1}, Laqkh;->n(Landroid/content/Context;Ljava/util/Locale;)Ljava/lang/CharSequence;
-    move-result-object v4
+    invoke-static {v4}, Landroid/text/TextUtils;->isEmpty(Ljava/lang/CharSequence;)Z
+    move-result v5
+    if-nez v5, :target_loop
     invoke-interface {v1, v3, v4}, Ljava/util/Map;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
     goto :target_loop
+
     :callback
     invoke-interface {p2, v0, v1}, Lacga;->a(Ljava/util/Map;Ljava/util/Map;)V
     :done

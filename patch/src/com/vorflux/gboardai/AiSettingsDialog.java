@@ -33,7 +33,7 @@ public final class AiSettingsDialog {
         key.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
         root.addView(key);
         AlertDialog dialog = new AlertDialog.Builder(context)
-                .setTitle("Gboard AI · OpenAI 兼容设置")
+                .setTitle("MyBoard AI · OpenAI 兼容设置")
                 .setView(root)
                 .setNegativeButton(android.R.string.cancel, null)
                 .setNeutralButton("清除 Key", null)
