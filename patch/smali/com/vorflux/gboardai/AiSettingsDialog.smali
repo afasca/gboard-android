@@ -1311,12 +1311,12 @@
     :cond_3a
     if-gez v1, :cond_3f
 
-    const-string v2, "\n\n\u5f53\u524d\u624b\u52a8\u6a21\u578b\u4e0d\u5728\u670d\u52a1\u8fd4\u56de\u7684\u5217\u8868\u4e2d\u3002\u9009\u62e9\u5176\u4ed6\u6a21\u578b\u6216\u81ea\u52a8\u6a21\u5f0f\u540e\u624d\u4f1a\u66f4\u6539\u3002"
+    const-string v2, "\u9009\u62e9\u6a21\u578b\uff08\u5f53\u524d\u624b\u52a8\u6a21\u578b\u5df2\u5931\u6548\uff09"
 
     goto :goto_41
 
     :cond_3f
-    const-string v2, ""
+    const-string v2, "\u9009\u62e9\u6a21\u578b"
 
     .line 152
     :goto_41
@@ -1325,32 +1325,7 @@
     invoke-direct {v3, p0}, Landroid/app/AlertDialog$Builder;-><init>(Landroid/content/Context;)V
 
     .line 153
-    const-string v4, "\u9009\u62e9\u6a21\u578b"
-
-    invoke-virtual {v3, v4}, Landroid/app/AlertDialog$Builder;->setTitle(Ljava/lang/CharSequence;)Landroid/app/AlertDialog$Builder;
-
-    move-result-object v3
-
-    new-instance v4, Ljava/lang/StringBuilder;
-
-    invoke-direct {v4}, Ljava/lang/StringBuilder;-><init>()V
-
-    const-string v5, "\u6309\u9002\u7528\u6027\u6392\u5e8f\uff1b\u81ea\u52a8\u6a21\u5f0f\u4f1a\u4f7f\u7528\u9996\u9009\u6a21\u578b\uff0c\u5e76\u5728\u6a21\u578b\u5931\u6548\u65f6\u91cd\u65b0\u53d1\u73b0\u3002"
-
-    invoke-virtual {v4, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v4
-
-    invoke-virtual {v4, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v2
-
-    invoke-virtual {v2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
-
-    move-result-object v2
-
-    .line 154
-    invoke-virtual {v3, v2}, Landroid/app/AlertDialog$Builder;->setMessage(Ljava/lang/CharSequence;)Landroid/app/AlertDialog$Builder;
+    invoke-virtual {v3, v2}, Landroid/app/AlertDialog$Builder;->setTitle(Ljava/lang/CharSequence;)Landroid/app/AlertDialog$Builder;
 
     move-result-object v2
 
@@ -1358,12 +1333,12 @@
 
     invoke-direct {v3, p0, p2, p1}, Lcom/vorflux/gboardai/AiSettingsDialog$$ExternalSyntheticLambda0;-><init>(Landroid/content/Context;Ljava/util/List;Landroid/app/AlertDialog;)V
 
-    .line 155
+    .line 154
     invoke-virtual {v2, v0, v1, v3}, Landroid/app/AlertDialog$Builder;->setSingleChoiceItems([Ljava/lang/CharSequence;ILandroid/content/DialogInterface$OnClickListener;)Landroid/app/AlertDialog$Builder;
 
     move-result-object p0
 
-    .line 168
+    .line 167
     const/high16 p1, 0x1040000
 
     const/4 p2, 0x0
@@ -1372,10 +1347,10 @@
 
     move-result-object p0
 
-    .line 169
+    .line 168
     invoke-virtual {p0}, Landroid/app/AlertDialog$Builder;->show()Landroid/app/AlertDialog;
 
-    .line 170
+    .line 169
     return-void
 .end method
 

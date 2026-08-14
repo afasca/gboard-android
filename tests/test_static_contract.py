@@ -39,6 +39,21 @@ assert 'manual ? AiConfig.getManualModel(context) : AiConfig.getCachedModel(cont
 assert 'public static List<String> listModels' in client
 assert '手动选择的模型' in client and '切回自动模式' in client
 
+# AlertDialog uses one content panel for message or list. A picker that calls
+# both setMessage() and setSingleChoiceItems() silently hides every model row.
+def method_body(text, signature, terminator):
+    start = text.index(signature)
+    end = text.index(terminator, start)
+    return text[start:end]
+
+picker_java = method_body(settings, 'private static void showModelPicker', '    private static String modeSummary')
+picker_smali = method_body((root / 'patch/smali/com/vorflux/gboardai/AiSettingsDialog.smali').read_text(),
+                           '.method private static showModelPicker', '.end method')
+assert '.setSingleChoiceItems(choices, selected' in picker_java
+assert '.setMessage(' not in picker_java
+assert '->setSingleChoiceItems(' in picker_smali
+assert '->setMessage(' not in picker_smali
+
 # Translation prompt privacy, defaults, and literal placeholder substitution.
 assert 'DEFAULT_TRANSLATION_PROMPT' in config
 assert '"{source}"' in config and '"{target}"' in config

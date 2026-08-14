@@ -1,6 +1,6 @@
 # MyBoard AI translation and polish handoff
 
-Updated: 2026-08-14 23:20 UTC
+Updated: 2026-08-14 23:34 UTC
 
 ## Repository and pull request
 
@@ -12,12 +12,12 @@ Updated: 2026-08-14 23:20 UTC
 
 ## Current delivery status
 
-The implementation is feature-complete enough for a handoff checkpoint. The current signed candidate below includes the final toolbar-fallback and targeted eligibility fixes and has passed the full repository verifier.
+The implementation is feature-complete enough for a handoff checkpoint. The current signed candidate below also fixes the model picker content-panel conflict that hid successfully fetched model rows, and has passed the full repository verifier.
 
 - Candidate: `build/MyBoard-AI-17.8.5.apk`
 - Size: `82,305,521 bytes`
-- SHA-256: `50f5a78f1517a3227074cd7cd99fcfdc8202e775cc483cc33f27ad29841ccba3`
-- Status: final publish candidate; do not rebuild after this checkpoint
+- SHA-256: `e298a3d9efe43c0c860526a86da77f904e64460e405d0e350bae3166c30c00e4`
+- Status: model-picker fix publish candidate; do not rebuild after this checkpoint
 - Package: `com.vorflux.gboard.inputmethod.latin`
 - Label: `MyBoard`
 - versionCode: `175894496`
@@ -99,6 +99,10 @@ The `AI 润色` access point:
 - normalizes all four toolbar order sources in `agsr.q/t/u/v` through one exact semicolon-token helper, injecting missing `jarvis` so server, experiment, persisted-upgrade, and fallback orders cannot hide the entry.
 
 ## Important implementation details
+
+### Model picker list visibility
+
+Android `AlertDialog` uses one content panel for either a message or a list. Calling both `setMessage()` and `setSingleChoiceItems()` fetched models successfully but hid every model row, matching the user screenshot. The picker now omits `setMessage()`, keeps stale-manual-model context in the title, and has Java/smali regression assertions.
 
 ### Java to smali synchronization
 

@@ -148,10 +148,9 @@ public final class AiSettingsDialog {
             choices[i + 1] = models.get(i);
             if (models.get(i).equals(manual)) selected = i + 1;
         }
-        String warning = selected < 0 ? "\n\n当前手动模型不在服务返回的列表中。选择其他模型或自动模式后才会更改。" : "";
+        String title = selected < 0 ? "选择模型（当前手动模型已失效）" : "选择模型";
         new AlertDialog.Builder(context)
-                .setTitle("选择模型")
-                .setMessage("按适用性排序；自动模式会使用首选模型，并在模型失效时重新发现。" + warning)
+                .setTitle(title)
                 .setSingleChoiceItems(choices, selected, (dialog, which) -> {
                     if (which == 0) {
                         AiConfig.setManualModel(context, "");
