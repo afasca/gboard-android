@@ -14,6 +14,10 @@
 .end annotation
 
 
+# static fields
+.field private static final serialVersionUID:J = 0x1L
+
+
 # instance fields
 .field private final code:I
 
@@ -22,7 +26,7 @@
 .method constructor <init>(ILjava/lang/String;)V
     .registers 3
 
-    .line 158
+    .line 167
     invoke-direct {p0, p2}, Ljava/lang/IllegalStateException;-><init>(Ljava/lang/String;)V
 
     iput p1, p0, Lcom/vorflux/gboardai/OpenAiClient$HttpStatusException;->code:I
@@ -35,12 +39,12 @@
 .method isMissingModel()Z
     .registers 4
 
-    .line 160
+    .line 169
     invoke-virtual {p0}, Lcom/vorflux/gboardai/OpenAiClient$HttpStatusException;->getMessage()Ljava/lang/String;
 
     move-result-object v0
 
-    .line 161
+    .line 170
     iget v1, p0, Lcom/vorflux/gboardai/OpenAiClient$HttpStatusException;->code:I
 
     const/16 v2, 0x194

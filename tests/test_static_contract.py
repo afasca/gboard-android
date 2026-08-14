@@ -28,11 +28,41 @@ assert 'public static boolean setBaseUrl' in config
 assert 'return false;' in config
 assert 'public static String getStoredBaseUrl' in config
 assert 'String base = normalizeBaseUrl(getStoredBaseUrl(context));' in config
-assert 'if (TextUtils.isEmpty(base)) return "";' in config
+assert 'TextUtils.isEmpty(base) ? ""' in config
+assert 'if (TextUtils.isEmpty(key)) return "";' in config
+assert 'return TextUtils.isEmpty(base) ? "" : prefix + base;' in config
+assert 'putString("model_" + getBaseUrl(context)' in config
+assert '"manual_model_"' in config
+assert 'public static boolean isManualModel' in config
+assert 'public static void setManualModel' in config
+assert 'boolean manual = AiConfig.isManualModel(context);' in client
+assert 'manual ? AiConfig.getManualModel(context) : AiConfig.getCachedModel(context)' in client
+assert 'public static List<String> listModels' in client
+assert 'if (manual) {' in client
+assert '手动选择的模型' in client and '切回自动模式' in client
 settings = (root / "patch/src/com/vorflux/gboardai/AiSettingsDialog.java").read_text()
+config_smali = (root / "patch/smali/com/vorflux/gboardai/AiConfig.smali").read_text()
+client_smali = (root / "patch/smali/com/vorflux/gboardai/OpenAiClient.smali").read_text()
+settings_smali = (root / "patch/smali/com/vorflux/gboardai/AiSettingsDialog.smali").read_text()
+settings_picker_smali = (root / "patch/smali/com/vorflux/gboardai/AiSettingsDialog$2.smali").read_text()
+assert '.method public static getManualModel(Landroid/content/Context;)Ljava/lang/String;' in config_smali
+assert '.method public static isManualModel(Landroid/content/Context;)Z' in config_smali
+assert '.method public static setManualModel(Landroid/content/Context;Ljava/lang/String;)V' in config_smali
+assert 'const-string v0, "manual_model_"' in config_smali
+assert '.method public static listModels(Landroid/content/Context;Ljava/lang/String;)Ljava/util/List;' in client_smali
+assert 'Lcom/vorflux/gboardai/AiConfig;->isManualModel(Landroid/content/Context;)Z' in client_smali
+assert 'Lcom/vorflux/gboardai/AiConfig;->getManualModel(Landroid/content/Context;)Ljava/lang/String;' in client_smali
+assert 'Landroid/app/AlertDialog$Builder;->setSingleChoiceItems' in settings_smali
+assert 'Lcom/vorflux/gboardai/AiConfig;->setManualModel' in settings_picker_smali
 assert 'setText(AiConfig.getStoredBaseUrl(context))' in settings
 assert 'setTitle("MyBoard AI · OpenAI 兼容设置")' in settings
 assert 'setError("请输入有效的 HTTPS API 地址")' in settings
+assert 'OpenAiClient.listModels(context, apiKey)' in settings
+assert 'setSingleChoiceItems(choices, checked' in settings
+assert 'choices[0] = "自动选择（推荐）"' in settings
+assert 'AiConfig.setManualModel(context, "")' in settings
+assert 'AiConfig.setManualModel(context, selected)' in settings
+assert '当前模式：手动' in settings and '当前模式：自动' in settings
 assert '.implements Lacgc;' in provider
 assert 'sget-object v2, Laciy;->a:Lazfk;' in provider
 assert 'sget-object v2, Laciy;->b:Lazfk;' in provider
@@ -63,9 +93,16 @@ assert '0x72t' in patcher and '-0x15t' in patcher
 assert 'EXPECTED_CERT_SHA256="72f35793e9f17aba292fe6dd1607eca6b783cf779ca52b1561f03e5bc411ebeb"' in builder
 assert 'REQUIRED_SPLIT_TYPES_ID = 0x0101064E' in split_patcher
 assert 'MIN_SDK_VERSION = 32' in split_patcher
+assert 'UPSTREAM_VERSION_CODE = 175894494' in split_patcher
+assert 'MYBOARD_VERSION_CODE = 175894495' in split_patcher
+assert 'UPSTREAM_VERSION_NAME = "17.8.3.939743344-beta-arm64-v8a"' in split_patcher
+assert 'MYBOARD_VERSION_NAME = "17.8.4.939743345-beta-arm64-v8a"' in split_patcher
+assert 'set_app_version' in split_patcher
+assert 'MyBoard-AI-v6' not in split_patcher
 assert 'remove-required-split.py' in builder
 assert 'apply-coexistence-package.py' in builder
 assert 'fused-gboard-安卓.apk' in builder
+assert 'MyBoard-AI-v6.apk' in builder
 assert 'EXPECTED_INPUT_SHA256="f06d8e42131a3feb7a05e1e42244af43059a67899bf1fa958290f18d8106dc5a"' in builder
 assert 'EXPECTED_INPUT_CERT_SHA256="f0fd6c5b410f25cb25c3b53346c8972fae30f8ee7411df910480ad6b2d60db83"' in builder
 assert '"$ZIPALIGN" -P 16 -f 4' in builder

@@ -20,13 +20,13 @@
 # instance fields
 .field final synthetic this$2:Lcom/vorflux/gboardai/AiSettingsDialog$1$2$1;
 
-.field final synthetic val$problem:Ljava/lang/String;
+.field final synthetic val$available:Ljava/util/List;
 
-.field final synthetic val$selected:Ljava/lang/String;
+.field final synthetic val$problem:Ljava/lang/String;
 
 
 # direct methods
-.method constructor <init>(Lcom/vorflux/gboardai/AiSettingsDialog$1$2$1;Ljava/lang/String;Ljava/lang/String;)V
+.method constructor <init>(Lcom/vorflux/gboardai/AiSettingsDialog$1$2$1;Ljava/lang/String;Ljava/util/List;)V
     .registers 4
     .annotation system Ldalvik/annotation/Signature;
         value = {
@@ -34,12 +34,12 @@
         }
     .end annotation
 
-    .line 68
+    .line 65
     iput-object p1, p0, Lcom/vorflux/gboardai/AiSettingsDialog$1$2$1$1;->this$2:Lcom/vorflux/gboardai/AiSettingsDialog$1$2$1;
 
     iput-object p2, p0, Lcom/vorflux/gboardai/AiSettingsDialog$1$2$1$1;->val$problem:Ljava/lang/String;
 
-    iput-object p3, p0, Lcom/vorflux/gboardai/AiSettingsDialog$1$2$1$1;->val$selected:Ljava/lang/String;
+    iput-object p3, p0, Lcom/vorflux/gboardai/AiSettingsDialog$1$2$1$1;->val$available:Ljava/util/List;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -49,66 +49,12 @@
 
 # virtual methods
 .method public run()V
-    .registers 5
+    .registers 4
 
-    .line 70
-    iget-object v0, p0, Lcom/vorflux/gboardai/AiSettingsDialog$1$2$1$1;->val$problem:Ljava/lang/String;
-
-    .line 74
-    iget-object v1, p0, Lcom/vorflux/gboardai/AiSettingsDialog$1$2$1$1;->this$2:Lcom/vorflux/gboardai/AiSettingsDialog$1$2$1;
-
-    .line 70
-    const/4 v2, 0x1
-
-    if-nez v0, :cond_33
-
-    .line 71
-    iget-object v0, v1, Lcom/vorflux/gboardai/AiSettingsDialog$1$2$1;->this$1:Lcom/vorflux/gboardai/AiSettingsDialog$1$2;
-
-    iget-object v0, v0, Lcom/vorflux/gboardai/AiSettingsDialog$1$2;->this$0:Lcom/vorflux/gboardai/AiSettingsDialog$1;
-
-    iget-object v0, v0, Lcom/vorflux/gboardai/AiSettingsDialog$1;->val$context:Landroid/content/Context;
-
-    new-instance v1, Ljava/lang/StringBuilder;
-
-    invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
-
-    const-string v3, "\u5df2\u81ea\u52a8\u9009\u62e9\u6a21\u578b\uff1a"
-
-    invoke-virtual {v1, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v1
-
-    iget-object v3, p0, Lcom/vorflux/gboardai/AiSettingsDialog$1$2$1$1;->val$selected:Ljava/lang/String;
-
-    invoke-virtual {v1, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v1
-
-    invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
-
-    move-result-object v1
-
-    invoke-static {v0, v1, v2}, Landroid/widget/Toast;->makeText(Landroid/content/Context;Ljava/lang/CharSequence;I)Landroid/widget/Toast;
-
-    move-result-object v0
-
-    invoke-virtual {v0}, Landroid/widget/Toast;->show()V
-
-    .line 72
+    .line 67
     iget-object v0, p0, Lcom/vorflux/gboardai/AiSettingsDialog$1$2$1$1;->this$2:Lcom/vorflux/gboardai/AiSettingsDialog$1$2$1;
 
     iget-object v0, v0, Lcom/vorflux/gboardai/AiSettingsDialog$1$2$1;->this$1:Lcom/vorflux/gboardai/AiSettingsDialog$1$2;
-
-    iget-object v0, v0, Lcom/vorflux/gboardai/AiSettingsDialog$1$2;->val$shown:Landroid/app/AlertDialog;
-
-    invoke-virtual {v0}, Landroid/app/AlertDialog;->dismiss()V
-
-    goto :goto_72
-
-    .line 74
-    :cond_33
-    iget-object v0, v1, Lcom/vorflux/gboardai/AiSettingsDialog$1$2$1;->this$1:Lcom/vorflux/gboardai/AiSettingsDialog$1$2;
 
     iget-object v0, v0, Lcom/vorflux/gboardai/AiSettingsDialog$1$2;->val$shown:Landroid/app/AlertDialog;
 
@@ -118,9 +64,11 @@
 
     move-result-object v0
 
+    const/4 v2, 0x1
+
     invoke-virtual {v0, v2}, Landroid/widget/Button;->setEnabled(Z)V
 
-    .line 75
+    .line 68
     iget-object v0, p0, Lcom/vorflux/gboardai/AiSettingsDialog$1$2$1$1;->this$2:Lcom/vorflux/gboardai/AiSettingsDialog$1$2$1;
 
     iget-object v0, v0, Lcom/vorflux/gboardai/AiSettingsDialog$1$2$1;->this$1:Lcom/vorflux/gboardai/AiSettingsDialog$1$2;
@@ -131,11 +79,16 @@
 
     move-result-object v0
 
-    const-string v1, "\u4fdd\u5b58\u5e76\u83b7\u53d6\u6a21\u578b"
+    const-string v1, "\u4fdd\u5b58\u5e76\u9009\u62e9\u6a21\u578b"
 
     invoke-virtual {v0, v1}, Landroid/widget/Button;->setText(Ljava/lang/CharSequence;)V
 
-    .line 76
+    .line 69
+    iget-object v0, p0, Lcom/vorflux/gboardai/AiSettingsDialog$1$2$1$1;->val$problem:Ljava/lang/String;
+
+    if-eqz v0, :cond_47
+
+    .line 70
     new-instance v0, Landroid/app/AlertDialog$Builder;
 
     iget-object v1, p0, Lcom/vorflux/gboardai/AiSettingsDialog$1$2$1$1;->this$2:Lcom/vorflux/gboardai/AiSettingsDialog$1$2$1;
@@ -170,7 +123,30 @@
 
     invoke-virtual {v0}, Landroid/app/AlertDialog$Builder;->show()Landroid/app/AlertDialog;
 
-    .line 78
-    :goto_72
+    .line 71
+    return-void
+
+    .line 73
+    :cond_47
+    iget-object v0, p0, Lcom/vorflux/gboardai/AiSettingsDialog$1$2$1$1;->this$2:Lcom/vorflux/gboardai/AiSettingsDialog$1$2$1;
+
+    iget-object v0, v0, Lcom/vorflux/gboardai/AiSettingsDialog$1$2$1;->this$1:Lcom/vorflux/gboardai/AiSettingsDialog$1$2;
+
+    iget-object v0, v0, Lcom/vorflux/gboardai/AiSettingsDialog$1$2;->this$0:Lcom/vorflux/gboardai/AiSettingsDialog$1;
+
+    iget-object v0, v0, Lcom/vorflux/gboardai/AiSettingsDialog$1;->val$context:Landroid/content/Context;
+
+    iget-object v1, p0, Lcom/vorflux/gboardai/AiSettingsDialog$1$2$1$1;->this$2:Lcom/vorflux/gboardai/AiSettingsDialog$1$2$1;
+
+    iget-object v1, v1, Lcom/vorflux/gboardai/AiSettingsDialog$1$2$1;->this$1:Lcom/vorflux/gboardai/AiSettingsDialog$1$2;
+
+    iget-object v1, v1, Lcom/vorflux/gboardai/AiSettingsDialog$1$2;->val$shown:Landroid/app/AlertDialog;
+
+    iget-object v2, p0, Lcom/vorflux/gboardai/AiSettingsDialog$1$2$1$1;->val$available:Ljava/util/List;
+
+    # invokes: Lcom/vorflux/gboardai/AiSettingsDialog;->showModelPicker(Landroid/content/Context;Landroid/app/AlertDialog;Ljava/util/List;)V
+    invoke-static {v0, v1, v2}, Lcom/vorflux/gboardai/AiSettingsDialog;->access$100(Landroid/content/Context;Landroid/app/AlertDialog;Ljava/util/List;)V
+
+    .line 74
     return-void
 .end method

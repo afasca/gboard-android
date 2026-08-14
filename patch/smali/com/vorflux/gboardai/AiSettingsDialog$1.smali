@@ -34,7 +34,7 @@
         }
     .end annotation
 
-    .line 42
+    .line 43
     iput-object p1, p0, Lcom/vorflux/gboardai/AiSettingsDialog$1;->val$context:Landroid/content/Context;
 
     iput-object p2, p0, Lcom/vorflux/gboardai/AiSettingsDialog$1;->val$key:Landroid/widget/EditText;
@@ -51,10 +51,10 @@
 .method public onShow(Landroid/content/DialogInterface;)V
     .registers 4
 
-    .line 44
+    .line 45
     check-cast p1, Landroid/app/AlertDialog;
 
-    .line 45
+    .line 46
     const/4 v0, -0x3
 
     invoke-virtual {p1, v0}, Landroid/app/AlertDialog;->getButton(I)Landroid/widget/Button;
@@ -67,7 +67,7 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/Button;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 51
+    .line 52
     const/4 v0, -0x1
 
     invoke-virtual {p1, v0}, Landroid/app/AlertDialog;->getButton(I)Landroid/widget/Button;
@@ -80,6 +80,6 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/Button;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 84
+    .line 80
     return-void
 .end method

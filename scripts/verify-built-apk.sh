@@ -7,6 +7,8 @@ INPUT_APK="${INPUT_APK:-$ROOT/fused-gboard-安卓.apk}"
 ZIPALIGN="${ZIPALIGN:-zipalign}"
 EXPECTED_PACKAGE="com.vorflux.gboard.inputmethod.latin"
 EXPECTED_LABEL="MyBoard"
+EXPECTED_VERSION_CODE="175894495"
+EXPECTED_VERSION_NAME="17.8.4.939743345-beta-arm64-v8a"
 EXPECTED_MIN_SDK="32"
 EXPECTED_TARGET_SDK="37"
 EXPECTED_ABI="arm64-v8a"
@@ -19,7 +21,7 @@ for tool in aapt apksigner unzip readelf; do
 done
 
 BADGING="$(aapt dump badging "$APK")"
-grep -q "^package: name='$EXPECTED_PACKAGE' " <<<"$BADGING"
+grep -q "^package: name='$EXPECTED_PACKAGE' versionCode='$EXPECTED_VERSION_CODE' versionName='$EXPECTED_VERSION_NAME' " <<<"$BADGING"
 grep -q "^sdkVersion:'$EXPECTED_MIN_SDK'$" <<<"$BADGING"
 grep -q "^targetSdkVersion:'$EXPECTED_TARGET_SDK'$" <<<"$BADGING"
 grep -q "^application-label:'$EXPECTED_LABEL'$" <<<"$BADGING"

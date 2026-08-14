@@ -45,7 +45,7 @@
 .end method
 
 .method public static complete(Landroid/content/Context;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-    .registers 14
+    .registers 16
     .annotation system Ldalvik/annotation/Throws;
         value = {
             Ljava/lang/Exception;
@@ -68,161 +68,179 @@
 
     move-result v4
 
-    if-nez v4, :cond_c2
+    if-nez v4, :cond_ee
 
     .line 54
-    invoke-static {p0}, Lcom/vorflux/gboardai/AiConfig;->getCachedModel(Landroid/content/Context;)Ljava/lang/String;
+    invoke-static {p0}, Lcom/vorflux/gboardai/AiConfig;->isManualModel(Landroid/content/Context;)Z
 
-    move-result-object v4
+    move-result v4
 
     .line 55
-    invoke-static {v4}, Landroid/text/TextUtils;->isEmpty(Ljava/lang/CharSequence;)Z
+    if-eqz v4, :cond_1b
 
-    move-result v5
+    invoke-static {p0}, Lcom/vorflux/gboardai/AiConfig;->getManualModel(Landroid/content/Context;)Ljava/lang/String;
 
-    if-eqz v5, :cond_21
+    move-result-object v5
+
+    goto :goto_1f
+
+    :cond_1b
+    invoke-static {p0}, Lcom/vorflux/gboardai/AiConfig;->getCachedModel(Landroid/content/Context;)Ljava/lang/String;
+
+    move-result-object v5
 
     .line 56
-    invoke-static {p0, v3}, Lcom/vorflux/gboardai/OpenAiClient;->discoverModel(Landroid/content/Context;Ljava/lang/String;)Ljava/lang/String;
+    :goto_1f
+    invoke-static {v5}, Landroid/text/TextUtils;->isEmpty(Ljava/lang/CharSequence;)Z
 
-    move-result-object v4
+    move-result v6
+
+    if-eqz v6, :cond_2c
 
     .line 57
-    invoke-static {p0, v4}, Lcom/vorflux/gboardai/AiConfig;->setCachedModel(Landroid/content/Context;Ljava/lang/String;)V
+    invoke-static {p0, v3}, Lcom/vorflux/gboardai/OpenAiClient;->discoverModel(Landroid/content/Context;Ljava/lang/String;)Ljava/lang/String;
 
-    .line 59
-    :cond_21
-    new-instance v5, Lorg/json/JSONObject;
+    move-result-object v5
 
-    invoke-direct {v5}, Lorg/json/JSONObject;-><init>()V
+    .line 58
+    invoke-static {p0, v5}, Lcom/vorflux/gboardai/AiConfig;->setCachedModel(Landroid/content/Context;Ljava/lang/String;)V
 
     .line 60
-    const-string v6, "model"
+    :cond_2c
+    new-instance v6, Lorg/json/JSONObject;
 
-    invoke-virtual {v5, v6, v4}, Lorg/json/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)Lorg/json/JSONObject;
+    invoke-direct {v6}, Lorg/json/JSONObject;-><init>()V
 
     .line 61
-    const-string v4, "temperature"
+    const-string v7, "model"
 
-    const-wide v7, 0x3fc999999999999aL    # 0.2
-
-    invoke-virtual {v5, v4, v7, v8}, Lorg/json/JSONObject;->put(Ljava/lang/String;D)Lorg/json/JSONObject;
+    invoke-virtual {v6, v7, v5}, Lorg/json/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)Lorg/json/JSONObject;
 
     .line 62
-    const-string v4, "stream"
+    const-string v8, "temperature"
 
-    const/4 v7, 0x0
+    const-wide v9, 0x3fc999999999999aL    # 0.2
 
-    invoke-virtual {v5, v4, v7}, Lorg/json/JSONObject;->put(Ljava/lang/String;Z)Lorg/json/JSONObject;
+    invoke-virtual {v6, v8, v9, v10}, Lorg/json/JSONObject;->put(Ljava/lang/String;D)Lorg/json/JSONObject;
 
     .line 63
-    new-instance v4, Lorg/json/JSONArray;
+    const-string v8, "stream"
 
-    invoke-direct {v4}, Lorg/json/JSONArray;-><init>()V
+    const/4 v9, 0x0
+
+    invoke-virtual {v6, v8, v9}, Lorg/json/JSONObject;->put(Ljava/lang/String;Z)Lorg/json/JSONObject;
 
     .line 64
-    new-instance v8, Lorg/json/JSONObject;
+    new-instance v8, Lorg/json/JSONArray;
 
-    invoke-direct {v8}, Lorg/json/JSONObject;-><init>()V
+    invoke-direct {v8}, Lorg/json/JSONArray;-><init>()V
 
-    const-string v9, "system"
+    .line 65
+    new-instance v10, Lorg/json/JSONObject;
 
-    const-string v10, "role"
+    invoke-direct {v10}, Lorg/json/JSONObject;-><init>()V
 
-    invoke-virtual {v8, v10, v9}, Lorg/json/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)Lorg/json/JSONObject;
+    const-string v11, "system"
 
-    move-result-object v8
+    const-string v12, "role"
 
-    const-string v9, "content"
+    invoke-virtual {v10, v12, v11}, Lorg/json/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)Lorg/json/JSONObject;
 
-    invoke-virtual {v8, v9, p1}, Lorg/json/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)Lorg/json/JSONObject;
+    move-result-object v10
+
+    const-string v11, "content"
+
+    invoke-virtual {v10, v11, p1}, Lorg/json/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)Lorg/json/JSONObject;
 
     move-result-object p1
 
-    invoke-virtual {v4, p1}, Lorg/json/JSONArray;->put(Ljava/lang/Object;)Lorg/json/JSONArray;
+    invoke-virtual {v8, p1}, Lorg/json/JSONArray;->put(Ljava/lang/Object;)Lorg/json/JSONArray;
 
-    .line 65
+    .line 66
     new-instance p1, Lorg/json/JSONObject;
 
     invoke-direct {p1}, Lorg/json/JSONObject;-><init>()V
 
-    const-string v8, "user"
+    const-string v10, "user"
 
-    invoke-virtual {p1, v10, v8}, Lorg/json/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)Lorg/json/JSONObject;
-
-    move-result-object p1
-
-    invoke-virtual {p1, v9, p2}, Lorg/json/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)Lorg/json/JSONObject;
+    invoke-virtual {p1, v12, v10}, Lorg/json/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)Lorg/json/JSONObject;
 
     move-result-object p1
 
-    invoke-virtual {v4, p1}, Lorg/json/JSONArray;->put(Ljava/lang/Object;)Lorg/json/JSONArray;
+    invoke-virtual {p1, v11, p2}, Lorg/json/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)Lorg/json/JSONObject;
 
-    .line 66
+    move-result-object p1
+
+    invoke-virtual {v8, p1}, Lorg/json/JSONArray;->put(Ljava/lang/Object;)Lorg/json/JSONArray;
+
+    .line 67
     const-string p1, "messages"
 
-    invoke-virtual {v5, p1, v4}, Lorg/json/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)Lorg/json/JSONObject;
-
-    .line 69
-    :try_start_6d
-    invoke-static {p0, v2, v1, v3, v5}, Lcom/vorflux/gboardai/OpenAiClient;->request(Landroid/content/Context;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lorg/json/JSONObject;)Lorg/json/JSONObject;
-
-    move-result-object p0
-    :try_end_71
-    .catch Lcom/vorflux/gboardai/OpenAiClient$HttpStatusException; {:try_start_6d .. :try_end_71} :catch_72
-
-    .line 77
-    goto :goto_8a
+    invoke-virtual {v6, p1, v8}, Lorg/json/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)Lorg/json/JSONObject;
 
     .line 70
-    :catch_72
-    move-exception p1
+    :try_start_78
+    invoke-static {p0, v2, v1, v3, v6}, Lcom/vorflux/gboardai/OpenAiClient;->request(Landroid/content/Context;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lorg/json/JSONObject;)Lorg/json/JSONObject;
+
+    move-result-object p0
+    :try_end_7c
+    .catch Lcom/vorflux/gboardai/OpenAiClient$HttpStatusException; {:try_start_78 .. :try_end_7c} :catch_7d
+
+    .line 81
+    goto :goto_97
 
     .line 71
+    :catch_7d
+    move-exception p1
+
+    .line 72
     invoke-virtual {p1}, Lcom/vorflux/gboardai/OpenAiClient$HttpStatusException;->isMissingModel()Z
 
     move-result p2
 
-    if-eqz p2, :cond_c1
-
-    .line 72
-    invoke-static {p0, v0}, Lcom/vorflux/gboardai/AiConfig;->setCachedModel(Landroid/content/Context;Ljava/lang/String;)V
+    if-eqz p2, :cond_ed
 
     .line 73
+    if-nez v4, :cond_ce
+
+    .line 76
+    invoke-static {p0, v0}, Lcom/vorflux/gboardai/AiConfig;->setCachedModel(Landroid/content/Context;Ljava/lang/String;)V
+
+    .line 77
     invoke-static {p0, v3}, Lcom/vorflux/gboardai/OpenAiClient;->discoverModel(Landroid/content/Context;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object p1
 
-    .line 74
+    .line 78
     invoke-static {p0, p1}, Lcom/vorflux/gboardai/AiConfig;->setCachedModel(Landroid/content/Context;Ljava/lang/String;)V
 
-    .line 75
-    invoke-virtual {v5, v6, p1}, Lorg/json/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)Lorg/json/JSONObject;
+    .line 79
+    invoke-virtual {v6, v7, p1}, Lorg/json/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)Lorg/json/JSONObject;
 
-    .line 76
-    invoke-static {p0, v2, v1, v3, v5}, Lcom/vorflux/gboardai/OpenAiClient;->request(Landroid/content/Context;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lorg/json/JSONObject;)Lorg/json/JSONObject;
+    .line 80
+    invoke-static {p0, v2, v1, v3, v6}, Lcom/vorflux/gboardai/OpenAiClient;->request(Landroid/content/Context;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lorg/json/JSONObject;)Lorg/json/JSONObject;
 
     move-result-object p0
 
-    .line 78
-    :goto_8a
+    .line 82
+    :goto_97
     const-string p1, "choices"
 
     invoke-virtual {p0, p1}, Lorg/json/JSONObject;->optJSONArray(Ljava/lang/String;)Lorg/json/JSONArray;
 
     move-result-object p0
 
-    .line 79
-    if-eqz p0, :cond_b9
+    .line 83
+    if-eqz p0, :cond_c6
 
     invoke-virtual {p0}, Lorg/json/JSONArray;->length()I
 
     move-result p1
 
-    if-eqz p1, :cond_b9
+    if-eqz p1, :cond_c6
 
-    .line 80
-    invoke-virtual {p0, v7}, Lorg/json/JSONArray;->getJSONObject(I)Lorg/json/JSONObject;
+    .line 84
+    invoke-virtual {p0, v9}, Lorg/json/JSONArray;->getJSONObject(I)Lorg/json/JSONObject;
 
     move-result-object p0
 
@@ -232,11 +250,11 @@
 
     move-result-object p0
 
-    invoke-virtual {p0, v9, v0}, Lorg/json/JSONObject;->optString(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+    invoke-virtual {p0, v11, v0}, Lorg/json/JSONObject;->optString(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object p0
 
-    .line 81
+    .line 85
     invoke-virtual {p0}, Ljava/lang/String;->trim()Ljava/lang/String;
 
     move-result-object p1
@@ -245,13 +263,13 @@
 
     move-result p1
 
-    if-nez p1, :cond_b1
+    if-nez p1, :cond_be
 
-    .line 82
+    .line 86
     return-object p0
 
-    .line 81
-    :cond_b1
+    .line 85
+    :cond_be
     new-instance p0, Ljava/lang/IllegalStateException;
 
     const-string p1, "\u6a21\u578b\u8fd4\u56de\u4e86\u7a7a\u5185\u5bb9"
@@ -260,8 +278,8 @@
 
     throw p0
 
-    .line 79
-    :cond_b9
+    .line 83
+    :cond_c6
     new-instance p0, Ljava/lang/IllegalStateException;
 
     const-string p1, "\u6a21\u578b\u672a\u8fd4\u56de\u5185\u5bb9"
@@ -270,12 +288,44 @@
 
     throw p0
 
-    .line 71
-    :cond_c1
+    .line 74
+    :cond_ce
+    new-instance p0, Ljava/lang/IllegalStateException;
+
+    new-instance p1, Ljava/lang/StringBuilder;
+
+    invoke-direct {p1}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string p2, "\u624b\u52a8\u9009\u62e9\u7684\u6a21\u578b\u201c"
+
+    invoke-virtual {p1, p2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object p1
+
+    invoke-virtual {p1, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object p1
+
+    const-string p2, "\u201d\u4e0d\u53ef\u7528\u3002\u8bf7\u5728 MyBoard AI \u8bbe\u7f6e\u4e2d\u9009\u62e9\u5176\u4ed6\u6a21\u578b\u6216\u5207\u56de\u81ea\u52a8\u6a21\u5f0f\u3002"
+
+    invoke-virtual {p1, p2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object p1
+
+    invoke-virtual {p1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object p1
+
+    invoke-direct {p0, p1}, Ljava/lang/IllegalStateException;-><init>(Ljava/lang/String;)V
+
+    throw p0
+
+    .line 72
+    :cond_ed
     throw p1
 
     .line 53
-    :cond_c2
+    :cond_ee
     new-instance p0, Ljava/lang/IllegalStateException;
 
     const-string p1, "\u8bf7\u5148\u5728 Gboard \u8bbe\u7f6e\u4e2d\u914d\u7f6e OpenAI API Key"
@@ -307,14 +357,50 @@
 .end method
 
 .method public static discoverModel(Landroid/content/Context;Ljava/lang/String;)Ljava/lang/String;
-    .registers 7
+    .registers 2
     .annotation system Ldalvik/annotation/Throws;
         value = {
             Ljava/lang/Exception;
         }
     .end annotation
 
-    .line 86
+    .line 115
+    invoke-static {p0, p1}, Lcom/vorflux/gboardai/OpenAiClient;->listModels(Landroid/content/Context;Ljava/lang/String;)Ljava/util/List;
+
+    move-result-object p0
+
+    const/4 p1, 0x0
+
+    invoke-interface {p0, p1}, Ljava/util/List;->get(I)Ljava/lang/Object;
+
+    move-result-object p0
+
+    check-cast p0, Ljava/lang/String;
+
+    return-object p0
+.end method
+
+.method public static listModels(Landroid/content/Context;Ljava/lang/String;)Ljava/util/List;
+    .registers 6
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "(",
+            "Landroid/content/Context;",
+            "Ljava/lang/String;",
+            ")",
+            "Ljava/util/List<",
+            "Ljava/lang/String;",
+            ">;"
+        }
+    .end annotation
+
+    .annotation system Ldalvik/annotation/Throws;
+        value = {
+            Ljava/lang/Exception;
+        }
+    .end annotation
+
+    .line 90
     const-string v0, "/models"
 
     const/4 v1, 0x0
@@ -325,184 +411,176 @@
 
     move-result-object p0
 
-    .line 87
+    .line 91
     const-string p1, "data"
 
     invoke-virtual {p0, p1}, Lorg/json/JSONObject;->optJSONArray(Ljava/lang/String;)Lorg/json/JSONArray;
 
     move-result-object p0
 
-    .line 88
-    if-eqz p0, :cond_a9
+    .line 92
+    if-eqz p0, :cond_a2
 
-    .line 89
+    .line 93
     new-instance p1, Ljava/util/ArrayList;
 
     invoke-direct {p1}, Ljava/util/ArrayList;-><init>()V
 
-    .line 90
+    .line 94
     const/4 v0, 0x0
 
-    move v1, v0
-
-    :goto_18
+    :goto_17
     invoke-virtual {p0}, Lorg/json/JSONArray;->length()I
 
-    move-result v2
+    move-result v1
 
-    if-ge v1, v2, :cond_8c
-
-    .line 91
-    invoke-virtual {p0, v1}, Lorg/json/JSONArray;->optJSONObject(I)Lorg/json/JSONObject;
-
-    move-result-object v2
-
-    const-string v3, ""
-
-    if-nez v2, :cond_27
-
-    goto :goto_31
-
-    :cond_27
-    invoke-virtual {p0, v1}, Lorg/json/JSONArray;->optJSONObject(I)Lorg/json/JSONObject;
-
-    move-result-object v2
-
-    const-string v4, "id"
-
-    invoke-virtual {v2, v4, v3}, Lorg/json/JSONObject;->optString(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v3
-
-    .line 92
-    :goto_31
-    sget-object v2, Ljava/util/Locale;->ROOT:Ljava/util/Locale;
-
-    invoke-virtual {v3, v2}, Ljava/lang/String;->toLowerCase(Ljava/util/Locale;)Ljava/lang/String;
-
-    move-result-object v2
-
-    .line 93
-    invoke-static {v3}, Landroid/text/TextUtils;->isEmpty(Ljava/lang/CharSequence;)Z
-
-    move-result v4
-
-    if-nez v4, :cond_89
-
-    const-string v4, "embed"
-
-    invoke-virtual {v2, v4}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
-
-    move-result v4
-
-    if-nez v4, :cond_89
-
-    const-string v4, "whisper"
-
-    invoke-virtual {v2, v4}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
-
-    move-result v4
-
-    if-nez v4, :cond_89
-
-    .line 94
-    const-string v4, "tts"
-
-    invoke-virtual {v2, v4}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
-
-    move-result v4
-
-    if-nez v4, :cond_89
-
-    const-string v4, "audio"
-
-    invoke-virtual {v2, v4}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
-
-    move-result v4
-
-    if-nez v4, :cond_89
-
-    const-string v4, "image"
-
-    invoke-virtual {v2, v4}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
-
-    move-result v4
-
-    if-nez v4, :cond_89
+    if-ge v0, v1, :cond_8b
 
     .line 95
-    const-string v4, "dall-e"
+    invoke-virtual {p0, v0}, Lorg/json/JSONArray;->optJSONObject(I)Lorg/json/JSONObject;
 
-    invoke-virtual {v2, v4}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
+    move-result-object v1
 
-    move-result v4
+    const-string v2, ""
 
-    if-nez v4, :cond_89
+    if-nez v1, :cond_26
 
-    const-string v4, "moderation"
+    goto :goto_30
 
-    invoke-virtual {v2, v4}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
+    :cond_26
+    invoke-virtual {p0, v0}, Lorg/json/JSONArray;->optJSONObject(I)Lorg/json/JSONObject;
 
-    move-result v4
+    move-result-object v1
 
-    if-nez v4, :cond_89
+    const-string v3, "id"
 
-    const-string v4, "rerank"
+    invoke-virtual {v1, v3, v2}, Lorg/json/JSONObject;->optString(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
-    invoke-virtual {v2, v4}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
-
-    move-result v4
-
-    if-nez v4, :cond_89
+    move-result-object v2
 
     .line 96
-    const-string v4, "transcri"
+    :goto_30
+    sget-object v1, Ljava/util/Locale;->ROOT:Ljava/util/Locale;
 
-    invoke-virtual {v2, v4}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
+    invoke-virtual {v2, v1}, Ljava/lang/String;->toLowerCase(Ljava/util/Locale;)Ljava/lang/String;
 
-    move-result v2
-
-    if-eqz v2, :cond_86
-
-    goto :goto_89
+    move-result-object v1
 
     .line 97
-    :cond_86
-    invoke-interface {p1, v3}, Ljava/util/List;->add(Ljava/lang/Object;)Z
+    invoke-static {v2}, Landroid/text/TextUtils;->isEmpty(Ljava/lang/CharSequence;)Z
 
-    .line 90
-    :cond_89
-    :goto_89
-    add-int/lit8 v1, v1, 0x1
+    move-result v3
 
-    goto :goto_18
+    if-nez v3, :cond_88
+
+    const-string v3, "embed"
+
+    invoke-virtual {v1, v3}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
+
+    move-result v3
+
+    if-nez v3, :cond_88
+
+    const-string v3, "whisper"
+
+    invoke-virtual {v1, v3}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
+
+    move-result v3
+
+    if-nez v3, :cond_88
+
+    .line 98
+    const-string v3, "tts"
+
+    invoke-virtual {v1, v3}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
+
+    move-result v3
+
+    if-nez v3, :cond_88
+
+    const-string v3, "audio"
+
+    invoke-virtual {v1, v3}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
+
+    move-result v3
+
+    if-nez v3, :cond_88
+
+    const-string v3, "image"
+
+    invoke-virtual {v1, v3}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
+
+    move-result v3
+
+    if-nez v3, :cond_88
 
     .line 99
-    :cond_8c
+    const-string v3, "dall-e"
+
+    invoke-virtual {v1, v3}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
+
+    move-result v3
+
+    if-nez v3, :cond_88
+
+    const-string v3, "moderation"
+
+    invoke-virtual {v1, v3}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
+
+    move-result v3
+
+    if-nez v3, :cond_88
+
+    const-string v3, "rerank"
+
+    invoke-virtual {v1, v3}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
+
+    move-result v3
+
+    if-nez v3, :cond_88
+
+    .line 100
+    const-string v3, "transcri"
+
+    invoke-virtual {v1, v3}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
+
+    move-result v1
+
+    if-eqz v1, :cond_85
+
+    goto :goto_88
+
+    .line 101
+    :cond_85
+    invoke-interface {p1, v2}, Ljava/util/List;->add(Ljava/lang/Object;)Z
+
+    .line 94
+    :cond_88
+    :goto_88
+    add-int/lit8 v0, v0, 0x1
+
+    goto :goto_17
+
+    .line 103
+    :cond_8b
     invoke-interface {p1}, Ljava/util/List;->isEmpty()Z
 
     move-result p0
 
-    if-nez p0, :cond_a1
+    if-nez p0, :cond_9a
 
-    .line 100
+    .line 104
     new-instance p0, Lcom/vorflux/gboardai/OpenAiClient$2;
 
     invoke-direct {p0}, Lcom/vorflux/gboardai/OpenAiClient$2;-><init>()V
 
     invoke-static {p1, p0}, Ljava/util/Collections;->sort(Ljava/util/List;Ljava/util/Comparator;)V
 
-    .line 107
-    invoke-interface {p1, v0}, Ljava/util/List;->get(I)Ljava/lang/Object;
+    .line 111
+    return-object p1
 
-    move-result-object p0
-
-    check-cast p0, Ljava/lang/String;
-
-    return-object p0
-
-    .line 99
-    :cond_a1
+    .line 103
+    :cond_9a
     new-instance p0, Ljava/lang/IllegalStateException;
 
     const-string p1, "\u6ca1\u6709\u53ef\u7528\u7684\u6587\u672c\u751f\u6210\u6a21\u578b"
@@ -511,8 +589,8 @@
 
     throw p0
 
-    .line 88
-    :cond_a9
+    .line 92
+    :cond_a2
     new-instance p0, Ljava/lang/IllegalStateException;
 
     const-string p1, "/models \u672a\u8fd4\u56de\u6a21\u578b\u5217\u8868"
@@ -545,14 +623,14 @@
         }
     .end annotation
 
-    .line 166
+    .line 175
     if-nez p0, :cond_5
 
     const-string p0, ""
 
     return-object p0
 
-    .line 167
+    .line 176
     :cond_5
     new-instance v0, Ljava/io/BufferedReader;
 
@@ -564,12 +642,12 @@
 
     invoke-direct {v0, v1}, Ljava/io/BufferedReader;-><init>(Ljava/io/Reader;)V
 
-    .line 168
+    .line 177
     new-instance p0, Ljava/lang/StringBuilder;
 
     invoke-direct {p0}, Ljava/lang/StringBuilder;-><init>()V
 
-    .line 169
+    .line 178
     :goto_16
     invoke-virtual {v0}, Ljava/io/BufferedReader;->readLine()Ljava/lang/String;
 
@@ -587,7 +665,7 @@
 
     goto :goto_16
 
-    .line 170
+    .line 179
     :cond_26
     invoke-virtual {v0}, Ljava/io/BufferedReader;->close()V
 
@@ -606,7 +684,7 @@
         }
     .end annotation
 
-    .line 125
+    .line 133
     const-string v0, "message"
 
     new-instance v1, Ljava/net/URL;
@@ -639,21 +717,21 @@
 
     check-cast p0, Ljava/net/HttpURLConnection;
 
-    .line 127
+    .line 135
     :try_start_22
     invoke-virtual {p0, p1}, Ljava/net/HttpURLConnection;->setRequestMethod(Ljava/lang/String;)V
 
-    .line 128
+    .line 136
     const/16 p1, 0x3a98
 
     invoke-virtual {p0, p1}, Ljava/net/HttpURLConnection;->setConnectTimeout(I)V
 
-    .line 129
+    .line 137
     const p1, 0xea60
 
     invoke-virtual {p0, p1}, Ljava/net/HttpURLConnection;->setReadTimeout(I)V
 
-    .line 130
+    .line 138
     const-string p1, "Authorization"
 
     new-instance p2, Ljava/lang/StringBuilder;
@@ -676,29 +754,29 @@
 
     invoke-virtual {p0, p1, p2}, Ljava/net/HttpURLConnection;->setRequestProperty(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 131
+    .line 139
     const-string p1, "Accept"
 
     const-string p2, "application/json"
 
     invoke-virtual {p0, p1, p2}, Ljava/net/HttpURLConnection;->setRequestProperty(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 132
+    .line 140
     if-eqz p4, :cond_76
 
-    .line 133
+    .line 141
     const/4 p1, 0x1
 
     invoke-virtual {p0, p1}, Ljava/net/HttpURLConnection;->setDoOutput(Z)V
 
-    .line 134
+    .line 142
     const-string p1, "Content-Type"
 
     const-string p2, "application/json; charset=utf-8"
 
     invoke-virtual {p0, p1, p2}, Ljava/net/HttpURLConnection;->setRequestProperty(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 135
+    .line 143
     invoke-virtual {p4}, Lorg/json/JSONObject;->toString()Ljava/lang/String;
 
     move-result-object p1
@@ -709,14 +787,14 @@
 
     move-result-object p1
 
-    .line 136
+    .line 144
     invoke-virtual {p0}, Ljava/net/HttpURLConnection;->getOutputStream()Ljava/io/OutputStream;
 
     move-result-object p2
     :try_end_6a
     .catchall {:try_start_22 .. :try_end_6a} :catchall_eb
 
-    .line 137
+    .line 145
     :try_start_6a
     invoke-virtual {p2, p1}, Ljava/io/OutputStream;->write([B)V
     :try_end_6d
@@ -734,14 +812,14 @@
 
     throw p1
 
-    .line 139
+    .line 147
     :cond_76
     :goto_76
     invoke-virtual {p0}, Ljava/net/HttpURLConnection;->getResponseCode()I
 
     move-result p1
 
-    .line 140
+    .line 148
     const/16 p2, 0x12c
 
     const/16 p3, 0xc8
@@ -761,20 +839,20 @@
 
     move-result-object p4
 
-    .line 141
+    .line 149
     :goto_8b
     invoke-static {p4}, Lcom/vorflux/gboardai/OpenAiClient;->readAll(Ljava/io/InputStream;)Ljava/lang/String;
 
     move-result-object p4
 
-    .line 142
+    .line 150
     if-lt p1, p3, :cond_9d
 
     if-lt p1, p2, :cond_94
 
     goto :goto_9d
 
-    .line 150
+    .line 158
     :cond_94
     new-instance p1, Lorg/json/JSONObject;
 
@@ -782,13 +860,13 @@
     :try_end_99
     .catchall {:try_start_6d .. :try_end_99} :catchall_eb
 
-    .line 152
+    .line 160
     invoke-virtual {p0}, Ljava/net/HttpURLConnection;->disconnect()V
 
-    .line 150
+    .line 158
     return-object p1
 
-    .line 143
+    .line 151
     :cond_9d
     :goto_9d
     :try_start_9d
@@ -812,7 +890,7 @@
     :try_end_b0
     .catchall {:try_start_9d .. :try_end_b0} :catchall_eb
 
-    .line 145
+    .line 153
     :try_start_b0
     new-instance p3, Lorg/json/JSONObject;
 
@@ -824,7 +902,7 @@
 
     move-result-object p3
 
-    .line 146
+    .line 154
     if-eqz p3, :cond_e4
 
     invoke-virtual {p3, v0}, Lorg/json/JSONObject;->optString(Ljava/lang/String;)Ljava/lang/String;
@@ -868,7 +946,7 @@
 
     goto :goto_e4
 
-    .line 147
+    .line 155
     :catch_e3
     move-exception p3
 
@@ -876,7 +954,7 @@
     :goto_e4
     nop
 
-    .line 148
+    .line 156
     :try_start_e5
     new-instance p3, Lcom/vorflux/gboardai/OpenAiClient$HttpStatusException;
 
@@ -886,25 +964,25 @@
     :try_end_eb
     .catchall {:try_start_e5 .. :try_end_eb} :catchall_eb
 
-    .line 152
+    .line 160
     :catchall_eb
     move-exception p1
 
     invoke-virtual {p0}, Ljava/net/HttpURLConnection;->disconnect()V
 
-    .line 153
+    .line 161
     throw p1
 .end method
 
 .method private static safeError(Ljava/lang/Exception;)Ljava/lang/String;
     .registers 3
 
-    .line 174
+    .line 183
     invoke-virtual {p0}, Ljava/lang/Exception;->getMessage()Ljava/lang/String;
 
     move-result-object v0
 
-    .line 175
+    .line 184
     invoke-static {v0}, Landroid/text/TextUtils;->isEmpty(Ljava/lang/CharSequence;)Z
 
     move-result v1
@@ -926,17 +1004,17 @@
 .method private static score(Ljava/lang/String;)I
     .registers 3
 
-    .line 111
+    .line 119
     sget-object v0, Ljava/util/Locale;->ROOT:Ljava/util/Locale;
 
     invoke-virtual {p0, v0}, Ljava/lang/String;->toLowerCase(Ljava/util/Locale;)Ljava/lang/String;
 
     move-result-object p0
 
-    .line 112
+    .line 120
     nop
 
-    .line 113
+    .line 121
     const-string v0, "gpt-4o-mini"
 
     invoke-virtual {p0, v0}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
@@ -949,7 +1027,7 @@
 
     goto :goto_58
 
-    .line 114
+    .line 122
     :cond_12
     const-string v0, "gpt-4.1-mini"
 
@@ -963,7 +1041,7 @@
 
     goto :goto_58
 
-    .line 115
+    .line 123
     :cond_1d
     const-string v0, "gpt-4o"
 
@@ -977,7 +1055,7 @@
 
     goto :goto_58
 
-    .line 116
+    .line 124
     :cond_28
     const-string v0, "gpt-4.1"
 
@@ -991,7 +1069,7 @@
 
     goto :goto_58
 
-    .line 117
+    .line 125
     :cond_33
     const-string v0, "gemini"
 
@@ -1036,7 +1114,7 @@
     :goto_56
     const/16 v0, 0x2bc
 
-    .line 118
+    .line 126
     :goto_58
     const-string v1, "chat"
 
@@ -1057,7 +1135,7 @@
     :cond_68
     add-int/lit8 v0, v0, 0x64
 
-    .line 119
+    .line 127
     :cond_6a
     const-string v1, "latest"
 
@@ -1069,7 +1147,7 @@
 
     add-int/lit16 v0, v0, -0x96
 
-    .line 120
+    .line 128
     :cond_74
     const-string v1, "preview"
 
@@ -1090,7 +1168,7 @@
     :cond_84
     add-int/lit16 v0, v0, -0x12c
 
-    .line 121
+    .line 129
     :cond_86
     return v0
 .end method

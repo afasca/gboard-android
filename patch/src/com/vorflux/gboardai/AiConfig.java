@@ -88,17 +88,36 @@ public final class AiConfig {
         }
     }
 
-    public static String getCachedModel(Context context) {
+    private static String endpointKey(Context context, String prefix) {
         String base = normalizeBaseUrl(getStoredBaseUrl(context));
-        if (TextUtils.isEmpty(base)) return "";
-        String key = Integer.toHexString(base.hashCode());
-        String value = prefs(context).getString("model_" + key, "");
+        return TextUtils.isEmpty(base) ? "" : prefix + base;
+    }
+
+    public static String getCachedModel(Context context) {
+        String key = endpointKey(context, "model_");
+        if (TextUtils.isEmpty(key)) return "";
+        String value = prefs(context).getString(key, "");
         return value == null ? "" : value;
     }
 
     public static void setCachedModel(Context context, String model) {
-        String key = Integer.toHexString(getBaseUrl(context).hashCode());
-        prefs(context).edit().putString("model_" + key, model == null ? "" : model).apply();
+        prefs(context).edit().putString("model_" + getBaseUrl(context), model == null ? "" : model).apply();
+    }
+
+    public static String getManualModel(Context context) {
+        String key = endpointKey(context, "manual_model_");
+        if (TextUtils.isEmpty(key)) return "";
+        String value = prefs(context).getString(key, "");
+        return value == null ? "" : value;
+    }
+
+    public static boolean isManualModel(Context context) {
+        return !TextUtils.isEmpty(getManualModel(context));
+    }
+
+    public static void setManualModel(Context context, String model) {
+        String value = model == null ? "" : model.trim();
+        prefs(context).edit().putString(endpointKey(context, "manual_model_"), value).apply();
     }
 
     private static SecretKey getOrCreateKey() throws Exception {

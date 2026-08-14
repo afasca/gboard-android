@@ -25,7 +25,7 @@
 .method constructor <init>(Lcom/vorflux/gboardai/AiSettingsDialog$1;)V
     .registers 2
 
-    .line 45
+    .line 46
     iput-object p1, p0, Lcom/vorflux/gboardai/AiSettingsDialog$1$1;->this$0:Lcom/vorflux/gboardai/AiSettingsDialog$1;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -38,7 +38,7 @@
 .method public onClick(Landroid/view/View;)V
     .registers 4
 
-    .line 47
+    .line 48
     iget-object p1, p0, Lcom/vorflux/gboardai/AiSettingsDialog$1$1;->this$0:Lcom/vorflux/gboardai/AiSettingsDialog$1;
 
     iget-object p1, p1, Lcom/vorflux/gboardai/AiSettingsDialog$1;->val$context:Landroid/content/Context;
@@ -53,7 +53,7 @@
 
     invoke-virtual {p1, v0}, Landroid/widget/EditText;->setText(Ljava/lang/CharSequence;)V
 
-    .line 48
+    .line 49
     iget-object p1, p0, Lcom/vorflux/gboardai/AiSettingsDialog$1$1;->this$0:Lcom/vorflux/gboardai/AiSettingsDialog$1;
 
     iget-object p1, p1, Lcom/vorflux/gboardai/AiSettingsDialog$1;->val$context:Landroid/content/Context;
@@ -68,6 +68,6 @@
 
     invoke-virtual {p1}, Landroid/widget/Toast;->show()V
 
-    .line 49
+    .line 50
     return-void
 .end method

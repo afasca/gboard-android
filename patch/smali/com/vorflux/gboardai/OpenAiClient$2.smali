@@ -8,7 +8,7 @@
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/vorflux/gboardai/OpenAiClient;->discoverModel(Landroid/content/Context;Ljava/lang/String;)Ljava/lang/String;
+    value = Lcom/vorflux/gboardai/OpenAiClient;->listModels(Landroid/content/Context;Ljava/lang/String;)Ljava/util/List;
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -30,7 +30,7 @@
 .method constructor <init>()V
     .registers 1
 
-    .line 100
+    .line 104
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -41,7 +41,7 @@
 .method public bridge synthetic compare(Ljava/lang/Object;Ljava/lang/Object;)I
     .registers 3
 
-    .line 100
+    .line 104
     check-cast p1, Ljava/lang/String;
 
     check-cast p2, Ljava/lang/String;
@@ -56,7 +56,7 @@
 .method public compare(Ljava/lang/String;Ljava/lang/String;)I
     .registers 5
 
-    .line 102
+    .line 106
     # invokes: Lcom/vorflux/gboardai/OpenAiClient;->score(Ljava/lang/String;)I
     invoke-static {p1}, Lcom/vorflux/gboardai/OpenAiClient;->access$100(Ljava/lang/String;)I
 
@@ -67,14 +67,14 @@
 
     move-result v1
 
-    .line 103
+    .line 107
     if-eq v0, v1, :cond_c
 
     sub-int/2addr v1, v0
 
     return v1
 
-    .line 104
+    .line 108
     :cond_c
     invoke-virtual {p1, p2}, Ljava/lang/String;->compareToIgnoreCase(Ljava/lang/String;)I
 

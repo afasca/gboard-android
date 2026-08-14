@@ -51,7 +51,8 @@ public final class OpenAiClient {
     public static String complete(Context context, String system, String text) throws Exception {
         String key = AiConfig.getApiKey(context);
         if (TextUtils.isEmpty(key)) throw new IllegalStateException("请先在 Gboard 设置中配置 OpenAI API Key");
-        String model = AiConfig.getCachedModel(context);
+        boolean manual = AiConfig.isManualModel(context);
+        String model = manual ? AiConfig.getManualModel(context) : AiConfig.getCachedModel(context);
         if (TextUtils.isEmpty(model)) {
             model = discoverModel(context, key);
             AiConfig.setCachedModel(context, model);
@@ -69,6 +70,9 @@ public final class OpenAiClient {
             response = request(context, "POST", "/chat/completions", key, payload);
         } catch (HttpStatusException failure) {
             if (!failure.isMissingModel()) throw failure;
+            if (manual) {
+                throw new IllegalStateException("手动选择的模型“" + model + "”不可用。请在 MyBoard AI 设置中选择其他模型或切回自动模式。");
+            }
             AiConfig.setCachedModel(context, "");
             model = discoverModel(context, key);
             AiConfig.setCachedModel(context, model);
@@ -82,7 +86,7 @@ public final class OpenAiClient {
         return content;
     }
 
-    public static String discoverModel(Context context, String key) throws Exception {
+    public static List<String> listModels(Context context, String key) throws Exception {
         JSONObject response = request(context, "GET", "/models", key, null);
         JSONArray data = response.optJSONArray("data");
         if (data == null) throw new IllegalStateException("/models 未返回模型列表");
@@ -104,7 +108,11 @@ public final class OpenAiClient {
                 return a.compareToIgnoreCase(b);
             }
         });
-        return candidates.get(0);
+        return candidates;
+    }
+
+    public static String discoverModel(Context context, String key) throws Exception {
+        return listModels(context, key).get(0);
     }
 
     private static int score(String value) {
@@ -138,16 +146,16 @@ public final class OpenAiClient {
             }
             int code = connection.getResponseCode();
             InputStream input = code >= 200 && code < 300 ? connection.getInputStream() : connection.getErrorStream();
-            String text = readAll(input);
+            String responseText = readAll(input);
             if (code < 200 || code >= 300) {
                 String message = "HTTP " + code;
                 try {
-                    JSONObject error = new JSONObject(text).optJSONObject("error");
+                    JSONObject error = new JSONObject(responseText).optJSONObject("error");
                     if (error != null && !TextUtils.isEmpty(error.optString("message"))) message += ": " + error.optString("message");
                 } catch (Exception ignored) {}
                 throw new HttpStatusException(code, message);
             }
-            return new JSONObject(text);
+            return new JSONObject(responseText);
         } finally {
             connection.disconnect();
         }
@@ -155,6 +163,7 @@ public final class OpenAiClient {
 
     private static final class HttpStatusException extends IllegalStateException {
         private final int code;
+        private static final long serialVersionUID = 1L;
         HttpStatusException(int code, String message) { super(message); this.code = code; }
         boolean isMissingModel() {
             String message = getMessage();

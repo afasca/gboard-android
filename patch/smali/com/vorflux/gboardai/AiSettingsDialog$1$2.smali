@@ -32,7 +32,7 @@
         }
     .end annotation
 
-    .line 51
+    .line 52
     iput-object p1, p0, Lcom/vorflux/gboardai/AiSettingsDialog$1$2;->this$0:Lcom/vorflux/gboardai/AiSettingsDialog$1;
 
     iput-object p2, p0, Lcom/vorflux/gboardai/AiSettingsDialog$1$2;->val$shown:Landroid/app/AlertDialog;
@@ -47,7 +47,7 @@
 .method public onClick(Landroid/view/View;)V
     .registers 5
 
-    .line 53
+    .line 54
     iget-object p1, p0, Lcom/vorflux/gboardai/AiSettingsDialog$1$2;->this$0:Lcom/vorflux/gboardai/AiSettingsDialog$1;
 
     iget-object p1, p1, Lcom/vorflux/gboardai/AiSettingsDialog$1;->val$context:Landroid/content/Context;
@@ -56,64 +56,21 @@
 
     iget-object v0, v0, Lcom/vorflux/gboardai/AiSettingsDialog$1;->val$base:Landroid/widget/EditText;
 
-    invoke-virtual {v0}, Landroid/widget/EditText;->getText()Landroid/text/Editable;
+    iget-object v1, p0, Lcom/vorflux/gboardai/AiSettingsDialog$1$2;->this$0:Lcom/vorflux/gboardai/AiSettingsDialog$1;
 
-    move-result-object v0
+    iget-object v1, v1, Lcom/vorflux/gboardai/AiSettingsDialog$1;->val$key:Landroid/widget/EditText;
 
-    invoke-virtual {v0}, Ljava/lang/Object;->toString()Ljava/lang/String;
-
-    move-result-object v0
-
-    invoke-static {p1, v0}, Lcom/vorflux/gboardai/AiConfig;->setBaseUrl(Landroid/content/Context;Ljava/lang/String;)Z
+    # invokes: Lcom/vorflux/gboardai/AiSettingsDialog;->saveConnection(Landroid/content/Context;Landroid/widget/EditText;Landroid/widget/EditText;)Z
+    invoke-static {p1, v0, v1}, Lcom/vorflux/gboardai/AiSettingsDialog;->access$000(Landroid/content/Context;Landroid/widget/EditText;Landroid/widget/EditText;)Z
 
     move-result p1
 
-    .line 57
-    iget-object v0, p0, Lcom/vorflux/gboardai/AiSettingsDialog$1$2;->this$0:Lcom/vorflux/gboardai/AiSettingsDialog$1;
+    if-nez p1, :cond_13
 
-    .line 53
-    if-nez p1, :cond_20
-
-    .line 54
-    iget-object p1, v0, Lcom/vorflux/gboardai/AiSettingsDialog$1;->val$base:Landroid/widget/EditText;
-
-    const-string v0, "\u8bf7\u8f93\u5165\u6709\u6548\u7684 HTTPS API \u5730\u5740"
-
-    invoke-virtual {p1, v0}, Landroid/widget/EditText;->setError(Ljava/lang/CharSequence;)V
-
-    .line 55
     return-void
 
-    .line 57
-    :cond_20
-    iget-object p1, v0, Lcom/vorflux/gboardai/AiSettingsDialog$1;->val$key:Landroid/widget/EditText;
-
-    invoke-virtual {p1}, Landroid/widget/EditText;->length()I
-
-    move-result p1
-
-    if-lez p1, :cond_3b
-
-    iget-object p1, p0, Lcom/vorflux/gboardai/AiSettingsDialog$1$2;->this$0:Lcom/vorflux/gboardai/AiSettingsDialog$1;
-
-    iget-object p1, p1, Lcom/vorflux/gboardai/AiSettingsDialog$1;->val$context:Landroid/content/Context;
-
-    iget-object v0, p0, Lcom/vorflux/gboardai/AiSettingsDialog$1$2;->this$0:Lcom/vorflux/gboardai/AiSettingsDialog$1;
-
-    iget-object v0, v0, Lcom/vorflux/gboardai/AiSettingsDialog$1;->val$key:Landroid/widget/EditText;
-
-    invoke-virtual {v0}, Landroid/widget/EditText;->getText()Landroid/text/Editable;
-
-    move-result-object v0
-
-    invoke-virtual {v0}, Ljava/lang/Object;->toString()Ljava/lang/String;
-
-    move-result-object v0
-
-    invoke-static {p1, v0}, Lcom/vorflux/gboardai/AiConfig;->setApiKey(Landroid/content/Context;Ljava/lang/String;)V
-
-    .line 58
-    :cond_3b
+    .line 55
+    :cond_13
     iget-object p1, p0, Lcom/vorflux/gboardai/AiSettingsDialog$1$2;->this$0:Lcom/vorflux/gboardai/AiSettingsDialog$1;
 
     iget-object p1, p1, Lcom/vorflux/gboardai/AiSettingsDialog$1;->val$context:Landroid/content/Context;
@@ -122,12 +79,12 @@
 
     move-result-object p1
 
-    .line 59
+    .line 56
     invoke-virtual {p1}, Ljava/lang/String;->length()I
 
     move-result v0
 
-    if-nez v0, :cond_53
+    if-nez v0, :cond_2b
 
     iget-object p1, p0, Lcom/vorflux/gboardai/AiSettingsDialog$1$2;->this$0:Lcom/vorflux/gboardai/AiSettingsDialog$1;
 
@@ -139,8 +96,8 @@
 
     return-void
 
-    .line 60
-    :cond_53
+    .line 57
+    :cond_2b
     iget-object v0, p0, Lcom/vorflux/gboardai/AiSettingsDialog$1$2;->val$shown:Landroid/app/AlertDialog;
 
     const/4 v1, -0x1
@@ -153,7 +110,7 @@
 
     invoke-virtual {v0, v2}, Landroid/widget/Button;->setEnabled(Z)V
 
-    .line 61
+    .line 58
     iget-object v0, p0, Lcom/vorflux/gboardai/AiSettingsDialog$1$2;->val$shown:Landroid/app/AlertDialog;
 
     invoke-virtual {v0, v1}, Landroid/app/AlertDialog;->getButton(I)Landroid/widget/Button;
@@ -164,7 +121,7 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/Button;->setText(Ljava/lang/CharSequence;)V
 
-    .line 62
+    .line 59
     new-instance v0, Ljava/lang/Thread;
 
     new-instance v1, Lcom/vorflux/gboardai/AiSettingsDialog$1$2$1;
@@ -175,9 +132,9 @@
 
     invoke-direct {v0, v1, p1}, Ljava/lang/Thread;-><init>(Ljava/lang/Runnable;Ljava/lang/String;)V
 
-    .line 81
+    .line 77
     invoke-virtual {v0}, Ljava/lang/Thread;->start()V
 
-    .line 82
+    .line 78
     return-void
 .end method

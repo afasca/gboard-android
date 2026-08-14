@@ -23,31 +23,41 @@ def test_pinned_input():
     assert f"Signer #1 certificate SHA-256 digest: {EXPECTED_CERT}" in output
 
 
+def manifest_integer_attribute(data, resource_id):
+    matches = split_patcher.find_attributes(data, {resource_id})[resource_id]
+    assert len(matches) == 1
+    return split_patcher.u32(data, matches[0] + 16)
+
+
 def manifest_min_sdk(data):
-    resource_ids = []
+    return manifest_integer_attribute(data, split_patcher.MIN_SDK_VERSION_ID)
+
+
+def manifest_version_code(data):
+    return manifest_integer_attribute(data, split_patcher.VERSION_CODE_ID)
+
+
+def manifest_utf16_strings(data):
+    pools = [chunk for chunk in split_patcher.chunks(data) if chunk[1] == split_patcher.RES_STRING_POOL_TYPE]
+    assert len(pools) == 1
+    pool, _, header_size, _ = pools[0]
+    count = split_patcher.u32(data, pool + 8)
+    strings_start = split_patcher.u32(data, pool + 20)
     values = []
-    for offset, chunk_type, header_size, chunk_size in split_patcher.chunks(data):
-        if chunk_type == split_patcher.RES_XML_RESOURCE_MAP_TYPE:
-            resource_ids = [
-                split_patcher.u32(data, position)
-                for position in range(offset + header_size, offset + chunk_size, 4)
-            ]
-        elif chunk_type == split_patcher.RES_XML_START_ELEMENT_TYPE and resource_ids:
-            attribute_start = offset + 16 + split_patcher.u16(data, offset + 24)
-            attribute_size = split_patcher.u16(data, offset + 26)
-            attribute_count = split_patcher.u16(data, offset + 28)
-            for index in range(attribute_count):
-                attribute = attribute_start + index * attribute_size
-                name_index = split_patcher.u32(data, attribute + 4)
-                if name_index < len(resource_ids) and resource_ids[name_index] == split_patcher.MIN_SDK_VERSION_ID:
-                    values.append(split_patcher.u32(data, attribute + 16))
-    assert len(values) == 1
-    return values[0]
+    for index in range(count):
+        relative = split_patcher.u32(data, pool + header_size + index * 4)
+        position = pool + strings_start + relative
+        length, length_size = split_patcher.decode_length16(data, position)
+        start = position + length_size
+        values.append(bytes(data[start : start + length * 2]).decode("utf-16le"))
+    return values
 
 
 def assert_idempotent_manifest_patch(apk, original_min_sdk, has_required_split):
     original = archive_manifest_bytes(apk)
     assert manifest_min_sdk(original) == original_min_sdk
+    assert manifest_version_code(original) == split_patcher.UPSTREAM_VERSION_CODE
+    assert split_patcher.UPSTREAM_VERSION_NAME in manifest_utf16_strings(original)
     assert bool(split_patcher.required_split_attribute(original)) is has_required_split
     with tempfile.TemporaryDirectory() as directory:
         manifest = Path(directory) / "AndroidManifest.xml"
@@ -57,9 +67,12 @@ def assert_idempotent_manifest_patch(apk, original_min_sdk, has_required_split):
         subprocess.run([str(SPLIT_PATCHER), str(manifest)], check=True)
         assert manifest.read_bytes() == first
         assert manifest_min_sdk(first) == 32
+        assert manifest_version_code(first) == split_patcher.MYBOARD_VERSION_CODE
+        strings = manifest_utf16_strings(first)
+        assert strings.count(split_patcher.MYBOARD_VERSION_NAME) == 1
+        assert split_patcher.UPSTREAM_VERSION_NAME not in strings
         assert not split_patcher.required_split_attribute(first)
-        if original_min_sdk != 32 or has_required_split:
-            assert first != original
+        assert first != original
 
 
 def test_fused_manifest_restores_support_floor_idempotently():
@@ -68,6 +81,19 @@ def test_fused_manifest_restores_support_floor_idempotently():
 
 def test_play_base_manifest_removes_split_marker_idempotently():
     assert_idempotent_manifest_patch(PLAY_BASE_APK, original_min_sdk=32, has_required_split=True)
+
+
+def test_unexpected_version_name_is_rejected():
+    original = archive_manifest_bytes(APK)
+    tampered = split_patcher.replace_utf16_pool_string(
+        bytearray(original), split_patcher.UPSTREAM_VERSION_NAME, "17.8.99-unexpected-arm64-v8a"
+    )
+    with tempfile.TemporaryDirectory() as directory:
+        manifest = Path(directory) / "AndroidManifest.xml"
+        manifest.write_bytes(tampered)
+        result = subprocess.run([str(SPLIT_PATCHER), str(manifest)], text=True, capture_output=True)
+        assert result.returncode != 0
+        assert "unexpected versionName" in result.stderr
 
 
 def archive_manifest_bytes(apk):
@@ -79,4 +105,5 @@ if __name__ == "__main__":
     test_pinned_input()
     test_fused_manifest_restores_support_floor_idempotently()
     test_play_base_manifest_removes_split_marker_idempotently()
+    test_unexpected_version_name_is_rejected()
     print("build guard tests passed")
