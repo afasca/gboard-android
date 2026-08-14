@@ -371,6 +371,42 @@ def patch_writing_tools_toolbar_flag(root: Path) -> tuple[Path, str]:
     )
 
 
+def patch_polish_state_eligibility(text: str) -> str:
+    """Bypass the module gate only for the polish toolbar provider.
+
+    The original editor/context checks remain authoritative. This avoids making
+    Writing Tools available in password, incognito, or unsupported editors.
+    """
+
+    def update(method: str) -> str:
+        needle = """    :cond_2
+    sget-object v1, Lwtu;->c:Lajoj;
+"""
+        replacement = """    :cond_2
+    instance-of v1, p0, Lwsc;
+    if-eqz v1, :vorflux_polish_original_gate
+
+    const/4 v1, 0x2
+    goto :goto_0
+
+    :vorflux_polish_original_gate
+    sget-object v1, Lwtu;->c:Lajoj;
+"""
+        return replace_once(
+            method,
+            needle,
+            replacement,
+            "targeted AI polish state feature gate",
+        )
+
+    return update_method_once(
+        text,
+        ".method public final k()V",
+        update,
+        "targeted AI polish state feature gate",
+    )
+
+
 def patch_ai_polish_entry(root: Path) -> tuple[tuple[Path, str], ...]:
     order_path = root / "smali/agpc.smali"
     order = replace_once(
@@ -413,28 +449,7 @@ def patch_ai_polish_entry(root: Path) -> tuple[tuple[Path, str], ...]:
     )
 
     state_path = root / "smali_classes2/wok.smali"
-    state = load(state_path)
-    start = state.index(".method public final k()V")
-    end = state.index(".end method", start) + len(".end method")
-    state_method = """.method public final k()V
-    .locals 2
-    iget-object v0, p0, Lwok;->g:Lagpf;
-    if-nez v0, :vorflux_polish_state
-    return-void
-    :vorflux_polish_state
-    iget-boolean v1, p0, Lwok;->l:Z
-    if-eqz v1, :vorflux_polish_available
-    const/4 v1, 0x3
-    goto :vorflux_polish_apply
-    :vorflux_polish_available
-    const/4 v1, 0x2
-    :vorflux_polish_apply
-    iput v1, p0, Lwok;->e:I
-    invoke-virtual {v0, v1}, Lagpf;->b(I)V
-    invoke-virtual {p0, v1}, Lwok;->l(I)V
-    return-void
-.end method"""
-    state = state[:start] + state_method + state[end:]
+    state = patch_polish_state_eligibility(load(state_path))
 
     label_path = root / "smali/wse.smali"
     label = load(label_path)
@@ -521,7 +536,6 @@ def patch_toolbar_jarvis_persistence(root: Path) -> tuple[Path, str]:
         (".method public static q(Lazha;)Lazfk;", "v0", "server toolbar order"),
         (".method private static t(Lazha;)Lazfk;", "v0", "persisted toolbar order"),
         (".method private static u(Lazha;)Lazfk;", "v0", "experiment toolbar order"),
-        (".method private static v(Lazha;Z)Lazfk;", "p1", "fallback toolbar order"),
     ):
         text = update_method_once(
             text,
@@ -529,6 +543,30 @@ def patch_toolbar_jarvis_persistence(root: Path) -> tuple[Path, str]:
             lambda method, r=register, l=label: inject(method, r, l),
             label,
         )
+
+    def inject_fallback_join(method: str) -> str:
+        needle = """    :goto_0
+    invoke-static {p1}, Landroid/text/TextUtils;->isEmpty(Ljava/lang/CharSequence;)Z
+"""
+        replacement = """    :goto_0
+    invoke-static {p1}, Lagsr;->z(Ljava/lang/String;)Ljava/lang/String;
+    move-result-object p1
+
+    invoke-static {p1}, Landroid/text/TextUtils;->isEmpty(Ljava/lang/CharSequence;)Z
+"""
+        return replace_once(
+            method,
+            needle,
+            replacement,
+            "fallback toolbar order join",
+        )
+
+    text = update_method_once(
+        text,
+        ".method private static v(Lazha;Z)Lazfk;",
+        inject_fallback_join,
+        "fallback toolbar order",
+    )
 
     helper = r'''
 .method private static z(Ljava/lang/String;)Ljava/lang/String;

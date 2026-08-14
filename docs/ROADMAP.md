@@ -87,7 +87,7 @@ MyBoard should feel like Gboard with a reliable, user-controlled OpenAI-compatib
 - minSdk 32.
 - 16 KiB ARM64 ZIP and ELF alignment.
 - Pinned signer verification.
-- Natural app version increment checkpoint: code 175894495, name `17.8.4.939743345-beta-arm64-v8a`.
+- Natural app version increment: code 175894496, name `17.8.5.939743346-beta-arm64-v8a`.
 
 ### Acceptance criteria
 

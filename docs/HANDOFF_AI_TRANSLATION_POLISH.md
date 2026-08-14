@@ -1,6 +1,6 @@
 # MyBoard AI translation and polish handoff
 
-Updated: 2026-08-14 15:15 UTC
+Updated: 2026-08-14 23:20 UTC
 
 ## Repository and pull request
 
@@ -12,11 +12,12 @@ Updated: 2026-08-14 15:15 UTC
 
 ## Current delivery status
 
-The implementation is feature-complete enough for a handoff checkpoint and a signed candidate APK has been built and fully verified by repository scripts.
+The implementation is feature-complete enough for a handoff checkpoint. The current signed candidate below includes the final toolbar-fallback and targeted eligibility fixes and has passed the full repository verifier.
 
 - Candidate: `build/MyBoard-AI-17.8.5.apk`
-- Size: `82,313,713 bytes`
-- SHA-256: `a5def65657a2ee4f4115fadb6a3e3230affc8f9edbadef5c0c2a211c826ce0da`
+- Size: `82,305,521 bytes`
+- SHA-256: `50f5a78f1517a3227074cd7cd99fcfdc8202e775cc483cc33f27ad29841ccba3`
+- Status: final publish candidate; do not rebuild after this checkpoint
 - Package: `com.vorflux.gboard.inputmethod.latin`
 - Label: `MyBoard`
 - versionCode: `175894496`
@@ -26,7 +27,7 @@ The implementation is feature-complete enough for a handoff checkpoint and a sig
 - ABI: ARM64 only (`arm64-v8a`)
 - Signature: APK Signature Scheme v3; certificate SHA-256 `72f35793e9f17aba292fe6dd1607eca6b783cf779ca52b1561f03e5bc411ebeb`
 
-Remaining effort is estimated at roughly 10–20%: consume final testing/review feedback, run feasible install verification, finalize the partial test report, commit/push, update PR #1, publish/download-check the APK, and obtain physical ARM64 Android 12L+ UI verification.
+Static/build verification and x86_64 Android 13 installation/package extraction verification are complete. Remaining work is to commit/push, update PR #1 and the partial Summary test report, publish/download-check the exact candidate, and obtain physical ARM64 Android 12L+ UI verification.
 
 ## Product design
 
@@ -91,7 +92,7 @@ Preset modes extend `AiConfig.DEFAULT_POLISH_PROMPT`; only custom reads the save
 The `AI 润色` access point:
 
 - is inserted in the default toolbar order before search;
-- removes the provider/module feature-flag gates;
+- removes the provider/module feature-flag gates while retaining native editor/context eligibility;
 - labels the access point `AI 润色`;
 - sends the native Proofread event directly through `Lwtz.f(..., Lakhf.g, ...)`;
 - preserves the native result, replace, and undo flow;
@@ -166,6 +167,7 @@ Primary source/patch files:
 export JAVA_HOME=/var/tmp/toolchain/jdk
 export PATH=/var/tmp/toolchain/jdk/bin:/var/tmp/android-build-tools-35/android-15:$PATH
 python3 tests/test_static_contract.py
+python3 tests/test_smali_patch_regressions.py
 python3 tests/test_build_guards.py
 python3 tests/test_coexistence_resources.py
 python3 -m py_compile scripts/*.py tests/*.py
@@ -189,20 +191,15 @@ The build passed apktool assembly, v3 signing, the full APK verifier, resource p
 
 ## Pending tasks
 
-1. Collect results from the reactivated testing task `test-plan-execute`.
-2. Collect final review/simplify tasks `final-review` and `final-simplify`; address blocking findings only.
-3. Rebuild and rerun static verification after any changes.
-4. Perform feasible ADB installation/package extraction verification. This APK is ARM64 only; the local Redroid is x86_64 and cannot provide valid keyboard UI evidence. Do not claim UI success there.
-5. Copy the APK to `/code/.generated_artifacts/apk/` for delivery.
-6. Submit/update exactly one Test Report titled `Summary`, likely status `partial` until physical ARM64 testing.
-7. Commit and push branch `vorflux/ai-translation-polish`.
-8. Update existing PR #1 with a coherent current description and exact testing commands; do not create another PR.
-9. Publish the candidate APK, download it again from the public GitHub URL, and compare SHA-256 and size.
-10. Obtain real ARM64 Android 12L+ verification for MyBoard launch, keyboard enable/show, settings, model selection, translation debounce/progress, AI polish entry/styles, replace, and undo.
+1. Commit and push branch `vorflux/ai-translation-polish`.
+2. Update existing PR #1 with a coherent current description and exact testing commands; do not create another PR.
+3. Submit/update exactly one Test Report titled `Summary` with partial status until physical ARM64 testing.
+4. Publish the exact candidate APK, download it again from the public GitHub URL, and compare SHA-256 and size.
+5. Obtain real ARM64 Android 12L+ verification for MyBoard launch, keyboard enable/show, settings, model selection, translation debounce/progress, AI polish entry/styles, replace, and undo.
 
 ## Risks and review questions
 
-- The earlier global `wtu.b(ZZ)=true` bypass was removed before handoff because it affected many unrelated Writing Tools call sites. The AI polish entry now relies on the targeted provider/module/state/click patches. Verify visibility on a physical device.
+- The earlier global `wtu.b(ZZ)=true` bypass and broad `wok.k()` replacement were removed because they affected unrelated Writing Tools call sites or bypassed native safety checks. Only the `wsc` polish provider bypasses the module gate after native editor/context eligibility passes. Verify visibility and password/incognito/unsupported-editor behavior on a physical device.
 - The native spinner is visible, but separate debounce-versus-network text is not implemented.
 - `gc()` does not have an independently patched spinner clear; teardown currently relies on `close()`/other UI stop paths. Verify on device.
 - Static source-string tests are not runtime timing tests. Physical-device tests must confirm burst coalescing and stale-response rejection against a deterministic API endpoint.
@@ -224,8 +221,4 @@ The build passed apktool assembly, v3 signing, the full APK verifier, resource p
 
 ## Handoff prompt
 
-Copy the following prompt into the next session:
-
-```text
-Continue MyBoard AI translation/polish work in https://github.com/afasca/gboard-android on branch vorflux/ai-translation-polish and update existing PR #1 only. First run git checkout vorflux/ai-translation-polish, git pull, git status, and git log --oneline -10. Read docs/HANDOFF_AI_TRANSLATION_POLISH.md, docs/HANDOFF.md, docs/ROADMAP.md, and README.md before changing anything. The signed candidate build/MyBoard-AI-17.8.5.apk has SHA-256 a5def65657a2ee4f4115fadb6a3e3230affc8f9edbadef5c0c2a211c826ce0da and previously passed the full verifier. Continue from the Pending tasks section: collect/redo testing, review broad wtu.b(ZZ) bypass scope, verify the agsr persisted jarvis repair, rerun static/build verification after changes, perform feasible install verification, submit/update the single Test Report titled Summary as partial unless real ARM64 UI testing passes, commit/push, update PR #1, publish the APK, redownload it from GitHub and verify SHA-256/size. Do not commit build/gboard-ai.keystore. Do not claim UI success on x86_64 Redroid because the APK is ARM64 only. Clearly separate static/build verification, installation verification, and pending physical ARM64 testing.
-```
+When handing off again, point the next engineer to the current Pending tasks and require them to treat the published release asset hash/size as authoritative. Do not rebuild or substitute different APK bytes without updating the candidate metadata and rerunning all gates.

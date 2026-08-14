@@ -82,7 +82,8 @@ assert ':vorflux_input_progress_cleared' in patcher
 assert ':vorflux_stop_progress_cleared' in patcher
 assert '0x7f140d8c' in patcher
 
-# Proofread entry is always available and keeps native result/replace/undo flow.
+# Proofread entry bypasses only its module gate, preserves native editor/context
+# eligibility, and keeps the native result/replace/undo flow.
 assert 'def patch_always_available_proofread' not in patcher
 assert 'def patch_ai_polish_entry' in patcher
 assert '.method public static b(ZZ)Z' not in patcher
@@ -92,13 +93,18 @@ assert 'jarvis;search;sticker;gif_search' in patcher
 assert 'def patch_toolbar_jarvis_persistence' in patcher
 for signature in ('.method public static q(Lazha;)Lazfk;', '.method private static t(Lazha;)Lazfk;', '.method private static u(Lazha;)Lazfk;', '.method private static v(Lazha;Z)Lazfk;'):
     assert signature in patcher
+assert 'def inject_fallback_join' in patcher
+assert 'fallback toolbar order join' in patcher
 assert '.method private static z(Ljava/lang/String;)Ljava/lang/String;' in patcher
 assert 'const-string v2, ";jarvis;"' in patcher
 assert 'AI polish access point module feature gate' in patcher
 assert 'AI writing tools module feature gate' in patcher
 assert 'const-string v3, "AI 润色"' in patcher
 assert 'Lwtz;->f(Lajkj;Laodi;ZLakhf;Ljava/util/function/Consumer;)V' in patcher
-assert ':vorflux_polish_available' in patcher
+assert 'def patch_polish_state_eligibility' in patcher
+assert 'instance-of v1, p0, Lwsc;' in patcher
+assert ':vorflux_polish_original_gate' in patcher
+assert 'iget-boolean v1, p0, Lwok;->k:Z' not in patcher
 assert '.implements Lbazc;' in future
 for style in ('standard', 'concise', 'formal', 'natural', 'professional', 'custom'):
     assert f'"{style}"' in settings

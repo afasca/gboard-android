@@ -26,8 +26,8 @@ The visible app name is **MyBoard** and the original icon is retained.
 ## Current package and app metadata
 
 - Package: `com.vorflux.gboard.inputmethod.latin`
-- Current app version code: `175894495`
-- Current app version name: `17.8.4.939743345-beta-arm64-v8a`
+- Current app version code: `175894496`
+- Current app version name: `17.8.5.939743346-beta-arm64-v8a`
 - minSdk: 32
 - targetSdk: 37
 - ABI: `arm64-v8a` only
@@ -84,7 +84,7 @@ Configuration includes:
 
 Current implementation intercepts `akhf.PROOFREAD` in `wei.B(...)`, captures selected text or the full captured text, calls `AiWritingTools.polish(...)`, and reuses Gboard's result/accept/replace/undo pipeline.
 
-Static implementation exists, but the user reports that the polish entry is not discoverable in the installed app. Treat discoverability and the requested style/prompt controls as unfinished work.
+The `AI 润色` toolbar entry and six styles are implemented. Its module feature gate is bypassed only for the `wsc` toolbar provider while the original editor/context eligibility checks remain intact. Physical ARM64 validation is still required for discoverability and interaction behavior.
 
 ## Current checkpoint: manual model picker
 
@@ -96,9 +96,9 @@ The current worktree adds:
 - Manual model choice scoped to the exact normalized Base URL.
 - Current mode/model summary in AI settings.
 - Missing manual model behavior that preserves the user's choice and returns a clear error instead of silently switching.
-- Natural app version increment to code `175894495`, name `17.8.4.939743345-beta-arm64-v8a`.
+- Historical model-picker checkpoint used code `175894495`, name `17.8.4.939743345-beta-arm64-v8a`; the current release metadata is listed above.
 
-Checkpoint artifact produced before handoff:
+Historical checkpoint artifact produced before handoff (not the current release candidate):
 
 - Local path: `build/MyBoard-AI-v6.apk`
 - Size: 82,280,945 bytes
@@ -209,7 +209,7 @@ Build:
 ```bash
 KEYSTORE="$PWD/build/gboard-ai.keystore" \
 ZIPALIGN=/var/tmp/android-build-tools-35/android-15/zipalign \
-OUTPUT_APK="$PWD/build/MyBoard-AI-v6.apk" \
+OUTPUT_APK="$PWD/build/MyBoard-AI-17.8.5.apk" \
   ./scripts/build-ai-gboard.sh
 ```
 
@@ -217,6 +217,7 @@ Repository tests:
 
 ```bash
 python3 tests/test_static_contract.py
+python3 tests/test_smali_patch_regressions.py
 python3 tests/test_build_guards.py
 python3 tests/test_coexistence_resources.py
 python3 -m py_compile scripts/*.py tests/*.py
@@ -227,7 +228,7 @@ Final APK verifier:
 
 ```bash
 ZIPALIGN=/var/tmp/android-build-tools-35/android-15/zipalign \
-  scripts/verify-built-apk.sh build/MyBoard-AI-v6.apk
+  scripts/verify-built-apk.sh build/MyBoard-AI-17.8.5.apk
 ```
 
 Always verify:

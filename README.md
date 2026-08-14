@@ -32,7 +32,7 @@ The pinned `fused-gboard-安卓.apk` is used by default. A complete release buil
 ```bash
 KEYSTORE=/secure/path/gboard-ai.keystore \
 ZIPALIGN=/path/to/android-sdk/build-tools/35.0.0/zipalign \
-OUTPUT_APK="$PWD/build/MyBoard-AI-v6.apk" \
+OUTPUT_APK="$PWD/build/MyBoard-AI-17.8.5.apk" \
   ./scripts/build-ai-gboard.sh
 ```
 
@@ -41,15 +41,26 @@ To test another verified fused input, pass its path as the first argument and up
 ```bash
 KEYSTORE=/secure/path/gboard-ai.keystore \
 ZIPALIGN=/path/to/android-sdk/build-tools/35.0.0/zipalign \
-OUTPUT_APK="$PWD/build/MyBoard-AI-v6.apk" \
+OUTPUT_APK="$PWD/build/MyBoard-AI-17.8.5.apk" \
   ./scripts/build-ai-gboard.sh /path/to/fused-gboard.apk
 ```
 
-Output: `build/MyBoard-AI-v6.apk`
+Output: `build/MyBoard-AI-17.8.5.apk`
 
 Use a fused/standalone APK as input. A Play base APK that declares `requiredSplitTypes="base__density"` does not contain the density drawables needed by Launcher and LatinIME; removing only that marker produces an installable APK that crashes with `Resources$NotFoundException`.
 
-The build removes any Play-generated `requiredSplitTypes="base__density"` marker, restores `minSdkVersion` 32, and reproducibly advances the app metadata from upstream version `17.8.3.939743344-beta-arm64-v8a` / code `175894494` to `17.8.4.939743345-beta-arm64-v8a` / code `175894495`, while the fused input supplies the complete density resources. The patched certificate whitelist is bound to the repository development certificate SHA-256 `72f35793e9f17aba292fe6dd1607eca6b783cf779ca52b1561f03e5bc411ebeb`. Preserve `build/gboard-ai.keystore` between builds; using another key is intentionally rejected because it would fail Gboard's certificate-integrity check.
+The build removes any Play-generated `requiredSplitTypes="base__density"` marker, restores `minSdkVersion` 32, and advances the app metadata from upstream version `17.8.3.939743344-beta-arm64-v8a` / code `175894494` to `17.8.5.939743346-beta-arm64-v8a` / code `175894496`, while the fused input supplies the complete density resources. The patched certificate whitelist is bound to the repository development certificate SHA-256 `72f35793e9f17aba292fe6dd1607eca6b783cf779ca52b1561f03e5bc411ebeb`. Preserve `build/gboard-ai.keystore` between builds; using another key is intentionally rejected because it would fail Gboard's certificate-integrity check.
+
+## Verification
+
+```bash
+python3 tests/test_static_contract.py
+python3 tests/test_smali_patch_regressions.py
+python3 tests/test_build_guards.py
+python3 tests/test_coexistence_resources.py
+python3 -m py_compile scripts/*.py tests/*.py
+git diff --check
+```
 
 ## Runtime limitations
 
