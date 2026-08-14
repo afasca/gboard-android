@@ -1,0 +1,11 @@
+build/
+decoded/
+decoded-new/
+decoded-nr/
+jadx-src/
+patch/bin/
+patch/dex/
+patch/dex-decoded/
+__pycache__/
+*.pyc
+*.keystore
