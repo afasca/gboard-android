@@ -235,7 +235,7 @@ def patch_translation_settings(root: Path) -> tuple[Path, str]:
     invoke-direct {v1, v0}, Landroidx/preference/Preference;-><init>(Landroid/content/Context;)V
     const-string v2, "MyBoard AI · OpenAI 兼容设置"
     invoke-virtual {v1, v2}, Landroidx/preference/Preference;->V(Ljava/lang/CharSequence;)V
-    const-string v2, "配置 API 地址和密钥；模型自动获取"
+    const-string v2, "API、模型、翻译防抖/提示词与 AI 润色风格"
     invoke-virtual {v1, v2}, Landroidx/preference/Preference;->n(Ljava/lang/CharSequence;)V
     const-string v2, "gboard_ai_settings"
     invoke-virtual {v1, v2}, Landroidx/preference/Preference;->P(Ljava/lang/String;)V
@@ -324,7 +324,7 @@ def patch_always_reachable_ai_settings(root: Path) -> tuple[Path, str]:
     invoke-direct {v1, v0}, Landroidx/preference/Preference;-><init>(Landroid/content/Context;)V
     const-string v2, "MyBoard AI · OpenAI 兼容设置"
     invoke-virtual {v1, v2}, Landroidx/preference/Preference;->V(Ljava/lang/CharSequence;)V
-    const-string v2, "配置 API 地址和密钥；模型自动获取"
+    const-string v2, "API、模型、翻译防抖/提示词与 AI 润色风格"
     invoke-virtual {v1, v2}, Landroidx/preference/Preference;->n(Ljava/lang/CharSequence;)V
     const-string v2, "gboard_ai_settings"
     invoke-virtual {v1, v2}, Landroidx/preference/Preference;->P(Ljava/lang/String;)V
@@ -371,6 +371,293 @@ def patch_writing_tools_toolbar_flag(root: Path) -> tuple[Path, str]:
     )
 
 
+def patch_ai_polish_entry(root: Path) -> tuple[tuple[Path, str], ...]:
+    order_path = root / "smali/agpc.smali"
+    order = replace_once(
+        load(order_path),
+        'const-string v1, "search;sticker;gif_search;clipboard;settings;theme_setting;one_handed;textediting;share;translate;floating_keyboard"',
+        'const-string v1, "jarvis;search;sticker;gif_search;clipboard;settings;theme_setting;one_handed;textediting;share;translate;floating_keyboard"',
+        "AI polish access point default order",
+    )
+
+    provider_path = root / "smali/wsf.smali"
+    provider = replace_once(
+        load(provider_path),
+        """    sget-object p1, Lwtu;->r:Lajoj;
+
+    .line 31
+    .line 32
+    invoke-virtual {p0, p1}, Lamym;->k(Lajoj;)V
+
+    .line 33
+""",
+        """    .line 33
+""",
+        "AI polish access point module feature gate",
+    )
+
+    module_path = root / "smali/wej.smali"
+    module = replace_once(
+        load(module_path),
+        """    sget-object v0, Lwtu;->c:Lajoj;
+
+    .line 57
+    .line 58
+    invoke-virtual {p1, v0}, Lamym;->k(Lajoj;)V
+
+    .line 59
+""",
+        """    .line 59
+""",
+        "AI writing tools module feature gate",
+    )
+
+    state_path = root / "smali_classes2/wok.smali"
+    state = load(state_path)
+    start = state.index(".method public final k()V")
+    end = state.index(".end method", start) + len(".end method")
+    state_method = """.method public final k()V
+    .locals 2
+    iget-object v0, p0, Lwok;->g:Lagpf;
+    if-nez v0, :vorflux_polish_state
+    return-void
+    :vorflux_polish_state
+    iget-boolean v1, p0, Lwok;->l:Z
+    if-eqz v1, :vorflux_polish_available
+    const/4 v1, 0x3
+    goto :vorflux_polish_apply
+    :vorflux_polish_available
+    const/4 v1, 0x2
+    :vorflux_polish_apply
+    iput v1, p0, Lwok;->e:I
+    invoke-virtual {v0, v1}, Lagpf;->b(I)V
+    invoke-virtual {p0, v1}, Lwok;->l(I)V
+    return-void
+.end method"""
+    state = state[:start] + state_method + state[end:]
+
+    label_path = root / "smali/wse.smali"
+    label = load(label_path)
+    method_start = label.index(".method public final b(Ljava/lang/String;Z)Lagpb;")
+    method_end = label.index(".end method", method_start) + len(".end method")
+    label_method = """.method public final b(Ljava/lang/String;Z)Lagpb;
+    .locals 4
+    new-instance v0, Lwsa;
+    invoke-direct {v0, p0}, Lwsa;-><init>(Lwse;)V
+    xor-int/lit8 v1, p2, 0x1
+    invoke-static {v1}, Ljava/lang/Boolean;->valueOf(Z)Ljava/lang/Boolean;
+    move-result-object v1
+    const/4 v2, 0x0
+    invoke-static {p1, v0, v2, v1}, Lwqw;->a(Ljava/lang/String;Lagpa;Lagox;Ljava/lang/Boolean;)Lagow;
+    move-result-object p1
+    const/4 v0, 0x0
+    invoke-virtual {p1, v0}, Lagow;->l(I)V
+    invoke-virtual {p1, v0}, Lagow;->j(I)V
+    const v0, 0x7f0804cc
+    invoke-virtual {p1, v0}, Lagow;->k(I)V
+    new-instance v0, Lwsb;
+    invoke-direct {v0, p0, p2}, Lwsb;-><init>(Lwse;Z)V
+    invoke-virtual {p1, v0}, Lagow;->u(Ljava/lang/Runnable;)V
+    move-object v0, p1
+    check-cast v0, Lagpt;
+    const-string v3, "AI 润色"
+    iput-object v3, v0, Lagpt;->d:Ljava/lang/String;
+    iput-object v3, v0, Lagpt;->e:Ljava/lang/String;
+    invoke-virtual {p1}, Lagow;->b()Lagpb;
+    move-result-object p0
+    return-object p0
+.end method"""
+    label = label[:method_start] + label_method + label[method_end:]
+
+    click_path = root / "smali_classes2/wsa.smali"
+    click = load(click_path)
+    click_start = click.index(".method public final a(Lagpe;Landroid/view/View;)V")
+    click_end = click.index(".end method", click_start) + len(".end method")
+    click_method = """.method public final a(Lagpe;Landroid/view/View;)V
+    .locals 4
+    iget-object p0, p0, Lwsa;->a:Lwse;
+    iget-object p1, p0, Lwse;->b:Lamua;
+    iget-object p2, p0, Lwse;->c:Lj$/time/Instant;
+    invoke-static {p1, p2}, Lwqw;->e(Lamua;Lj$/time/Instant;)V
+    invoke-static {}, Lj$/time/Instant;->now()Lj$/time/Instant;
+    move-result-object p1
+    iput-object p1, p0, Lwse;->c:Lj$/time/Instant;
+    sget-object v0, Lajkj;->d:Lajkj;
+    sget-object v1, Lbajq;->m:Lbajq;
+    invoke-static {v1}, Laodi;->d(Lbajq;)Laodi;
+    move-result-object v1
+    invoke-virtual {p0}, Lajki;->ae()Lajlf;
+    move-result-object v2
+    new-instance v3, Lwdz;
+    invoke-direct {v3, v2}, Lwdz;-><init>(Lajlf;)V
+    sget-object v2, Lakhf;->g:Lakhf;
+    const/4 p0, 0x0
+    invoke-static {v0, v1, p0, v2, v3}, Lwtz;->f(Lajkj;Laodi;ZLakhf;Ljava/util/function/Consumer;)V
+    return-void
+.end method"""
+    click = click[:click_start] + click_method + click[click_end:]
+
+    return (
+        (order_path, order),
+        (provider_path, provider),
+        (module_path, module),
+        (state_path, state),
+        (label_path, label),
+        (click_path, click),
+    )
+
+
+def patch_toolbar_jarvis_persistence(root: Path) -> tuple[Path, str]:
+    """Ensure jarvis survives every toolbar-order source, including upgrades."""
+    path = root / "smali/agsr.smali"
+    text = load(path)
+
+    def inject(method: str, register: str, label: str) -> str:
+        needle = f"    check-cast {register}, Ljava/lang/String;\n"
+        replacement = needle + f"    invoke-static {{{register}}}, Lagsr;->z(Ljava/lang/String;)Ljava/lang/String;\n    move-result-object {register}\n"
+        return replace_once(method, needle, replacement, label)
+
+    for signature, register, label in (
+        (".method public static q(Lazha;)Lazfk;", "v0", "server toolbar order"),
+        (".method private static t(Lazha;)Lazfk;", "v0", "persisted toolbar order"),
+        (".method private static u(Lazha;)Lazfk;", "v0", "experiment toolbar order"),
+        (".method private static v(Lazha;Z)Lazfk;", "p1", "fallback toolbar order"),
+    ):
+        text = update_method_once(
+            text,
+            signature,
+            lambda method, r=register, l=label: inject(method, r, l),
+            label,
+        )
+
+    helper = r'''
+.method private static z(Ljava/lang/String;)Ljava/lang/String;
+    .locals 3
+
+    invoke-static {p0}, Landroid/text/TextUtils;->isEmpty(Ljava/lang/CharSequence;)Z
+    move-result v0
+    if-eqz v0, :vorflux_jarvis_nonempty
+    const-string p0, "jarvis"
+    return-object p0
+
+    :vorflux_jarvis_nonempty
+    new-instance v0, Ljava/lang/StringBuilder;
+    invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
+    const-string v1, ";"
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    invoke-virtual {v0, p0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+    move-result-object v0
+    const-string v2, ";jarvis;"
+    invoke-virtual {v0, v2}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
+    move-result v0
+    if-eqz v0, :vorflux_jarvis_missing
+    return-object p0
+
+    :vorflux_jarvis_missing
+    const-string v0, "jarvis;"
+    invoke-virtual {v0, p0}, Ljava/lang/String;->concat(Ljava/lang/String;)Ljava/lang/String;
+    move-result-object p0
+    return-object p0
+.end method
+'''
+    text = replace_once(
+        text,
+        "\n# virtual methods\n",
+        helper + "\n# virtual methods\n",
+        "toolbar jarvis normalization helper",
+    )
+    return path, text
+
+def patch_translation_progress(root: Path, ui: str) -> tuple[Path, str, Path, str, Path, str]:
+    ui_path = root / "smali/aciv.smali"
+    request = """    invoke-interface {v0, v7, v1}, Lacgc;->d(Lacie;Lacgb;)V
+"""
+    request_with_progress = """    invoke-virtual {p0}, Laciv;->c()Lcom/google/android/apps/inputmethod/libs/translate/TranslateKeyboard;
+    move-result-object v2
+    if-eqz v2, :vorflux_progress_started
+    const/4 v5, 0x1
+    invoke-virtual {v2, v5}, Lcom/google/android/apps/inputmethod/libs/translate/TranslateKeyboard;->a(I)V
+    :vorflux_progress_started
+    invoke-interface {v0, v7, v1}, Lacgc;->d(Lacie;Lacgb;)V
+"""
+    ui = replace_once(ui, request, request_with_progress, "translation native progress start")
+
+    input_cancel = """    invoke-virtual {p0}, Laciv;->af()V
+
+    .line 16
+"""
+    input_cancel_with_cleanup = """    iget-object v0, p0, Laciv;->p:Lacgc;
+    if-eqz v0, :vorflux_input_cancelled
+    invoke-interface {v0}, Lacgc;->c()V
+    :vorflux_input_cancelled
+    invoke-virtual {p0}, Laciv;->c()Lcom/google/android/apps/inputmethod/libs/translate/TranslateKeyboard;
+    move-result-object v0
+    if-eqz v0, :vorflux_input_progress_cleared
+    const/4 v1, 0x2
+    invoke-virtual {v0, v1}, Lcom/google/android/apps/inputmethod/libs/translate/TranslateKeyboard;->a(I)V
+    :vorflux_input_progress_cleared
+    invoke-virtual {p0}, Laciv;->af()V
+
+    .line 16
+"""
+    ui = replace_once(ui, input_cancel, input_cancel_with_cleanup, "translation input cancellation cleanup")
+
+    ui = replace_once(
+        ui,
+        """    invoke-interface {v0}, Lacgc;->c()V
+
+    .line 97
+""",
+        """    invoke-interface {v0}, Lacgc;->c()V
+    invoke-virtual {p0}, Laciv;->c()Lcom/google/android/apps/inputmethod/libs/translate/TranslateKeyboard;
+    move-result-object v0
+    if-eqz v0, :vorflux_stop_progress_cleared
+    const/4 v2, 0x2
+    invoke-virtual {v0, v2}, Lcom/google/android/apps/inputmethod/libs/translate/TranslateKeyboard;->a(I)V
+    :vorflux_stop_progress_cleared
+
+    .line 97
+""",
+        "translation stop progress cleanup",
+    )
+
+    callback_path = root / "smali_classes2/acih.smali"
+    callback = load(callback_path)
+    callback = replace_once(
+        callback,
+        """    iget v0, p1, Lacif;->a:I
+""",
+        """    iget-object v0, p0, Lacih;->a:Laciv;
+    invoke-virtual {v0}, Laciv;->c()Lcom/google/android/apps/inputmethod/libs/translate/TranslateKeyboard;
+    move-result-object v0
+    if-eqz v0, :vorflux_progress_cleared
+    const/4 v1, 0x2
+    invoke-virtual {v0, v1}, Lcom/google/android/apps/inputmethod/libs/translate/TranslateKeyboard;->a(I)V
+    :vorflux_progress_cleared
+    iget v0, p1, Lacif;->a:I
+""",
+        "translation terminal progress cleanup",
+    )
+
+    keyboard_path = root / "smali_classes2/com/google/android/apps/inputmethod/libs/translate/TranslateKeyboard.smali"
+    keyboard = load(keyboard_path)
+    keyboard = replace_once(
+        keyboard,
+        """    const p1, 0x7f141219
+
+    .line 46
+""",
+        """    const p1, 0x7f140d8c
+
+    .line 46
+""",
+        "native translating accessibility status",
+    )
+    return ui_path, ui, callback_path, callback, keyboard_path, keyboard
+
+
 def main() -> None:
     if len(sys.argv) != 2:
         raise SystemExit(f"Usage: {Path(sys.argv[0]).name} DECODED_APK_DIR")
@@ -379,13 +666,20 @@ def main() -> None:
     if not root.is_dir():
         raise SystemExit(f"Decoded APK directory not found: {root}")
 
+    provider = patch_translation_provider(root)
+    progress = patch_translation_progress(root, provider[1])
+    polish_entry = patch_ai_polish_entry(root)
     patches = (
         patch_development_certificate(root),
-        patch_translation_provider(root),
         patch_ai_polish_flow(root),
         patch_translation_settings(root),
         patch_always_reachable_ai_settings(root),
         patch_writing_tools_toolbar_flag(root),
+        patch_toolbar_jarvis_persistence(root),
+        *polish_entry,
+        (progress[0], progress[1]),
+        (progress[2], progress[3]),
+        (progress[4], progress[5]),
     )
     for path, patched in patches:
         path.write_text(patched, encoding="utf-8")

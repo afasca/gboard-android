@@ -28,9 +28,9 @@
 
 # direct methods
 .method constructor <init>()V
-    .registers 1
+    .locals 0
 
-    .line 104
+    .line 101
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -39,9 +39,9 @@
 
 # virtual methods
 .method public bridge synthetic compare(Ljava/lang/Object;Ljava/lang/Object;)I
-    .registers 3
+    .locals 0
 
-    .line 104
+    .line 101
     check-cast p1, Ljava/lang/String;
 
     check-cast p2, Ljava/lang/String;
@@ -54,27 +54,25 @@
 .end method
 
 .method public compare(Ljava/lang/String;Ljava/lang/String;)I
-    .registers 5
+    .locals 2
 
-    .line 106
-    # invokes: Lcom/vorflux/gboardai/OpenAiClient;->score(Ljava/lang/String;)I
+    .line 103
     invoke-static {p1}, Lcom/vorflux/gboardai/OpenAiClient;->access$100(Ljava/lang/String;)I
 
     move-result v0
 
-    # invokes: Lcom/vorflux/gboardai/OpenAiClient;->score(Ljava/lang/String;)I
     invoke-static {p2}, Lcom/vorflux/gboardai/OpenAiClient;->access$100(Ljava/lang/String;)I
 
     move-result v1
 
-    .line 107
+    .line 104
     if-eq v0, v1, :cond_c
 
     sub-int/2addr v1, v0
 
     return v1
 
-    .line 108
+    .line 105
     :cond_c
     invoke-virtual {p1, p2}, Ljava/lang/String;->compareToIgnoreCase(Ljava/lang/String;)I
 

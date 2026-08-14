@@ -6,6 +6,10 @@
 # static fields
 .field private static final DEFAULT_BASE:Ljava/lang/String; = "https://api.openai.com/v1"
 
+.field public static final DEFAULT_POLISH_PROMPT:Ljava/lang/String; = "Polish the user\'s writing in the same language. Improve clarity, fluency, grammar, and naturalness without changing meaning. Preserve formatting, line breaks, emoji, names, URLs, numbers, and placeholders. Return only the polished text."
+
+.field public static final DEFAULT_TRANSLATION_PROMPT:Ljava/lang/String; = "Translate the text from {source} to {target}. Preserve meaning, tone, formatting, line breaks, emoji, names, URLs, numbers, and placeholders. Do not add explanations or invent facts. Return only the translated text."
+
 .field private static final KEY_ALIAS:Ljava/lang/String; = "gboard_ai_openai_key"
 
 .field private static final PREFS:Ljava/lang/String; = "gboard_ai_private"
@@ -13,18 +17,18 @@
 
 # direct methods
 .method private constructor <init>()V
-    .registers 1
+    .locals 0
 
-    .line 22
+    .line 26
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
 .end method
 
 .method private static endpointKey(Landroid/content/Context;Ljava/lang/String;)Ljava/lang/String;
-    .registers 3
+    .locals 1
 
-    .line 92
+    .line 96
     invoke-static {p0}, Lcom/vorflux/gboardai/AiConfig;->getStoredBaseUrl(Landroid/content/Context;)Ljava/lang/String;
 
     move-result-object p0
@@ -33,7 +37,7 @@
 
     move-result-object p0
 
-    .line 93
+    .line 97
     invoke-static {p0}, Landroid/text/TextUtils;->isEmpty(Ljava/lang/CharSequence;)Z
 
     move-result v0
@@ -65,10 +69,46 @@
     return-object p0
 .end method
 
-.method public static getApiKey(Landroid/content/Context;)Ljava/lang/String;
-    .registers 8
+.method public static formatTranslationPrompt(Landroid/content/Context;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+    .locals 1
 
-    .line 62
+    .line 138
+    invoke-static {p0}, Lcom/vorflux/gboardai/AiConfig;->getTranslationPrompt(Landroid/content/Context;)Ljava/lang/String;
+
+    move-result-object p0
+
+    .line 139
+    if-nez p1, :cond_8
+
+    const-string p1, "auto"
+
+    :cond_8
+    const-string v0, "{source}"
+
+    invoke-virtual {p0, v0, p1}, Ljava/lang/String;->replace(Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Ljava/lang/String;
+
+    move-result-object p0
+
+    .line 140
+    if-nez p2, :cond_12
+
+    const-string p2, ""
+
+    :cond_12
+    const-string p1, "{target}"
+
+    invoke-virtual {p0, p1, p2}, Ljava/lang/String;->replace(Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Ljava/lang/String;
+
+    move-result-object p0
+
+    .line 138
+    return-object p0
+.end method
+
+.method public static getApiKey(Landroid/content/Context;)Ljava/lang/String;
+    .locals 7
+
+    .line 66
     invoke-static {p0}, Lcom/vorflux/gboardai/AiConfig;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
     move-result-object p0
@@ -81,7 +121,7 @@
 
     move-result-object p0
 
-    .line 63
+    .line 67
     invoke-static {p0}, Landroid/text/TextUtils;->isEmpty(Ljava/lang/CharSequence;)Z
 
     move-result v0
@@ -90,7 +130,7 @@
 
     return-object v1
 
-    .line 65
+    .line 69
     :cond_13
     :try_start_13
     const-string v0, "\\."
@@ -101,14 +141,14 @@
 
     move-result-object p0
 
-    .line 66
+    .line 70
     array-length v0, p0
 
     if-eq v0, v2, :cond_1e
 
     return-object v1
 
-    .line 67
+    .line 71
     :cond_1e
     const-string v0, "AES/GCM/NoPadding"
 
@@ -116,7 +156,7 @@
 
     move-result-object v0
 
-    .line 68
+    .line 72
     invoke-static {}, Lcom/vorflux/gboardai/AiConfig;->getOrCreateKey()Ljavax/crypto/SecretKey;
 
     move-result-object v3
@@ -137,7 +177,7 @@
 
     invoke-virtual {v0, v2, v3, v4}, Ljavax/crypto/Cipher;->init(ILjava/security/Key;Ljava/security/spec/AlgorithmParameterSpec;)V
 
-    .line 69
+    .line 73
     new-instance v3, Ljava/lang/String;
 
     const/4 v4, 0x1
@@ -160,18 +200,18 @@
 
     return-object v3
 
-    .line 70
+    .line 74
     :catch_4c
     move-exception p0
 
-    .line 71
+    .line 75
     return-object v1
 .end method
 
 .method public static getBaseUrl(Landroid/content/Context;)Ljava/lang/String;
-    .registers 2
+    .locals 1
 
-    .line 49
+    .line 53
     invoke-static {p0}, Lcom/vorflux/gboardai/AiConfig;->getStoredBaseUrl(Landroid/content/Context;)Ljava/lang/String;
 
     move-result-object p0
@@ -180,21 +220,21 @@
 
     move-result-object p0
 
-    .line 50
+    .line 54
     invoke-static {p0}, Landroid/text/TextUtils;->isEmpty(Ljava/lang/CharSequence;)Z
 
     move-result v0
 
     if-nez v0, :cond_f
 
-    .line 51
+    .line 55
     return-object p0
 
-    .line 50
+    .line 54
     :cond_f
     new-instance p0, Ljava/lang/IllegalStateException;
 
-    const-string v0, "API \u5730\u5740\u65e0\u6548\uff0c\u8bf7\u5728 Gboard \u8bbe\u7f6e\u4e2d\u586b\u5199\u6709\u6548\u7684 HTTPS \u5730\u5740"
+    const-string v0, "API \u5730\u5740\u65e0\u6548\uff0c\u8bf7\u5728 MyBoard \u8bbe\u7f6e\u4e2d\u586b\u5199\u6709\u6548\u7684 HTTPS \u5730\u5740"
 
     invoke-direct {p0, v0}, Ljava/lang/IllegalStateException;-><init>(Ljava/lang/String;)V
 
@@ -202,16 +242,16 @@
 .end method
 
 .method public static getCachedModel(Landroid/content/Context;)Ljava/lang/String;
-    .registers 4
+    .locals 3
 
-    .line 97
+    .line 101
     const-string v0, "model_"
 
     invoke-static {p0, v0}, Lcom/vorflux/gboardai/AiConfig;->endpointKey(Landroid/content/Context;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v0
 
-    .line 98
+    .line 102
     invoke-static {v0}, Landroid/text/TextUtils;->isEmpty(Ljava/lang/CharSequence;)Z
 
     move-result v1
@@ -222,7 +262,7 @@
 
     return-object v2
 
-    .line 99
+    .line 103
     :cond_f
     invoke-static {p0}, Lcom/vorflux/gboardai/AiConfig;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
@@ -232,7 +272,7 @@
 
     move-result-object p0
 
-    .line 100
+    .line 104
     if-nez p0, :cond_1a
 
     goto :goto_1b
@@ -244,17 +284,55 @@
     return-object v2
 .end method
 
-.method public static getManualModel(Landroid/content/Context;)Ljava/lang/String;
-    .registers 4
+.method public static getDebounceMs(Landroid/content/Context;)I
+    .locals 2
 
-    .line 108
+    .line 164
+    invoke-static {p0}, Lcom/vorflux/gboardai/AiConfig;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
+
+    move-result-object p0
+
+    const-string v0, "translation_debounce_ms"
+
+    const/16 v1, 0x320
+
+    invoke-interface {p0, v0, v1}, Landroid/content/SharedPreferences;->getInt(Ljava/lang/String;I)I
+
+    move-result p0
+
+    .line 165
+    sparse-switch p0, :sswitch_data_12
+
+    .line 173
+    return v1
+
+    .line 171
+    :sswitch_10
+    return p0
+
+    nop
+
+    :sswitch_data_12
+    .sparse-switch
+        0x12c -> :sswitch_10
+        0x1f4 -> :sswitch_10
+        0x320 -> :sswitch_10
+        0x4b0 -> :sswitch_10
+        0x7d0 -> :sswitch_10
+    .end sparse-switch
+.end method
+
+.method public static getManualModel(Landroid/content/Context;)Ljava/lang/String;
+    .locals 3
+
+    .line 112
     const-string v0, "manual_model_"
 
     invoke-static {p0, v0}, Lcom/vorflux/gboardai/AiConfig;->endpointKey(Landroid/content/Context;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v0
 
-    .line 109
+    .line 113
     invoke-static {v0}, Landroid/text/TextUtils;->isEmpty(Ljava/lang/CharSequence;)Z
 
     move-result v1
@@ -265,7 +343,7 @@
 
     return-object v2
 
-    .line 110
+    .line 114
     :cond_f
     invoke-static {p0}, Lcom/vorflux/gboardai/AiConfig;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
@@ -275,7 +353,7 @@
 
     move-result-object p0
 
-    .line 111
+    .line 115
     if-nez p0, :cond_1a
 
     goto :goto_1b
@@ -288,26 +366,26 @@
 .end method
 
 .method private static getOrCreateKey()Ljavax/crypto/SecretKey;
-    .registers 6
+    .locals 6
     .annotation system Ldalvik/annotation/Throws;
         value = {
             Ljava/lang/Exception;
         }
     .end annotation
 
-    .line 124
+    .line 192
     const-string v0, "AndroidKeyStore"
 
     invoke-static {v0}, Ljava/security/KeyStore;->getInstance(Ljava/lang/String;)Ljava/security/KeyStore;
 
     move-result-object v1
 
-    .line 125
+    .line 193
     const/4 v2, 0x0
 
     invoke-virtual {v1, v2}, Ljava/security/KeyStore;->load(Ljava/security/KeyStore$LoadStoreParameter;)V
 
-    .line 126
+    .line 194
     const-string v3, "gboard_ai_openai_key"
 
     invoke-virtual {v1, v3}, Ljava/security/KeyStore;->containsAlias(Ljava/lang/String;)Z
@@ -316,21 +394,21 @@
 
     if-nez v4, :cond_47
 
-    .line 127
+    .line 195
     const-string v4, "AES"
 
     invoke-static {v4, v0}, Ljavax/crypto/KeyGenerator;->getInstance(Ljava/lang/String;Ljava/lang/String;)Ljavax/crypto/KeyGenerator;
 
     move-result-object v0
 
-    .line 128
+    .line 196
     new-instance v4, Landroid/security/keystore/KeyGenParameterSpec$Builder;
 
     const/4 v5, 0x3
 
     invoke-direct {v4, v3, v5}, Landroid/security/keystore/KeyGenParameterSpec$Builder;-><init>(Ljava/lang/String;I)V
 
-    .line 130
+    .line 198
     const/16 v5, 0x100
 
     invoke-virtual {v4, v5}, Landroid/security/keystore/KeyGenParameterSpec$Builder;->setKeySize(I)Landroid/security/keystore/KeyGenParameterSpec$Builder;
@@ -343,7 +421,7 @@
 
     move-result-object v5
 
-    .line 131
+    .line 199
     invoke-virtual {v4, v5}, Landroid/security/keystore/KeyGenParameterSpec$Builder;->setBlockModes([Ljava/lang/String;)Landroid/security/keystore/KeyGenParameterSpec$Builder;
 
     move-result-object v4
@@ -354,30 +432,30 @@
 
     move-result-object v5
 
-    .line 132
+    .line 200
     invoke-virtual {v4, v5}, Landroid/security/keystore/KeyGenParameterSpec$Builder;->setEncryptionPaddings([Ljava/lang/String;)Landroid/security/keystore/KeyGenParameterSpec$Builder;
 
     move-result-object v4
 
-    .line 133
+    .line 201
     const/4 v5, 0x1
 
     invoke-virtual {v4, v5}, Landroid/security/keystore/KeyGenParameterSpec$Builder;->setRandomizedEncryptionRequired(Z)Landroid/security/keystore/KeyGenParameterSpec$Builder;
 
     move-result-object v4
 
-    .line 134
+    .line 202
     invoke-virtual {v4}, Landroid/security/keystore/KeyGenParameterSpec$Builder;->build()Landroid/security/keystore/KeyGenParameterSpec;
 
     move-result-object v4
 
-    .line 128
+    .line 196
     invoke-virtual {v0, v4}, Ljavax/crypto/KeyGenerator;->init(Ljava/security/spec/AlgorithmParameterSpec;)V
 
-    .line 135
+    .line 203
     invoke-virtual {v0}, Ljavax/crypto/KeyGenerator;->generateKey()Ljavax/crypto/SecretKey;
 
-    .line 137
+    .line 205
     :cond_47
     invoke-virtual {v1, v3, v2}, Ljava/security/KeyStore;->getEntry(Ljava/lang/String;Ljava/security/KeyStore$ProtectionParameter;)Ljava/security/KeyStore$Entry;
 
@@ -392,10 +470,74 @@
     return-object v0
 .end method
 
-.method public static getStoredBaseUrl(Landroid/content/Context;)Ljava/lang/String;
-    .registers 3
+.method public static getPolishPrompt(Landroid/content/Context;)Ljava/lang/String;
+    .locals 2
 
-    .line 44
+    .line 144
+    invoke-static {p0}, Lcom/vorflux/gboardai/AiConfig;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
+
+    move-result-object p0
+
+    const-string v0, "polish_prompt"
+
+    const-string v1, "Polish the user\'s writing in the same language. Improve clarity, fluency, grammar, and naturalness without changing meaning. Preserve formatting, line breaks, emoji, names, URLs, numbers, and placeholders. Return only the polished text."
+
+    invoke-interface {p0, v0, v1}, Landroid/content/SharedPreferences;->getString(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object p0
+
+    .line 145
+    invoke-static {p0}, Landroid/text/TextUtils;->isEmpty(Ljava/lang/CharSequence;)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_13
+
+    goto :goto_14
+
+    :cond_13
+    move-object v1, p0
+
+    :goto_14
+    return-object v1
+.end method
+
+.method public static getPolishStyle(Landroid/content/Context;)Ljava/lang/String;
+    .locals 2
+
+    .line 154
+    invoke-static {p0}, Lcom/vorflux/gboardai/AiConfig;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
+
+    move-result-object p0
+
+    const-string v0, "polish_style"
+
+    const-string v1, "standard"
+
+    invoke-interface {p0, v0, v1}, Landroid/content/SharedPreferences;->getString(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object p0
+
+    .line 155
+    invoke-static {p0}, Landroid/text/TextUtils;->isEmpty(Ljava/lang/CharSequence;)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_13
+
+    goto :goto_14
+
+    :cond_13
+    move-object v1, p0
+
+    :goto_14
+    return-object v1
+.end method
+
+.method public static getStoredBaseUrl(Landroid/content/Context;)Ljava/lang/String;
+    .locals 2
+
+    .line 48
     invoke-static {p0}, Lcom/vorflux/gboardai/AiConfig;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
     move-result-object p0
@@ -408,7 +550,7 @@
 
     move-result-object p0
 
-    .line 45
+    .line 49
     if-nez p0, :cond_f
 
     goto :goto_10
@@ -420,10 +562,42 @@
     return-object v1
 .end method
 
-.method public static isManualModel(Landroid/content/Context;)Z
-    .registers 1
+.method public static getTranslationPrompt(Landroid/content/Context;)Ljava/lang/String;
+    .locals 2
 
-    .line 115
+    .line 128
+    invoke-static {p0}, Lcom/vorflux/gboardai/AiConfig;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
+
+    move-result-object p0
+
+    const-string v0, "translation_prompt"
+
+    const-string v1, "Translate the text from {source} to {target}. Preserve meaning, tone, formatting, line breaks, emoji, names, URLs, numbers, and placeholders. Do not add explanations or invent facts. Return only the translated text."
+
+    invoke-interface {p0, v0, v1}, Landroid/content/SharedPreferences;->getString(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object p0
+
+    .line 129
+    invoke-static {p0}, Landroid/text/TextUtils;->isEmpty(Ljava/lang/CharSequence;)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_13
+
+    goto :goto_14
+
+    :cond_13
+    move-object v1, p0
+
+    :goto_14
+    return-object v1
+.end method
+
+.method public static isManualModel(Landroid/content/Context;)Z
+    .locals 0
+
+    .line 119
     invoke-static {p0}, Lcom/vorflux/gboardai/AiConfig;->getManualModel(Landroid/content/Context;)Ljava/lang/String;
 
     move-result-object p0
@@ -438,22 +612,22 @@
 .end method
 
 .method public static normalizeBaseUrl(Ljava/lang/String;)Ljava/lang/String;
-    .registers 5
+    .locals 4
 
-    .line 29
+    .line 33
     const-string v0, ""
 
     if-nez p0, :cond_5
 
     return-object v0
 
-    .line 30
+    .line 34
     :cond_5
     invoke-virtual {p0}, Ljava/lang/String;->trim()Ljava/lang/String;
 
     move-result-object p0
 
-    .line 31
+    .line 35
     :goto_9
     const-string v1, "/"
 
@@ -477,14 +651,14 @@
 
     goto :goto_9
 
-    .line 33
+    .line 37
     :cond_1d
     :try_start_1d
     new-instance v1, Ljava/net/URL;
 
     invoke-direct {v1, p0}, Ljava/net/URL;-><init>(Ljava/lang/String;)V
 
-    .line 34
+    .line 38
     const-string v2, "https"
 
     invoke-virtual {v1}, Ljava/net/URL;->getProtocol()Ljava/lang/String;
@@ -507,7 +681,7 @@
 
     if-nez v2, :cond_66
 
-    .line 35
+    .line 39
     invoke-virtual {v1}, Ljava/net/URL;->getUserInfo()Ljava/lang/String;
 
     move-result-object v2
@@ -530,11 +704,11 @@
 
     goto :goto_66
 
-    .line 38
+    .line 42
     :cond_4b
     nop
 
-    .line 39
+    .line 43
     const-string v0, "/v1"
 
     invoke-virtual {p0, v0}, Ljava/lang/String;->endsWith(Ljava/lang/String;)Z
@@ -559,27 +733,27 @@
 
     move-result-object p0
 
-    .line 40
+    .line 44
     :cond_65
     return-object p0
 
-    .line 35
+    .line 39
     :cond_66
     :goto_66
     return-object v0
 
-    .line 36
+    .line 40
     :catch_67
     move-exception p0
 
-    .line 37
+    .line 41
     return-object v0
 .end method
 
 .method private static prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
-    .registers 3
+    .locals 2
 
-    .line 25
+    .line 29
     const-string v0, "gboard_ai_private"
 
     const/4 v1, 0x0
@@ -592,9 +766,9 @@
 .end method
 
 .method public static setApiKey(Landroid/content/Context;Ljava/lang/String;)V
-    .registers 7
+    .locals 5
 
-    .line 76
+    .line 80
     invoke-static {p1}, Landroid/text/TextUtils;->isEmpty(Ljava/lang/CharSequence;)Z
 
     move-result v0
@@ -603,7 +777,7 @@
 
     if-eqz v0, :cond_18
 
-    .line 77
+    .line 81
     invoke-static {p0}, Lcom/vorflux/gboardai/AiConfig;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
     move-result-object p0
@@ -618,10 +792,10 @@
 
     invoke-interface {p0}, Landroid/content/SharedPreferences$Editor;->apply()V
 
-    .line 78
+    .line 82
     return-void
 
-    .line 81
+    .line 85
     :cond_18
     :try_start_18
     const-string v0, "AES/GCM/NoPadding"
@@ -630,7 +804,7 @@
 
     move-result-object v0
 
-    .line 82
+    .line 86
     invoke-static {}, Lcom/vorflux/gboardai/AiConfig;->getOrCreateKey()Ljavax/crypto/SecretKey;
 
     move-result-object v2
@@ -639,7 +813,7 @@
 
     invoke-virtual {v0, v3, v2}, Ljavax/crypto/Cipher;->init(ILjava/security/Key;)V
 
-    .line 83
+    .line 87
     new-instance v2, Ljava/lang/StringBuilder;
 
     invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
@@ -664,7 +838,7 @@
 
     move-result-object v2
 
-    .line 84
+    .line 88
     invoke-virtual {p1}, Ljava/lang/String;->trim()Ljava/lang/String;
 
     move-result-object p1
@@ -691,7 +865,7 @@
 
     move-result-object p1
 
-    .line 85
+    .line 89
     invoke-static {p0}, Lcom/vorflux/gboardai/AiConfig;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
     move-result-object v0
@@ -708,14 +882,14 @@
     :try_end_67
     .catch Ljava/lang/Exception; {:try_start_18 .. :try_end_67} :catch_68
 
-    .line 88
+    .line 92
     goto :goto_78
 
-    .line 86
+    .line 90
     :catch_68
     move-exception p1
 
-    .line 87
+    .line 91
     invoke-static {p0}, Lcom/vorflux/gboardai/AiConfig;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
     move-result-object p0
@@ -730,20 +904,20 @@
 
     invoke-interface {p0}, Landroid/content/SharedPreferences$Editor;->apply()V
 
-    .line 89
+    .line 93
     :goto_78
     return-void
 .end method
 
 .method public static setBaseUrl(Landroid/content/Context;Ljava/lang/String;)Z
-    .registers 3
+    .locals 1
 
-    .line 55
+    .line 59
     invoke-static {p1}, Lcom/vorflux/gboardai/AiConfig;->normalizeBaseUrl(Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object p1
 
-    .line 56
+    .line 60
     invoke-static {p1}, Landroid/text/TextUtils;->isEmpty(Ljava/lang/CharSequence;)Z
 
     move-result v0
@@ -754,7 +928,7 @@
 
     return p0
 
-    .line 57
+    .line 61
     :cond_c
     invoke-static {p0}, Lcom/vorflux/gboardai/AiConfig;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
@@ -772,16 +946,16 @@
 
     invoke-interface {p0}, Landroid/content/SharedPreferences$Editor;->apply()V
 
-    .line 58
+    .line 62
     const/4 p0, 0x1
 
     return p0
 .end method
 
 .method public static setCachedModel(Landroid/content/Context;Ljava/lang/String;)V
-    .registers 5
+    .locals 3
 
-    .line 104
+    .line 108
     invoke-static {p0}, Lcom/vorflux/gboardai/AiConfig;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
     move-result-object v0
@@ -823,14 +997,74 @@
 
     invoke-interface {p0}, Landroid/content/SharedPreferences$Editor;->apply()V
 
-    .line 105
+    .line 109
     return-void
 .end method
 
-.method public static setManualModel(Landroid/content/Context;Ljava/lang/String;)V
-    .registers 4
+.method public static setDebounceMs(Landroid/content/Context;I)V
+    .locals 1
 
-    .line 119
+    .line 178
+    const-string v0, "translation_debounce_ms"
+
+    sparse-switch p1, :sswitch_data_28
+
+    .line 187
+    invoke-static {p0}, Lcom/vorflux/gboardai/AiConfig;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
+
+    move-result-object p0
+
+    invoke-interface {p0}, Landroid/content/SharedPreferences;->edit()Landroid/content/SharedPreferences$Editor;
+
+    move-result-object p0
+
+    const/16 p1, 0x320
+
+    invoke-interface {p0, v0, p1}, Landroid/content/SharedPreferences$Editor;->putInt(Ljava/lang/String;I)Landroid/content/SharedPreferences$Editor;
+
+    move-result-object p0
+
+    invoke-interface {p0}, Landroid/content/SharedPreferences$Editor;->apply()V
+
+    goto :goto_27
+
+    .line 184
+    :sswitch_17
+    invoke-static {p0}, Lcom/vorflux/gboardai/AiConfig;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
+
+    move-result-object p0
+
+    invoke-interface {p0}, Landroid/content/SharedPreferences;->edit()Landroid/content/SharedPreferences$Editor;
+
+    move-result-object p0
+
+    invoke-interface {p0, v0, p1}, Landroid/content/SharedPreferences$Editor;->putInt(Ljava/lang/String;I)Landroid/content/SharedPreferences$Editor;
+
+    move-result-object p0
+
+    invoke-interface {p0}, Landroid/content/SharedPreferences$Editor;->apply()V
+
+    .line 185
+    nop
+
+    .line 189
+    :goto_27
+    return-void
+
+    :sswitch_data_28
+    .sparse-switch
+        0x12c -> :sswitch_17
+        0x1f4 -> :sswitch_17
+        0x320 -> :sswitch_17
+        0x4b0 -> :sswitch_17
+        0x7d0 -> :sswitch_17
+    .end sparse-switch
+.end method
+
+.method public static setManualModel(Landroid/content/Context;Ljava/lang/String;)V
+    .locals 2
+
+    .line 123
     if-nez p1, :cond_5
 
     const-string p1, ""
@@ -842,7 +1076,7 @@
 
     move-result-object p1
 
-    .line 120
+    .line 124
     :goto_9
     invoke-static {p0}, Lcom/vorflux/gboardai/AiConfig;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
@@ -864,6 +1098,128 @@
 
     invoke-interface {p0}, Landroid/content/SharedPreferences$Editor;->apply()V
 
-    .line 121
+    .line 125
+    return-void
+.end method
+
+.method public static setPolishPrompt(Landroid/content/Context;Ljava/lang/String;)V
+    .locals 1
+
+    .line 149
+    invoke-static {p0}, Lcom/vorflux/gboardai/AiConfig;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
+
+    move-result-object p0
+
+    invoke-interface {p0}, Landroid/content/SharedPreferences;->edit()Landroid/content/SharedPreferences$Editor;
+
+    move-result-object p0
+
+    .line 150
+    invoke-static {p1}, Landroid/text/TextUtils;->isEmpty(Ljava/lang/CharSequence;)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_11
+
+    const-string p1, "Polish the user\'s writing in the same language. Improve clarity, fluency, grammar, and naturalness without changing meaning. Preserve formatting, line breaks, emoji, names, URLs, numbers, and placeholders. Return only the polished text."
+
+    goto :goto_15
+
+    :cond_11
+    invoke-virtual {p1}, Ljava/lang/String;->trim()Ljava/lang/String;
+
+    move-result-object p1
+
+    .line 149
+    :goto_15
+    const-string v0, "polish_prompt"
+
+    invoke-interface {p0, v0, p1}, Landroid/content/SharedPreferences$Editor;->putString(Ljava/lang/String;Ljava/lang/String;)Landroid/content/SharedPreferences$Editor;
+
+    move-result-object p0
+
+    .line 150
+    invoke-interface {p0}, Landroid/content/SharedPreferences$Editor;->apply()V
+
+    .line 151
+    return-void
+.end method
+
+.method public static setPolishStyle(Landroid/content/Context;Ljava/lang/String;)V
+    .locals 1
+
+    .line 159
+    invoke-static {p0}, Lcom/vorflux/gboardai/AiConfig;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
+
+    move-result-object p0
+
+    invoke-interface {p0}, Landroid/content/SharedPreferences;->edit()Landroid/content/SharedPreferences$Editor;
+
+    move-result-object p0
+
+    .line 160
+    invoke-static {p1}, Landroid/text/TextUtils;->isEmpty(Ljava/lang/CharSequence;)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_10
+
+    const-string p1, "standard"
+
+    .line 159
+    :cond_10
+    const-string v0, "polish_style"
+
+    invoke-interface {p0, v0, p1}, Landroid/content/SharedPreferences$Editor;->putString(Ljava/lang/String;Ljava/lang/String;)Landroid/content/SharedPreferences$Editor;
+
+    move-result-object p0
+
+    .line 160
+    invoke-interface {p0}, Landroid/content/SharedPreferences$Editor;->apply()V
+
+    .line 161
+    return-void
+.end method
+
+.method public static setTranslationPrompt(Landroid/content/Context;Ljava/lang/String;)V
+    .locals 1
+
+    .line 133
+    invoke-static {p0}, Lcom/vorflux/gboardai/AiConfig;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
+
+    move-result-object p0
+
+    invoke-interface {p0}, Landroid/content/SharedPreferences;->edit()Landroid/content/SharedPreferences$Editor;
+
+    move-result-object p0
+
+    .line 134
+    invoke-static {p1}, Landroid/text/TextUtils;->isEmpty(Ljava/lang/CharSequence;)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_11
+
+    const-string p1, "Translate the text from {source} to {target}. Preserve meaning, tone, formatting, line breaks, emoji, names, URLs, numbers, and placeholders. Do not add explanations or invent facts. Return only the translated text."
+
+    goto :goto_15
+
+    :cond_11
+    invoke-virtual {p1}, Ljava/lang/String;->trim()Ljava/lang/String;
+
+    move-result-object p1
+
+    .line 133
+    :goto_15
+    const-string v0, "translation_prompt"
+
+    invoke-interface {p0, v0, p1}, Landroid/content/SharedPreferences$Editor;->putString(Ljava/lang/String;Ljava/lang/String;)Landroid/content/SharedPreferences$Editor;
+
+    move-result-object p0
+
+    .line 134
+    invoke-interface {p0}, Landroid/content/SharedPreferences$Editor;->apply()V
+
+    .line 135
     return-void
 .end method

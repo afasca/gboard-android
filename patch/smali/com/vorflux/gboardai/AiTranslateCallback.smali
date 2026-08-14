@@ -23,12 +23,15 @@
     move-result v0
     if-eqz v0, :done
     if-nez p2, :error
+    invoke-static {p1}, Landroid/text/TextUtils;->isEmpty(Ljava/lang/CharSequence;)Z
+    move-result v0
+    if-nez v0, :error
     new-instance v0, Lacif;
     invoke-direct {v0, p1}, Lacif;-><init>(Ljava/lang/String;)V
     goto :send
     :error
     new-instance v0, Lacif;
-    const/4 v1, 0x2
+    const/4 v1, 0x1
     invoke-direct {v0, v1}, Lacif;-><init>(I)V
     :send
     iget-object v1, p0, Lcom/vorflux/gboardai/AiTranslateCallback;->callback:Lacgb;

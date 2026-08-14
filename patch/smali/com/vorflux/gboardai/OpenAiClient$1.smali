@@ -29,14 +29,14 @@
 
 # direct methods
 .method constructor <init>(Landroid/content/Context;Ljava/lang/String;Ljava/lang/String;Lcom/vorflux/gboardai/OpenAiClient$Callback;)V
-    .registers 5
+    .locals 0
     .annotation system Ldalvik/annotation/Signature;
         value = {
             "()V"
         }
     .end annotation
 
-    .line 36
+    .line 33
     iput-object p1, p0, Lcom/vorflux/gboardai/OpenAiClient$1;->val$context:Landroid/content/Context;
 
     iput-object p2, p0, Lcom/vorflux/gboardai/OpenAiClient$1;->val$system:Ljava/lang/String;
@@ -53,15 +53,15 @@
 
 # virtual methods
 .method public run()V
-    .registers 6
+    .locals 5
 
-    .line 38
+    .line 35
     nop
 
-    .line 39
+    .line 36
     nop
 
-    .line 40
+    .line 37
     const/4 v0, 0x0
 
     :try_start_3
@@ -77,7 +77,7 @@
     :try_end_d
     .catch Ljava/lang/Exception; {:try_start_3 .. :try_end_d} :catch_11
 
-    .line 41
+    .line 38
     move-object v4, v1
 
     move-object v1, v0
@@ -89,19 +89,18 @@
     :catch_11
     move-exception v1
 
-    # invokes: Lcom/vorflux/gboardai/OpenAiClient;->safeError(Ljava/lang/Exception;)Ljava/lang/String;
     invoke-static {v1}, Lcom/vorflux/gboardai/OpenAiClient;->access$000(Ljava/lang/Exception;)Ljava/lang/String;
 
     move-result-object v1
 
-    .line 42
+    .line 39
     :goto_16
     nop
 
-    .line 43
+    .line 40
     nop
 
-    .line 44
+    .line 41
     new-instance v2, Landroid/os/Handler;
 
     invoke-static {}, Landroid/os/Looper;->getMainLooper()Landroid/os/Looper;
@@ -116,6 +115,6 @@
 
     invoke-virtual {v2, v3}, Landroid/os/Handler;->post(Ljava/lang/Runnable;)Z
 
-    .line 47
+    .line 44
     return-void
 .end method

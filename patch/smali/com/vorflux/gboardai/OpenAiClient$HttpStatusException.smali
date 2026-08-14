@@ -24,9 +24,9 @@
 
 # direct methods
 .method constructor <init>(ILjava/lang/String;)V
-    .registers 3
+    .locals 0
 
-    .line 167
+    .line 164
     invoke-direct {p0, p2}, Ljava/lang/IllegalStateException;-><init>(Ljava/lang/String;)V
 
     iput p1, p0, Lcom/vorflux/gboardai/OpenAiClient$HttpStatusException;->code:I
@@ -37,14 +37,14 @@
 
 # virtual methods
 .method isMissingModel()Z
-    .registers 4
+    .locals 3
 
-    .line 169
+    .line 166
     invoke-virtual {p0}, Lcom/vorflux/gboardai/OpenAiClient$HttpStatusException;->getMessage()Ljava/lang/String;
 
     move-result-object v0
 
-    .line 170
+    .line 167
     iget v1, p0, Lcom/vorflux/gboardai/OpenAiClient$HttpStatusException;->code:I
 
     const/16 v2, 0x194

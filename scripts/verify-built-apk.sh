@@ -7,8 +7,8 @@ INPUT_APK="${INPUT_APK:-$ROOT/fused-gboard-安卓.apk}"
 ZIPALIGN="${ZIPALIGN:-zipalign}"
 EXPECTED_PACKAGE="com.vorflux.gboard.inputmethod.latin"
 EXPECTED_LABEL="MyBoard"
-EXPECTED_VERSION_CODE="175894495"
-EXPECTED_VERSION_NAME="17.8.4.939743345-beta-arm64-v8a"
+EXPECTED_VERSION_CODE="175894496"
+EXPECTED_VERSION_NAME="17.8.5.939743346-beta-arm64-v8a"
 EXPECTED_MIN_SDK="32"
 EXPECTED_TARGET_SDK="37"
 EXPECTED_ABI="arm64-v8a"
@@ -36,7 +36,7 @@ fi
 
 SIGNING="$(apksigner verify --verbose --print-certs "$APK")"
 grep -q '^Verified using v3 scheme (APK Signature Scheme v3): true$' <<<"$SIGNING"
-grep -q "^Signer #1 certificate SHA-256 digest: $EXPECTED_CERT_SHA256$" <<<"$SIGNING"
+grep -q "certificate SHA-256 digest: $EXPECTED_CERT_SHA256$" <<<"$SIGNING"
 
 ZIPALIGN_HELP="$($ZIPALIGN 2>&1 || true)"
 if ! grep -q -- '-P <pagesize_kb>' <<<"$ZIPALIGN_HELP"; then

@@ -34,7 +34,7 @@
 
 # direct methods
 .method constructor <init>(Landroid/content/Context;Ljava/lang/String;)V
-    .registers 3
+    .locals 0
     .annotation system Ldalvik/annotation/Signature;
         value = {
             "()V"
@@ -54,7 +54,7 @@
 
 # virtual methods
 .method public bridge synthetic call()Ljava/lang/Object;
-    .registers 2
+    .locals 1
     .annotation system Ldalvik/annotation/Throws;
         value = {
             Ljava/lang/Exception;
@@ -70,7 +70,7 @@
 .end method
 
 .method public call()Ljava/lang/String;
-    .registers 4
+    .locals 3
     .annotation system Ldalvik/annotation/Throws;
         value = {
             Ljava/lang/Exception;
@@ -80,7 +80,11 @@
     .line 12
     iget-object v0, p0, Lcom/vorflux/gboardai/AiWritingTools$1;->val$context:Landroid/content/Context;
 
-    const-string v1, "Polish the user\'s writing in the same language. Improve clarity, fluency, grammar, and naturalness without changing meaning. Preserve formatting and emoji. Return only the polished text."
+    iget-object v1, p0, Lcom/vorflux/gboardai/AiWritingTools$1;->val$context:Landroid/content/Context;
+
+    invoke-static {v1}, Lcom/vorflux/gboardai/AiWritingTools;->buildPrompt(Landroid/content/Context;)Ljava/lang/String;
+
+    move-result-object v1
 
     iget-object v2, p0, Lcom/vorflux/gboardai/AiWritingTools$1;->val$text:Ljava/lang/String;
 

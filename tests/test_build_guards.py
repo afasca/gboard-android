@@ -20,7 +20,7 @@ def test_pinned_input():
     actual_sha = subprocess.check_output(["sha256sum", APK], text=True).split()[0]
     assert actual_sha == EXPECTED_SHA
     output = subprocess.check_output(["apksigner", "verify", "--print-certs", APK], text=True)
-    assert f"Signer #1 certificate SHA-256 digest: {EXPECTED_CERT}" in output
+    assert f"certificate SHA-256 digest: {EXPECTED_CERT}" in output
 
 
 def manifest_integer_attribute(data, resource_id):

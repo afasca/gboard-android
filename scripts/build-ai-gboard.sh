@@ -7,7 +7,7 @@ EXPECTED_INPUT_SHA256="f06d8e42131a3feb7a05e1e42244af43059a67899bf1fa958290f18d8
 EXPECTED_INPUT_CERT_SHA256="f0fd6c5b410f25cb25c3b53346c8972fae30f8ee7411df910480ad6b2d60db83"
 UNSIGNED="$ROOT/build/gboard-ai-unsigned-$$.apk"
 ALIGNED="$ROOT/build/gboard-ai-aligned-$$.apk"
-OUTPUT="${OUTPUT_APK:-$ROOT/build/MyBoard-AI-v6.apk}"
+OUTPUT="${OUTPUT_APK:-$ROOT/build/MyBoard-AI-17.8.5.apk}"
 KEYSTORE="${KEYSTORE:-$ROOT/build/gboard-ai.keystore}"
 EXPECTED_CERT_SHA256="72f35793e9f17aba292fe6dd1607eca6b783cf779ca52b1561f03e5bc411ebeb"
 SIGNED_TMP="$ROOT/build/gboard-ai-signed-$$.apk"
@@ -17,8 +17,12 @@ SIGNED_TMP="$ROOT/build/gboard-ai-signed-$$.apk"
 if [[ -z "${ALLOW_UNVERIFIED_INPUT:-}" ]]; then
   ACTUAL_INPUT_SHA256="$(sha256sum "$INPUT_APK" | awk '{print $1}')"
   [[ "$ACTUAL_INPUT_SHA256" == "$EXPECTED_INPUT_SHA256" ]] || { echo "Unexpected input APK SHA-256: $ACTUAL_INPUT_SHA256" >&2; exit 1; }
-  ACTUAL_INPUT_CERT_SHA256="$(apksigner verify --print-certs "$INPUT_APK" | sed -n 's/^Signer #1 certificate SHA-256 digest: //p')"
-  [[ "$ACTUAL_INPUT_CERT_SHA256" == "$EXPECTED_INPUT_CERT_SHA256" ]] || { echo "Unexpected input signer: $ACTUAL_INPUT_CERT_SHA256" >&2; exit 1; }
+  INPUT_SIGNING="$(apksigner verify --print-certs "$INPUT_APK")"
+  if ! grep -q "certificate SHA-256 digest: $EXPECTED_INPUT_CERT_SHA256$" <<<"$INPUT_SIGNING"; then
+    ACTUAL_INPUT_CERT_SHA256="$(sed -n 's/^.*certificate SHA-256 digest: //p' <<<"$INPUT_SIGNING" | paste -sd, -)"
+    echo "Unexpected input signer(s): $ACTUAL_INPUT_CERT_SHA256" >&2
+    exit 1
+  fi
 fi
 mkdir -p "$ROOT/build"
 # Use a per-process work directory so concurrent verification builds cannot corrupt each other.

@@ -22,14 +22,11 @@ public final class OpenAiClient {
     public interface Callback { void onComplete(String result, String error); }
 
     public static void translate(Context context, String text, String source, String target, Callback callback) {
-        String system = "You are Gboard's translation engine. Translate the user text from " + source +
-                " to " + target + ". Preserve meaning, tone, formatting, emoji, and line breaks. Return only the translated text.";
-        completeAsync(context, system, text, callback);
+        completeAsync(context, AiConfig.formatTranslationPrompt(context, source, target), text, callback);
     }
 
     public static void polish(Context context, String text, Callback callback) {
-        String system = "Polish the user's writing in the same language. Improve clarity, fluency, grammar, and naturalness without changing meaning. Preserve formatting and emoji. Return only the polished text.";
-        completeAsync(context, system, text, callback);
+        completeAsync(context, AiConfig.getPolishPrompt(context), text, callback);
     }
 
     public static void completeAsync(final Context context, final String system, final String text, final Callback callback) {

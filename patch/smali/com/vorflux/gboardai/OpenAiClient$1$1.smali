@@ -27,14 +27,14 @@
 
 # direct methods
 .method constructor <init>(Lcom/vorflux/gboardai/OpenAiClient$1;Ljava/lang/String;Ljava/lang/String;)V
-    .registers 4
+    .locals 0
     .annotation system Ldalvik/annotation/Signature;
         value = {
             "()V"
         }
     .end annotation
 
-    .line 44
+    .line 41
     iput-object p1, p0, Lcom/vorflux/gboardai/OpenAiClient$1$1;->this$0:Lcom/vorflux/gboardai/OpenAiClient$1;
 
     iput-object p2, p0, Lcom/vorflux/gboardai/OpenAiClient$1$1;->val$finalResult:Ljava/lang/String;
@@ -49,9 +49,9 @@
 
 # virtual methods
 .method public run()V
-    .registers 4
+    .locals 3
 
-    .line 45
+    .line 42
     iget-object v0, p0, Lcom/vorflux/gboardai/OpenAiClient$1$1;->this$0:Lcom/vorflux/gboardai/OpenAiClient$1;
 
     iget-object v0, v0, Lcom/vorflux/gboardai/OpenAiClient$1;->val$callback:Lcom/vorflux/gboardai/OpenAiClient$Callback;
