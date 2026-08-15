@@ -39,7 +39,7 @@ MyBoard should feel like Gboard with a reliable, user-controlled OpenAI-compatib
 - Proofread interception and OpenAI request.
 - Selected/full-text capture.
 - Existing Gboard result, acceptance, replacement, selection restoration, and undo pipeline.
-- Fixed top `AI 润色` access point with persisted microphone-slot migration; native voice remains in the customizable reserve toolbar.
+- Fixed top `AI 润色` access point with persisted microphone-slot migration; Jarvis is excluded from personalization and legacy customized orders while native voice remains customizable.
 - Presets: standard, concise, formal, natural/conversational, professional.
 - Custom style/prompt with restore-default behavior.
 

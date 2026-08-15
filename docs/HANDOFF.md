@@ -84,7 +84,7 @@ Configuration includes:
 
 Current implementation intercepts `akhf.PROOFREAD` in `wei.B(...)`, captures selected text or the full captured text, calls `AiWritingTools.polish(...)`, and reuses Gboard's result/accept/replace/undo pipeline.
 
-The six styles and fixed `AI 润色` entry are implemented in the current worktree. The fixed power-key holder selects `jarvis` and migrates a persisted `voice` default, while the single native `Lshb` voice definition remains in the customizable reserve toolbar with its original lifecycle and action events. The click dispatch now runs from `Lwsb.run()` through the native embedded-Runnable route; `Lwsa.a(...)` retains its attachment lifecycle event. Unused `Lwth` declarative dependencies were removed from `Lwsf` and `Lwej` to break their circular coupling to full Jarvis, while `wsc` still passes the original editor/context eligibility checks before its targeted final gate bypass. Physical ARM64 validation is still required.
+The six styles and fixed `AI 润色` entry are implemented. The fixed power-key holder selects `jarvis` and migrates a persisted `voice` default, while the native `Lshb` voice definition remains customizable with its original lifecycle and action events. Jarvis is rejected before both native personalization handlers, legacy promotion state is scrubbed, and both persisted customized-order variants remove Jarvis while compensating the active count. The click dispatch runs from `Lwsb.run()` through the native embedded-Runnable route; `Lwsa.a(...)` retains its attachment lifecycle event. Unused `Lwth` declarative dependencies were removed from `Lwsf` and `Lwej`, while `wsc` still passes the original editor/context eligibility checks before its targeted final gate bypass. Physical ARM64 validation is still required.
 
 ## Current checkpoint: manual model picker
 
@@ -219,6 +219,7 @@ Repository tests:
 python3 tests/test_static_contract.py
 python3 tests/test_smali_patch_regressions.py
 python3 tests/test_pinned_smali_patch_integration.py
+python3 tests/test_fixed_holder_release_gate.py
 python3 tests/test_build_guards.py
 python3 tests/test_coexistence_resources.py
 python3 -m py_compile scripts/*.py tests/*.py
@@ -264,9 +265,10 @@ Do not mark the existing partial test report passed until these are confirmed.
 
 - Local path: `build/MyBoard-AI-17.8.5.apk`
 - Size: `82,305,521 bytes`
-- SHA-256: `ccc871d4a577db712d8e9683a2b74d4415d1dc9d991e1c40adb46e1caf037492`
-- Static, pinned-input integration, build, full APK verification, and 39 decoded exact-candidate contracts: passed
-- Prerelease publication and public re-download byte identity: passed
+- SHA-256: `cd9633d26e0c9b063cea44cdddaa605c75795944e6587c0d0b797a1c75b896b5`
+- Commit: `b02a3e9d3869e894cbe26e0c1e40fbedfbb08d76`
+- Static, pinned-input integration, signed build, packaging checks, and composed decoded behavior contracts: passed
+- Release asset replacement and public re-download byte identity: pending
 - ARM64 Android 12L+ toolbar/UI/safety acceptance: blocked pending a connected physical device
 
 ## Releases and prior artifacts
@@ -281,6 +283,6 @@ A checkpoint GitHub release for the manual model picker is optional. If one is c
 ## Immediate next steps for the next engineer
 
 1. Pull `vorflux/ai-translation-polish` and read this file plus `README.md`.
-2. Re-run all repository tests and inspect the fixed-holder commit.
-3. Update the single `Summary` test report with the fixed-holder correction.
+2. Replace the `myboard-ai-v6` asset with the exact candidate and verify a cache-busted public re-download.
+3. Update the single `Summary` test report; do not create a second report.
 4. Ask the user to validate all changed UI and request timing on a physical ARM64 phone, collecting logcat if anything fails.

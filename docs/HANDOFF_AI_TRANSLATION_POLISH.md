@@ -12,12 +12,13 @@ Updated: 2026-08-15 (fixed-holder candidate)
 
 ## Current delivery status
 
-The worktree now implements the requested fixed-holder polish design. A new signed candidate has passed repository tests, apktool assembly, signing, and the full APK verifier; physical ARM64 UI validation is still pending.
+The branch implements the requested fixed-holder polish design and blocks Jarvis from native personalization before it can alter customizable active order. A new signed candidate has passed repository tests, apktool assembly, signing, packaging verification, and the composed behavior gate; physical ARM64 UI validation is still pending.
 
 - Candidate: `build/MyBoard-AI-17.8.5.apk`
 - Size: `82,305,521 bytes`
-- SHA-256: `ccc871d4a577db712d8e9683a2b74d4415d1dc9d991e1c40adb46e1caf037492`
-- Status: fixed-holder prerelease published; not yet physically ARM64-validated
+- SHA-256: `cd9633d26e0c9b063cea44cdddaa605c75795944e6587c0d0b797a1c75b896b5`
+- Commit: `b02a3e9d3869e894cbe26e0c1e40fbedfbb08d76`
+- Status: final static candidate built; release replacement and physical ARM64 validation pending
 - Package: `com.vorflux.gboard.inputmethod.latin`
 - Label: `MyBoard`
 - versionCode: `175894496`
@@ -94,7 +95,8 @@ The `AI 润色` access point:
 - uses the existing `jarvis` identity, native `Lwok`/`Lwsc` eligibility state machine, icon `0x7f0804cc`, and raw label/accessibility text `AI 润色`;
 - is selected by the fixed `POWER_KEY` holder (`Lagxe`) instead of being forced into the customizable active toolbar order;
 - migrates an existing persisted fixed-holder selection from `voice` to `jarvis` and uses `jarvis` as the fallback for fresh installs;
-- keeps the single native `Lshb` `voice` definition in the customizable reserve list by removing only its `"default" = true` fixed-holder metadata;
+- rejects Jarvis before non-customized and customized personalization, scrubs legacy promotion state, and migrates both persisted customized-order variants with active-count compensation;
+- keeps the native `Lshb` `voice` definition customizable by removing only its `"default" = true` fixed-holder metadata;
 - preserves native voice lifecycle and action contracts, including `Latbs`, `LAUNCH_VOICE_IME` event `-0x273a`, and disabled event `-0x275b`;
 - preserves `Lwsa.a(...)` as the native attach/show callback and its `-0x27f9` event;
 - dispatches the real click only from `Lwsb.run()` through `Lwtz.f(..., Lakhf.g, ...)`, reached by the existing `Lagow.u(Runnable)` / `-0x9c47` route;
@@ -179,6 +181,7 @@ export PATH=/var/tmp/toolchain/jdk/bin:/var/tmp/android-build-tools-35/android-1
 python3 tests/test_static_contract.py
 python3 tests/test_smali_patch_regressions.py
 python3 tests/test_pinned_smali_patch_integration.py
+python3 tests/test_fixed_holder_release_gate.py
 python3 tests/test_build_guards.py
 python3 tests/test_coexistence_resources.py
 python3 -m py_compile scripts/*.py tests/*.py
@@ -198,12 +201,13 @@ OUTPUT_APK="$PWD/build/MyBoard-AI-17.8.5.apk" \
   ./scripts/build-ai-gboard.sh
 ```
 
-The build passed apktool assembly, v3 signing, the full APK verifier, resource parity, resource closure, split-marker removal, ARM64-only ABI, 15 uncompressed libraries with 16 KiB ZIP alignment, and ELF `PT_LOAD >= 0x4000` checks. Decoding the exact signed candidate confirmed all 39 fixed-holder contracts: `Lwsa` retains its lifecycle event without polish dispatch, `Lwsb.run()` owns the click dispatch, `Lagxe` defaults/migrates to `jarvis`, native voice loses only fixed-holder-default metadata while retaining its action contracts, `Lwsf`/`Lwej` no longer declare unused `Lwth` dependencies or their module gates, and native editor/context guards remain. Android 13 x86_64 installation evidence applies only to the superseded candidate and is not ARM64 UI evidence for these new bytes.
+The exact signed candidate passed apktool assembly, v3 signing, resource parity and closure, split-marker removal, ARM64-only ABI, 15 uncompressed libraries with 16 KiB ZIP alignment, ELF `PT_LOAD >= 0x4000`, and the composed decoded behavior gate. The gate verifies lifecycle/click separation, fixed-holder selection and voice migration, native voice action preservation, module dependencies, editor/context guards, pre-personalization Jarvis rejection, legacy-state scrubbing, and both persisted-order migrations. Android 13 x86_64 evidence is limited to installation and byte identity and is not ARM64 UI evidence.
 
 ## Pending tasks
 
-1. Update the single `Summary` test report with the fixed-holder candidate; do not create another report.
-2. Obtain real ARM64 Android 12L+ verification for fresh and upgrade installs, fixed `AI 润色`, reserve voice, settings, translation, protected editors, replace, and undo.
+1. Replace the `myboard-ai-v6` asset with the exact signed candidate and verify a cache-busted public re-download.
+2. Update the single `Summary` test report; do not create another report.
+3. Obtain real ARM64 Android 12L+ verification for fresh and upgrade installs, fixed `AI 润色`, reserve voice, settings, translation, protected editors, replace, and undo.
 
 ## Risks and review questions
 
@@ -231,4 +235,4 @@ The build passed apktool assembly, v3 signing, the full APK verifier, resource p
 
 ## Handoff prompt
 
-When handing off again, point the next engineer to the current Pending tasks. The published prerelease asset and local signed candidate match exactly; require any future public re-download to keep matching the hash and size above. Do not rebuild or substitute different APK bytes without updating the candidate metadata and rerunning all gates.
+When handing off again, point the next engineer to the current Pending tasks. The release asset must be replaced with the exact local signed candidate; require the cache-busted public re-download to match the hash and size above before handing off again. Do not rebuild or substitute different APK bytes without updating the candidate metadata and rerunning all gates.

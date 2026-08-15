@@ -57,6 +57,7 @@ The build removes any Play-generated `requiredSplitTypes="base__density"` marker
 python3 tests/test_static_contract.py
 python3 tests/test_smali_patch_regressions.py
 python3 tests/test_pinned_smali_patch_integration.py
+python3 tests/test_fixed_holder_release_gate.py
 python3 tests/test_build_guards.py
 python3 tests/test_coexistence_resources.py
 python3 -m py_compile scripts/*.py tests/*.py
