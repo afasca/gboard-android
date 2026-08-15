@@ -1,0 +1,69 @@
+# Gboard AI translation and polish patch
+
+This repository patches the supplied arm64 Gboard APK without rebuilding its raw Android 37 resources.
+
+Engineering handoff and detailed roadmap:
+
+- [`docs/HANDOFF.md`](docs/HANDOFF.md)
+- [`docs/ROADMAP.md`](docs/ROADMAP.md)
+
+## Changes
+
+- Replaces the built-in translation provider with an OpenAI-compatible AI translator.
+- Reuses Gboard Writing Tools' existing **Proofread** flow as AI polish: the fixed top microphone slot becomes **AI 润色**, native voice remains in the customizable reserve toolbar, and selected-text capture, loading/error UI, result confirmation, replacement, and undo stay native.
+- Adds an **OpenAI-compatible settings** row to Gboard's Translation settings.
+- Keeps automatic model discovery as the default, and lets users fetch the filtered/ranked `GET /v1/models` list to choose a model or return to automatic mode.
+- Scopes automatic and manual model choices to the exact normalized API Base URL. A missing manually selected model produces a useful error instead of silently changing the choice.
+- Encrypts the API key with a 256-bit Android Keystore AES-GCM key. It is never embedded in the APK or logged.
+- Rejects invalid or non-HTTPS compatible-service URLs before saving, so a third-party key is never silently redirected to the OpenAI default.
+- Uses the visible name **MyBoard** while keeping the original icon, and preserves 16 KiB native-library alignment for modern ARM64 devices.
+
+The build uses the independent package `com.vorflux.gboard.inputmethod.latin`, so it can be installed alongside the official Google-signed Gboard. It has separate settings, app data, and Android Keystore entries. The supplied APK is arm64-only, matching the repository input.
+
+## Build
+
+The build requires:
+
+- Android Build Tools 35 or newer because `zipalign` must support 16 KiB page alignment (`-P 16`).
+- The existing repository development keystore whose certificate SHA-256 is pinned below. It is intentionally ignored by Git; set `KEYSTORE` to your secured copy. This signer cannot be regenerated because Gboard's internal certificate allowlist is bound to it.
+
+The pinned `fused-gboard-安卓.apk` is used by default. A complete release build is:
+
+```bash
+KEYSTORE=/secure/path/gboard-ai.keystore \
+ZIPALIGN=/path/to/android-sdk/build-tools/35.0.0/zipalign \
+OUTPUT_APK="$PWD/build/MyBoard-AI-17.8.5.apk" \
+  ./scripts/build-ai-gboard.sh
+```
+
+To test another verified fused input, pass its path as the first argument and update the pinned input checks deliberately:
+
+```bash
+KEYSTORE=/secure/path/gboard-ai.keystore \
+ZIPALIGN=/path/to/android-sdk/build-tools/35.0.0/zipalign \
+OUTPUT_APK="$PWD/build/MyBoard-AI-17.8.5.apk" \
+  ./scripts/build-ai-gboard.sh /path/to/fused-gboard.apk
+```
+
+Output: `build/MyBoard-AI-17.8.5.apk`
+
+Use a fused/standalone APK as input. A Play base APK that declares `requiredSplitTypes="base__density"` does not contain the density drawables needed by Launcher and LatinIME; removing only that marker produces an installable APK that crashes with `Resources$NotFoundException`.
+
+The build removes any Play-generated `requiredSplitTypes="base__density"` marker, restores `minSdkVersion` 32, and advances the app metadata from upstream version `17.8.3.939743344-beta-arm64-v8a` / code `175894494` to `17.8.5.939743346-beta-arm64-v8a` / code `175894496`, while the fused input supplies the complete density resources. The patched certificate whitelist is bound to the repository development certificate SHA-256 `72f35793e9f17aba292fe6dd1607eca6b783cf779ca52b1561f03e5bc411ebeb`. Preserve `build/gboard-ai.keystore` between builds; using another key is intentionally rejected because it would fail Gboard's certificate-integrity check.
+
+## Verification
+
+```bash
+python3 tests/test_static_contract.py
+python3 tests/test_smali_patch_regressions.py
+python3 tests/test_pinned_smali_patch_integration.py
+python3 tests/test_fixed_holder_release_gate.py
+python3 tests/test_build_guards.py
+python3 tests/test_coexistence_resources.py
+python3 -m py_compile scripts/*.py tests/*.py
+git diff --check
+```
+
+## Runtime limitations
+
+The input contains only `arm64-v8a` libraries, so runtime validation requires an ARM64 Android device. It installs on x86_64 Redroid but cannot load its AArch64 native libraries there. The development certificate is explicitly added to Gboard's existing certificate whitelist (rather than disabling the check). Package/certificate-bound Google services may not recognize the independent clone, while AI translation and polish use the configured OpenAI-compatible service.
