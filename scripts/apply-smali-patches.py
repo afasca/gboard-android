@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import hashlib
 import sys
 from collections.abc import Callable
 from pathlib import Path
@@ -48,6 +49,25 @@ def update_method_once(
 
 def load(path: Path) -> str:
     return path.read_text(encoding="utf-8")
+
+
+def validate_method_sha256(method: str, expected_sha256: str, label: str) -> None:
+    actual_sha256 = hashlib.sha256(method.encode("utf-8")).hexdigest()
+    if actual_sha256 != expected_sha256:
+        raise SystemExit(
+            f"{label}: original method SHA-256 mismatch "
+            f"(expected {expected_sha256}, found {actual_sha256})"
+        )
+
+
+def replace_verified_method(
+    method: str,
+    expected_sha256: str,
+    replacement: str,
+    label: str,
+) -> str:
+    validate_method_sha256(method, expected_sha256, label)
+    return replacement
 
 
 def patch_development_certificate(root: Path) -> tuple[Path, str]:
@@ -492,7 +512,8 @@ def patch_ai_writing_tools_module(text: str) -> str:
 
 
 def patch_ai_polish_definition(text: str) -> str:
-    """Relabel the native safe-state definition and keep its Runnable click route."""
+    """Relabel the pinned native definition and keep its Runnable click route."""
+    original_sha256 = "ed39bc2fdfc0ea9bd330cca02191b1cdf1193a3ab1a0977122840b1f7c64fdc2"
     replacement = """.method public final b(Ljava/lang/String;Z)Lagpb;
     .locals 3
 
@@ -531,13 +552,19 @@ def patch_ai_polish_definition(text: str) -> str:
     return update_method_once(
         text,
         ".method public final b(Ljava/lang/String;Z)Lagpb;",
-        lambda _method: replacement,
+        lambda method: replace_verified_method(
+            method,
+            original_sha256,
+            replacement,
+            "AI polish access point definition",
+        ),
         "AI polish access point definition",
     )
 
 
 def patch_ai_polish_click(text: str) -> str:
-    """Dispatch polish from the embedded Runnable, never from attach callbacks."""
+    """Rewrite only the exact pinned Runnable, never a drifted implementation."""
+    original_sha256 = "65e1f6709bf16beb028692670936377f16d3e5b5212e95b7ad2a70a0ba8b3d82"
     replacement = """.method public final run()V
     .locals 4
 
@@ -562,13 +589,19 @@ def patch_ai_polish_click(text: str) -> str:
     return update_method_once(
         text,
         ".method public final run()V",
-        lambda _method: replacement,
+        lambda method: replace_verified_method(
+            method,
+            original_sha256,
+            replacement,
+            "AI polish Runnable click",
+        ),
         "AI polish Runnable click",
     )
 
 
 def patch_power_key_polish_default(text: str) -> str:
-    """Select jarvis in the fixed power-key holder and migrate the voice default."""
+    """Patch only the pinned power-key selector, then migrate the voice default."""
+    original_sha256 = "135228d0c97f916472073887530e8338b7c73069e4fecefdda2a0eeff97c4427"
     replacement = """.method private static N(Landroid/content/Context;Lanyg;ZLaivh;)Ljava/lang/String;
     .locals 2
 
@@ -604,8 +637,395 @@ def patch_power_key_polish_default(text: str) -> str:
     return update_method_once(
         text,
         ".method private static N(Landroid/content/Context;Lanyg;ZLaivh;)Ljava/lang/String;",
-        lambda _method: replacement,
+        lambda method: replace_verified_method(
+            method,
+            original_sha256,
+            replacement,
+            "fixed power-key AI polish selection",
+        ),
         "fixed power-key AI polish selection",
+    )
+
+
+def patch_non_customized_personalization(text: str) -> str:
+    """Reject Jarvis before Lagww personalization and scrub its legacy set entry."""
+    constructor_sha256 = "db65c5ebaa7996b3c942a2c58eda4d89a9fa498f9b7004717e48fec8eb494566"
+    waiting_list_sha256 = "52af0affc0d443bd391f22186d958bcd3afaaeb77bd2176ad1e7d915c4196428"
+    high_investment_sha256 = "4ac5e3a5b455353247127b92ecdd73339f11599c83976b6a7b8c857bd8b7c0c5"
+
+    def patch_constructor(method: str) -> str:
+        validate_method_sha256(
+            method,
+            constructor_sha256,
+            "non-customized personalization state load",
+        )
+        method = replace_once(
+            method,
+            "    .locals 3",
+            "    .locals 4",
+            "non-customized personalization state locals",
+        )
+        load_tail = """    move-result-object p1
+
+    .line 37
+    if-eqz p1, :cond_0
+
+    .line 38
+    .line 39
+    invoke-static {p1}, Lazha;->k(Ljava/util/Collection;)Lazha;
+
+    .line 40
+    .line 41
+    .line 42
+    move-result-object v0
+
+    .line 43
+    :cond_0
+    iput-object v0, p0, Lagww;->n:Lazha;"""
+        scrubbed_tail = """    move-result-object p1
+
+    .line 37
+    if-eqz p1, :cond_0
+
+    new-instance v2, Ljava/util/HashSet;
+    invoke-direct {v2, p1}, Ljava/util/HashSet;-><init>(Ljava/util/Collection;)V
+    const-string v3, "jarvis"
+    invoke-interface {v2, v3}, Ljava/util/Set;->remove(Ljava/lang/Object;)Z
+    move-result p1
+    if-eqz p1, :vorflux_remained_state_ready
+    iget-object p1, p0, Lagww;->l:Lanyg;
+    const v3, 0x7f140ac1
+    invoke-virtual {p1, v3, v2}, Lanxc;->u(ILjava/util/Set;)V
+
+    :vorflux_remained_state_ready
+    invoke-static {v2}, Lazha;->k(Ljava/util/Collection;)Lazha;
+
+    .line 40
+    .line 41
+    .line 42
+    move-result-object v0
+
+    .line 43
+    :cond_0
+    iput-object v0, p0, Lagww;->n:Lazha;"""
+        return replace_once(
+            method,
+            load_tail,
+            scrubbed_tail,
+            "non-customized legacy jarvis state scrub",
+        )
+
+    text = update_method_once(
+        text,
+        ".method public constructor <init>(Landroid/content/Context;Lagsp;)V",
+        patch_constructor,
+        "non-customized personalization state load",
+    )
+
+    waiting_list_replacement = """.method public static q()Lazha;
+    .locals 3
+
+    sget-object v0, Lagpc;->l:Lajoj;
+    invoke-interface {v0}, Lajoj;->g()Ljava/lang/Object;
+    move-result-object v0
+    check-cast v0, Ljava/lang/String;
+
+    const-string v1, ";"
+    invoke-virtual {v0, v1}, Ljava/lang/String;->split(Ljava/lang/String;)[Ljava/lang/String;
+    move-result-object v0
+
+    new-instance v1, Ljava/util/ArrayList;
+    invoke-direct {v1}, Ljava/util/ArrayList;-><init>()V
+    invoke-static {v1, v0}, Ljava/util/Collections;->addAll(Ljava/util/Collection;[Ljava/lang/Object;)Z
+    const-string v2, "jarvis"
+    :vorflux_remove_jarvis_waiting_list
+    invoke-interface {v1, v2}, Ljava/util/List;->remove(Ljava/lang/Object;)Z
+    move-result v0
+    if-nez v0, :vorflux_remove_jarvis_waiting_list
+    invoke-static {v1}, Lazha;->k(Ljava/util/Collection;)Lazha;
+    move-result-object v0
+    return-object v0
+.end method"""
+    text = update_method_once(
+        text,
+        ".method public static q()Lazha;",
+        lambda method: replace_verified_method(
+            method,
+            waiting_list_sha256,
+            waiting_list_replacement,
+            "non-customized personalization waiting list",
+        ),
+        "non-customized personalization waiting list",
+    )
+
+    high_investment_replacement = """.method private final w()Ljava/lang/String;
+    .locals 2
+
+    sget-object v0, Lagpc;->t:Lajoj;
+    invoke-interface {v0}, Lajoj;->g()Ljava/lang/Object;
+    move-result-object v0
+    check-cast v0, Ljava/lang/String;
+
+    const-string v1, "jarvis"
+    invoke-virtual {v1, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+    move-result v1
+    if-nez v1, :vorflux_no_high_investment_feature
+
+    invoke-static {v0}, Landroid/text/TextUtils;->isEmpty(Ljava/lang/CharSequence;)Z
+    move-result v1
+    if-nez v1, :vorflux_no_high_investment_feature
+
+    iget-object p0, p0, Lagww;->o:Lagsp;
+    invoke-virtual {p0, v0}, Lagsp;->d(Ljava/lang/String;)Z
+    move-result p0
+    if-eqz p0, :vorflux_no_high_investment_feature
+    return-object v0
+
+    :vorflux_no_high_investment_feature
+    const/4 p0, 0x0
+    return-object p0
+.end method"""
+    return update_method_once(
+        text,
+        ".method private final w()Ljava/lang/String;",
+        lambda method: replace_verified_method(
+            method,
+            high_investment_sha256,
+            high_investment_replacement,
+            "non-customized high investment feature",
+        ),
+        "non-customized high investment feature",
+    )
+
+
+def patch_customized_personalization(text: str) -> str:
+    """Reject Jarvis before Lagwo promotion and scrub only Jarvis legacy state."""
+    original_sha256 = "3fb09ee53d6994b6a0bce65875b24d1cf07c06ec8303cf36ba7797d7b1d220c9"
+
+    def update(method: str) -> str:
+        validate_method_sha256(
+            method,
+            original_sha256,
+            "customized high investment personalization",
+        )
+        method = replace_once(
+            method,
+            "    .locals 10",
+            "    .locals 11",
+            "customized high investment personalization locals",
+        )
+        prologue = """    .line 2
+    iput v0, p0, Lagsl;->h:I
+
+    iget-object v4, p0, Lagwo;->m:Lanyg;
+    const v5, 0x7f140abf
+    invoke-virtual {v4, v5}, Lanyg;->V(I)Ljava/util/Set;
+    move-result-object v6
+    new-instance v7, Ljava/util/HashSet;
+    invoke-direct {v7, v6}, Ljava/util/HashSet;-><init>(Ljava/util/Collection;)V
+    invoke-interface {v7}, Ljava/util/Set;->iterator()Ljava/util/Iterator;
+    move-result-object v8
+
+    :vorflux_jarvis_state_loop
+    invoke-interface {v8}, Ljava/util/Iterator;->hasNext()Z
+    move-result v9
+    if-eqz v9, :vorflux_jarvis_state_ready
+    invoke-interface {v8}, Ljava/util/Iterator;->next()Ljava/lang/Object;
+    move-result-object v9
+    check-cast v9, Ljava/lang/String;
+    const-string v10, "jarvis:"
+    invoke-virtual {v9, v10}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
+    move-result v9
+    if-eqz v9, :vorflux_jarvis_state_loop
+    invoke-interface {v8}, Ljava/util/Iterator;->remove()V
+    goto :vorflux_jarvis_state_loop
+
+    :vorflux_jarvis_state_ready
+    invoke-interface {v7, v6}, Ljava/util/Set;->equals(Ljava/lang/Object;)Z
+    move-result v6
+    if-nez v6, :vorflux_jarvis_state_scrubbed
+    invoke-virtual {v4, v5, v7}, Lanxc;->u(ILjava/util/Set;)V
+
+    :vorflux_jarvis_state_scrubbed"""
+        method = replace_once(
+            method,
+            """    .line 2
+    iput v0, p0, Lagsl;->h:I""",
+            prologue,
+            "customized legacy jarvis promotion state scrub",
+        )
+        jarvis_check = """    move-result-object v4
+
+    .line 33
+    invoke-virtual {v4, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    .line 34
+    .line 35
+    .line 36
+    move-result v4
+
+    .line 37
+    const-string v5, \"CustomizedOrderPersonalizeTopBarHandler.java\""""
+        rejection = """    move-result-object v4
+
+    .line 33
+    invoke-virtual {v4, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    .line 34
+    .line 35
+    .line 36
+    move-result v4
+    if-eqz v4, :vorflux_non_jarvis_feature
+
+    const/4 v4, 0x0
+    iput-object v4, p0, Lagwo;->j:Lagwm;
+    iput-object v4, p0, Lagwo;->o:Lagwn;
+    const/4 v4, 0x0
+    iput-boolean v4, p0, Lagwo;->p:Z
+    invoke-direct {p0}, Lagwo;->s()V
+
+    return-void
+
+    :vorflux_non_jarvis_feature
+
+    .line 37
+    const-string v5, \"CustomizedOrderPersonalizeTopBarHandler.java\""""
+        return replace_once(
+            method,
+            jarvis_check,
+            rejection,
+            "customized jarvis rejection before Lagwn",
+        )
+
+    return update_method_once(
+        text,
+        ".method public final q()V",
+        update,
+        "customized high investment personalization",
+    )
+
+
+def patch_customized_order_persistence(text: str) -> str:
+    """Migrate completed Jarvis promotions in both persisted order variants."""
+    original_sha256 = "4ef5004e66a0330605407e8c2fc49fbc7b0dad7cc07034ac5595ced22bbb35b0"
+
+    def update(method: str) -> str:
+        validate_method_sha256(
+            method,
+            original_sha256,
+            "customized persisted order load",
+        )
+        load_preferences = """    invoke-static {v0}, Lanyg;->N(Landroid/content/Context;)Lanyg;
+
+    .line 222
+    .line 223
+    .line 224
+    move-result-object v4
+
+    .line 225
+    sget-object v6, Laivh;->f:Laivh;"""
+        migrate_preferences = """    invoke-static {v0}, Lanyg;->N(Landroid/content/Context;)Lanyg;
+
+    .line 222
+    .line 223
+    .line 224
+    move-result-object v4
+
+    const v5, 0x7f140935
+    const v8, 0x7f140934
+    invoke-static {v4, v5, v8}, Lagrz;->o(Lanyg;II)V
+    const v11, 0x7f1409c7
+    const v8, 0x7f1409c6
+    invoke-static {v4, v11, v8}, Lagrz;->o(Lanyg;II)V
+
+    .line 225
+    sget-object v6, Laivh;->f:Laivh;"""
+        return replace_once(
+            method,
+            load_preferences,
+            migrate_preferences,
+            "customized persisted order migration calls",
+        )
+
+    text = update_method_once(
+        text,
+        ".method static n(Landroid/content/Context;Lagut;Laivh;Lazha;Lazha;Z)Lagrz;",
+        update,
+        "customized persisted order load",
+    )
+    helper = """
+.method private static o(Lanyg;II)V
+    .locals 10
+
+    invoke-virtual {p0, p1}, Lanyg;->ar(I)Z
+    move-result v0
+    if-eqz v0, :vorflux_customized_order_done
+
+    invoke-virtual {p0, p1}, Lanyg;->S(I)Ljava/lang/String;
+    move-result-object v0
+    invoke-static {v0}, Landroid/text/TextUtils;->isEmpty(Ljava/lang/CharSequence;)Z
+    move-result v1
+    if-nez v1, :vorflux_customized_order_done
+
+    const-string v1, ";"
+    invoke-virtual {v0, v1}, Ljava/lang/String;->split(Ljava/lang/String;)[Ljava/lang/String;
+    move-result-object v0
+
+    new-instance v2, Ljava/util/ArrayList;
+    invoke-direct {v2}, Ljava/util/ArrayList;-><init>()V
+    const/4 v3, 0x0
+    const/4 v4, 0x0
+    const/4 v5, 0x0
+    const/4 v6, -0x1
+    invoke-virtual {p0, p2, v6}, Lanxc;->l(II)I
+    move-result v6
+    array-length v7, v0
+
+    :vorflux_customized_order_loop
+    if-ge v3, v7, :vorflux_customized_order_scanned
+    aget-object v8, v0, v3
+    const-string v9, "jarvis"
+    invoke-virtual {v9, v8}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+    move-result v9
+    if-eqz v9, :vorflux_customized_order_keep
+
+    const/4 v5, 0x1
+    if-ltz v6, :vorflux_customized_order_next
+    if-ge v3, v6, :vorflux_customized_order_next
+    add-int/lit8 v4, v4, 0x1
+    goto :vorflux_customized_order_next
+
+    :vorflux_customized_order_keep
+    invoke-interface {v2, v8}, Ljava/util/List;->add(Ljava/lang/Object;)Z
+
+    :vorflux_customized_order_next
+    add-int/lit8 v3, v3, 0x1
+    goto :vorflux_customized_order_loop
+
+    :vorflux_customized_order_scanned
+    if-eqz v5, :vorflux_customized_order_done
+    const-string v0, ";"
+    invoke-static {v0, v2}, Landroid/text/TextUtils;->join(Ljava/lang/CharSequence;Ljava/lang/Iterable;)Ljava/lang/String;
+    move-result-object v0
+    invoke-virtual {p0, p1, v0}, Lanxc;->t(ILjava/lang/String;)V
+
+    if-lez v4, :vorflux_customized_order_done
+    sub-int/2addr v6, v4
+    if-gez v6, :vorflux_customized_count_ready
+    const/4 v6, 0x0
+
+    :vorflux_customized_count_ready
+    invoke-virtual {p0, p2, v6}, Lanxc;->r(II)V
+
+    :vorflux_customized_order_done
+    return-void
+.end method
+"""
+    return replace_once(
+        text,
+        "\n\n# virtual methods\n",
+        helper + "\n# virtual methods\n",
+        "customized persisted order migration helper",
     )
 
 
@@ -656,6 +1076,9 @@ def patch_ai_polish_entry(root: Path) -> tuple[tuple[Path, str], ...]:
     definition_path = root / "smali/wse.smali"
     click_path = root / "smali_classes2/wsb.smali"
     holder_path = root / "smali/agxe.smali"
+    customized_order_persistence_path = root / "smali/agrz.smali"
+    non_customized_personalization_path = root / "smali_classes3/agww.smali"
+    customized_personalization_path = root / "smali_classes3/agwo.smali"
     voice_path = root / "smali/shb.smali"
 
     return (
@@ -665,6 +1088,22 @@ def patch_ai_polish_entry(root: Path) -> tuple[tuple[Path, str], ...]:
         (definition_path, patch_ai_polish_definition(load(definition_path))),
         (click_path, patch_ai_polish_click(load(click_path))),
         (holder_path, patch_power_key_polish_default(load(holder_path))),
+        (
+            customized_order_persistence_path,
+            patch_customized_order_persistence(
+                load(customized_order_persistence_path)
+            ),
+        ),
+        (
+            non_customized_personalization_path,
+            patch_non_customized_personalization(
+                load(non_customized_personalization_path)
+            ),
+        ),
+        (
+            customized_personalization_path,
+            patch_customized_personalization(load(customized_personalization_path)),
+        ),
         (voice_path, patch_voice_reserve_entry(load(voice_path))),
     )
 

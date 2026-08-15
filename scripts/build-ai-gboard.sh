@@ -62,7 +62,8 @@ apksigner sign --ks "$KEYSTORE" --ks-key-alias gboard-ai \
   --ks-pass pass:android --key-pass pass:android --out "$SIGNED_TMP" "$ALIGNED"
 apksigner verify --verbose --print-certs "$SIGNED_TMP"
 mkdir -p "$(dirname "$OUTPUT")"
-ZIPALIGN="$ZIPALIGN" INPUT_APK="$INPUT_APK" "$ROOT/scripts/verify-built-apk.sh" "$SIGNED_TMP"
+APKTOOL_JAR="$APKTOOL_JAR" ZIPALIGN="$ZIPALIGN" INPUT_APK="$INPUT_APK" \
+  "$ROOT/scripts/verify-built-apk.sh" "$SIGNED_TMP"
 mkdir -p "$(dirname "$OUTPUT")"
 mv -f "$SIGNED_TMP" "$OUTPUT"
 rm -f "$SIGNED_TMP.idsig" "$OUTPUT.idsig"

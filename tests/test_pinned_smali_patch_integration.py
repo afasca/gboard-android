@@ -23,6 +23,9 @@ EXPECTED_PATCH_OUTPUTS = {
     "smali/wse.smali",
     "smali_classes2/wsb.smali",
     "smali/agxe.smali",
+    "smali/agrz.smali",
+    "smali_classes3/agww.smali",
+    "smali_classes3/agwo.smali",
     "smali/shb.smali",
 }
 
@@ -141,6 +144,65 @@ def test_pinned_ai_polish_registration_patch() -> None:
         assert 'const-string v1, "voice"' in holder
         assert "Lanxc;->t(ILjava/lang/String;)V" in holder
 
+        persisted_order = outputs["smali/agrz.smali"]
+        persisted_load = method(
+            persisted_order,
+            ".method static n(Landroid/content/Context;Lagut;Laivh;Lazha;Lazha;Z)Lagrz;",
+        )
+        persisted_migration = method(
+            persisted_order,
+            ".method private static o(Lanyg;II)V",
+        )
+        for contract in (
+            "const v8, 0x7f140934",
+            "const v8, 0x7f1409c6",
+            "invoke-static {v4, v5, v8}, Lagrz;->o(Lanyg;II)V",
+            "invoke-static {v4, v11, v8}, Lagrz;->o(Lanyg;II)V",
+        ):
+            assert contract in persisted_load
+        for contract in (
+            'const-string v9, "jarvis"',
+            "Landroid/text/TextUtils;->join(Ljava/lang/CharSequence;Ljava/lang/Iterable;)Ljava/lang/String;",
+            "Lanxc;->t(ILjava/lang/String;)V",
+            "Lanxc;->l(II)I",
+            "Lanxc;->r(II)V",
+        ):
+            assert contract in persisted_migration
+
+        non_customized = outputs["smali_classes3/agww.smali"]
+        constructor = method(
+            non_customized,
+            ".method public constructor <init>(Landroid/content/Context;Lagsp;)V",
+        )
+        waiting_list = method(non_customized, ".method public static q()Lazha;")
+        high_investment = method(
+            non_customized,
+            ".method private final w()Ljava/lang/String;",
+        )
+        assert 'const-string v3, "jarvis"' in constructor
+        assert "const v3, 0x7f140ac1" in constructor
+        assert "Ljava/util/Set;->remove(Ljava/lang/Object;)Z" in constructor
+        assert 'const-string v2, "jarvis"' in waiting_list
+        assert ":vorflux_remove_jarvis_waiting_list" in waiting_list
+        assert "Ljava/util/List;->remove(Ljava/lang/Object;)Z" in waiting_list
+        assert 'const-string v1, "jarvis"' in high_investment
+        assert high_investment.index('const-string v1, "jarvis"') < high_investment.index(
+            "Lagsp;->d(Ljava/lang/String;)Z"
+        )
+
+        customized = method(
+            outputs["smali_classes3/agwo.smali"],
+            ".method public final q()V",
+        )
+        assert customized.index(":vorflux_non_jarvis_feature") < customized.index(
+            "new-instance v4, Lagwn;"
+        )
+        assert "iput-object v4, p0, Lagwo;->j:Lagwm;" in customized
+        assert 'const-string v10, "jarvis:"' in customized
+        assert "Ljava/util/Iterator;->remove()V" in customized
+        assert "const v5, 0x7f140abf" in customized
+        assert "Lanxc;->u(ILjava/util/Set;)V" in customized
+
         voice = method(
             outputs["smali/shb.smali"],
             ".method private final d(Z)Lagow;",
@@ -149,6 +211,17 @@ def test_pinned_ai_polish_registration_patch() -> None:
         assert 'const-string v2, "default"' not in voice
         assert "Lsgw;-><init>(Lshb;Z)V" in voice
         assert "Lsgx;-><init>(Lshb;Z)V" in voice
+
+        action_signature = ".method public final b(I)V"
+        original_action = method(originals["smali/shb.smali"], action_signature)
+        patched_action = method(outputs["smali/shb.smali"], action_signature)
+        assert patched_action == original_action
+        for native_contract in (
+            "const/16 v6, -0x273a",
+            "const/16 v6, -0x275b",
+            "Latbs;->f(Lagow;Z)V",
+        ):
+            assert native_contract in original_action
 
 
 if __name__ == "__main__":

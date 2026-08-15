@@ -100,7 +100,6 @@ assert '0x7f140d8c' in patcher
 # Polish replaces the fixed power-key microphone while the native voice access
 # point remains in the customizable reserve list. The real click uses the
 # embedded Runnable; attachment keeps the original native lifecycle event.
-assert 'def patch_always_available_proofread' not in patcher
 assert 'def patch_ai_polish_entry' in patcher
 assert '.method public static b(ZZ)Z' not in patcher
 assert 'def patch_ai_polish_click' in patcher
@@ -115,10 +114,17 @@ assert 'Lanxc;->t(ILjava/lang/String;)V' in patcher
 assert 'def patch_voice_reserve_entry' in patcher
 assert 'smali/shb.smali' in patcher
 assert 'native voice fixed-holder default metadata' in patcher
-assert 'def patch_toolbar_jarvis_persistence' not in patcher
-assert 'smali/agpc.smali' not in patcher
-assert 'smali/wqp.smali' not in patcher
-assert 'smali/wgw.smali' not in patcher
+assert 'def patch_non_customized_personalization' in patcher
+assert 'def patch_customized_personalization' in patcher
+assert 'def patch_customized_order_persistence' in patcher
+assert 'smali_classes3/agww.smali' in patcher
+assert 'smali_classes3/agwo.smali' in patcher
+assert 'smali/agrz.smali' in patcher
+for resource_id in ('0x7f140934', '0x7f1409c6'):
+    assert resource_id in patcher
+assert 'v5' in patcher and 'v11' in patcher
+assert 'const-string v10, "jarvis:"' in patcher
+assert 'Ljava/util/Iterator;->remove()V' in patcher
 assert 'AI polish access point module feature gate' in patcher
 assert 'AI polish unused Jarvis helper dependency' in patcher
 assert 'AI writing tools module feature gate' in patcher
@@ -187,6 +193,27 @@ assert 'certificate SHA-256 digest: $EXPECTED_INPUT_CERT_SHA256$' in builder
 assert '"$ZIPALIGN" -P 16 -f 4' in builder
 assert '"$ZIPALIGN" -c -P 16 4' in builder
 assert 'verify-built-apk.sh' in builder
+assert 'APKTOOL_JAR="$APKTOOL_JAR"' in builder
+assert 'verify-fixed-holder-contracts.py' not in builder
+verifier = (root / 'scripts/verify-built-apk.sh').read_text()
+behavior_gate = (root / 'scripts/verify-fixed-holder-contracts.py').read_text()
+assert 'verify-fixed-holder-contracts.py' in verifier
+assert verifier.index('verify-fixed-holder-contracts.py') < verifier.index('echo "verified $APK"')
+assert 'def normalized_method_sha256' in behavior_gate
+assert 'smali/agrz.smali' in behavior_gate
+for resource_id in ('0x7f140935', '0x7f1409c7', '0x7f140934', '0x7f1409c6'):
+    assert resource_id in behavior_gate
+for patched_hash in (
+    '6593c60b52194decab3acedaf64bd66b858f6a4647289d3d5f6de3883d47a763',
+    '116616f8e4a64d854790cfc8cf3acfbd75360a3520d768d6bda7c0cd64050503',
+    'a18d2b20c63f5bb149831347727c667a718c6ca03f47b2d16b1ee296e58a9420',
+    '27f6a31cb2570a781868ab465f508ca7048460115b5d091c365782af9c0409ac',
+    '23674d50c8d6ffa70763228572209d3b3c9899b6d9e6f4092d2b942d10edc0f7',
+    '0bc1daaa28b7383af717c8152b8f8e0a317ec6fca78597210e3f1656d65c8ffb',
+    'a527f2f79298ab57cafbb0b2b6cb7044dd7a546413b06c632f66f27496ba60b5',
+):
+    assert patched_hash in behavior_gate
+assert builder.index('verify-built-apk.sh') < builder.index('mv -f "$SIGNED_TMP" "$OUTPUT"')
 assert 'cannot be regenerated' in builder
 assert 'NEW_PACKAGE = "com.vorflux.gboard.inputmethod.latin"' in coexist_patcher
 assert 'EXPECTED_MANIFEST_UTF16 = 15' in coexist_patcher

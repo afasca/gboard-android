@@ -4,6 +4,7 @@ set -euo pipefail
 APK="${1:?usage: verify-built-apk.sh <apk>}"
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 INPUT_APK="${INPUT_APK:-$ROOT/fused-gboard-安卓.apk}"
+APKTOOL_JAR="${APKTOOL_JAR:-$ROOT/tools/apktool_2.12.0.jar}"
 ZIPALIGN="${ZIPALIGN:-zipalign}"
 EXPECTED_PACKAGE="com.vorflux.gboard.inputmethod.latin"
 EXPECTED_LABEL="MyBoard"
@@ -16,6 +17,7 @@ EXPECTED_CERT_SHA256="72f35793e9f17aba292fe6dd1607eca6b783cf779ca52b1561f03e5bc4
 
 [[ -f "$APK" ]] || { echo "Missing APK $APK" >&2; exit 1; }
 [[ -f "$INPUT_APK" ]] || { echo "Missing fused input APK $INPUT_APK" >&2; exit 1; }
+[[ -f "$APKTOOL_JAR" ]] || { echo "Missing apktool $APKTOOL_JAR" >&2; exit 1; }
 for tool in aapt apksigner unzip readelf; do
   command -v "$tool" >/dev/null || { echo "Missing required tool: $tool" >&2; exit 1; }
 done
@@ -103,5 +105,8 @@ with open(apk, "rb") as raw, zipfile.ZipFile(apk) as archive, zipfile.ZipFile(in
                 f"ELF PT_LOAD alignment below 0x4000: {entry.filename}"
             )
 PY
+
+python3 "$ROOT/scripts/verify-fixed-holder-contracts.py" \
+  --apktool "$APKTOOL_JAR" "$APK"
 
 echo "verified $APK"
