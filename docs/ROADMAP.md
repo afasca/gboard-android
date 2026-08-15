@@ -39,13 +39,14 @@ MyBoard should feel like Gboard with a reliable, user-controlled OpenAI-compatib
 - Proofread interception and OpenAI request.
 - Selected/full-text capture.
 - Existing Gboard result, acceptance, replacement, selection restoration, and undo pipeline.
+- Registered `AI 润色` toolbar access point with toolbar-order migration.
+- Presets: standard, concise, formal, natural/conversational, professional.
+- Custom style/prompt with restore-default behavior.
 
 ### Remaining
 
-- A discoverable `AI 润色` entry on target devices.
-- Presets: standard, concise, formal, natural/conversational, professional.
-- Custom style/prompt.
-- Current-style indication and restore-default behavior.
+- Physical ARM64 Android 12L+ confirmation that `AI 润色` is discoverable on fresh and upgraded installs.
+- Physical verification of all style, replacement, undo, visual, and protected-editor safety behavior.
 
 ### Acceptance criteria
 

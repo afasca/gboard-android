@@ -84,7 +84,7 @@ Configuration includes:
 
 Current implementation intercepts `akhf.PROOFREAD` in `wei.B(...)`, captures selected text or the full captured text, calls `AiWritingTools.polish(...)`, and reuses Gboard's result/accept/replace/undo pipeline.
 
-The `AI 润色` toolbar entry and six styles are implemented. Its module feature gate is bypassed only for the `wsc` toolbar provider while the original editor/context eligibility checks remain intact. Physical ARM64 validation is still required for discoverability and interaction behavior.
+The `AI 润色` toolbar entry and six styles are implemented. The direct `wqp` registration gate and transitive `wgw` gate are removed so the existing `Lwgv.a` minors-readiness producer can initialize; `wqp` still requires that tag, and `Lwtu.J`/`Lahce.b` continue deciding readiness. The `wsc` toolbar-provider gate is bypassed only after the original editor/context eligibility checks. Physical ARM64 validation is still required for discoverability and interaction behavior.
 
 ## Current checkpoint: manual model picker
 
@@ -218,6 +218,7 @@ Repository tests:
 ```bash
 python3 tests/test_static_contract.py
 python3 tests/test_smali_patch_regressions.py
+python3 tests/test_pinned_smali_patch_integration.py
 python3 tests/test_build_guards.py
 python3 tests/test_coexistence_resources.py
 python3 -m py_compile scripts/*.py tests/*.py
@@ -258,6 +259,15 @@ Therefore physical ARM64 Android 12L+ testing is required for:
 - Launcher and LatinIME startup.
 
 Do not mark the existing partial test report passed until these are confirmed.
+
+## Current tested candidate
+
+- Local path: `build/MyBoard-AI-17.8.5.apk`
+- Size: `82,289,137 bytes`
+- SHA-256: `4fb9b745267416b16538b02f08f1126ebf452135fc4cb76727bf19171a3a3b24`
+- Static/build/APK verification: passed
+- Android 13 x86_64 installation and installed `base.apk` byte identity: passed
+- ARM64 Android 12L+ toolbar/UI/safety acceptance: blocked pending a connected physical device
 
 ## Releases and prior artifacts
 

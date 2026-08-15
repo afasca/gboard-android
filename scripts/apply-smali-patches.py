@@ -407,6 +407,67 @@ def patch_polish_state_eligibility(text: str) -> str:
     )
 
 
+def _patch_provider_registration_gate(
+    text: str,
+    needle: str,
+    replacement: str,
+    diagnostic: str,
+) -> str:
+    return update_method_once(
+        text,
+        ".method public final getModuleDef(Landroid/content/Context;)Lamyy;",
+        lambda method: replace_once(
+            method,
+            needle,
+            replacement,
+            diagnostic,
+        ),
+        diagnostic,
+    )
+
+
+def patch_jarvis_provider_registration(text: str) -> str:
+    """Register the Jarvis access-point provider without globally enabling it."""
+    needle = """    sget-object p1, Lwtu;->a:Lajoj;
+
+    .line 57
+    .line 58
+    invoke-virtual {p0, p1}, Lamym;->k(Lajoj;)V
+
+    .line 59
+"""
+    replacement = """    .line 59
+"""
+    diagnostic = "AI polish Jarvis provider registration gate"
+    return _patch_provider_registration_gate(
+        text,
+        needle,
+        replacement,
+        diagnostic,
+    )
+
+
+def patch_minors_checker_provider_registration(text: str) -> str:
+    """Initialize the existing minors-readiness producer without the global gate."""
+    needle = """    sget-object p1, Lwtu;->a:Lajoj;
+
+    .line 20
+    .line 21
+    invoke-virtual {p0, p1}, Lamym;->k(Lajoj;)V
+
+    .line 22
+"""
+    replacement = """    .line 22
+"""
+    diagnostic = "AI polish minors-checker provider registration gate"
+    return _patch_provider_registration_gate(
+        text,
+        needle,
+        replacement,
+        diagnostic,
+    )
+
+
 def patch_ai_polish_entry(root: Path) -> tuple[tuple[Path, str], ...]:
     order_path = root / "smali/agpc.smali"
     order = replace_once(
@@ -414,6 +475,14 @@ def patch_ai_polish_entry(root: Path) -> tuple[tuple[Path, str], ...]:
         'const-string v1, "search;sticker;gif_search;clipboard;settings;theme_setting;one_handed;textediting;share;translate;floating_keyboard"',
         'const-string v1, "jarvis;search;sticker;gif_search;clipboard;settings;theme_setting;one_handed;textediting;share;translate;floating_keyboard"',
         "AI polish access point default order",
+    )
+
+    registration_path = root / "smali/wqp.smali"
+    registration = patch_jarvis_provider_registration(load(registration_path))
+
+    minors_provider_path = root / "smali/wgw.smali"
+    minors_provider = patch_minors_checker_provider_registration(
+        load(minors_provider_path)
     )
 
     provider_path = root / "smali/wsf.smali"
@@ -514,6 +583,8 @@ def patch_ai_polish_entry(root: Path) -> tuple[tuple[Path, str], ...]:
 
     return (
         (order_path, order),
+        (registration_path, registration),
+        (minors_provider_path, minors_provider),
         (provider_path, provider),
         (module_path, module),
         (state_path, state),

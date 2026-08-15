@@ -112,6 +112,8 @@ assert 'def inject_fallback_join' in patcher
 assert 'fallback toolbar order join' in patcher
 assert '.method private static z(Ljava/lang/String;)Ljava/lang/String;' in patcher
 assert 'const-string v2, ";jarvis;"' in patcher
+assert 'smali/wqp.smali' in patcher
+assert 'smali/wgw.smali' in patcher
 assert 'AI polish access point module feature gate' in patcher
 assert 'AI writing tools module feature gate' in patcher
 assert 'const-string v3, "AI 润色"' in patcher

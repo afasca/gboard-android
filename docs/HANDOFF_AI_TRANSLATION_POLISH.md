@@ -1,6 +1,6 @@
 # MyBoard AI translation and polish handoff
 
-Updated: 2026-08-14 23:34 UTC
+Updated: 2026-08-15 00:09 UTC
 
 ## Repository and pull request
 
@@ -12,12 +12,12 @@ Updated: 2026-08-14 23:34 UTC
 
 ## Current delivery status
 
-The implementation is feature-complete enough for a handoff checkpoint. The current signed candidate below also fixes the model picker content-panel conflict that hid successfully fetched model rows, and has passed the full repository verifier.
+The implementation is feature-complete enough for a handoff checkpoint. The current signed candidate below fixes both the model-picker content-panel conflict and the transitive module-registration gates that hid `AI 润色`, and has passed the full repository verifier.
 
 - Candidate: `build/MyBoard-AI-17.8.5.apk`
-- Size: `82,305,521 bytes`
-- SHA-256: `e298a3d9efe43c0c860526a86da77f904e64460e405d0e350bae3166c30c00e4`
-- Status: model-picker fix publish candidate; do not rebuild after this checkpoint
+- Size: `82,289,137 bytes`
+- SHA-256: `4fb9b745267416b16538b02f08f1126ebf452135fc4cb76727bf19171a3a3b24`
+- Status: AI polish entry registration publish candidate; do not rebuild after this checkpoint
 - Package: `com.vorflux.gboard.inputmethod.latin`
 - Label: `MyBoard`
 - versionCode: `175894496`
@@ -27,7 +27,7 @@ The implementation is feature-complete enough for a handoff checkpoint. The curr
 - ABI: ARM64 only (`arm64-v8a`)
 - Signature: APK Signature Scheme v3; certificate SHA-256 `72f35793e9f17aba292fe6dd1607eca6b783cf779ca52b1561f03e5bc411ebeb`
 
-Static/build verification and x86_64 Android 13 installation/package extraction verification are complete. Remaining work is to commit/push, update PR #1 and the partial Summary test report, publish/download-check the exact candidate, and obtain physical ARM64 Android 12L+ UI verification.
+Static/build verification and x86_64 Android 13 installation/package extraction verification are complete for these exact bytes. Remaining work is to commit/push, update PR #1 and the partial Summary test report, publish/download-check the exact candidate, and obtain physical ARM64 Android 12L+ UI verification.
 
 ## Product design
 
@@ -92,7 +92,9 @@ Preset modes extend `AiConfig.DEFAULT_POLISH_PROMPT`; only custom reads the save
 The `AI 润色` access point:
 
 - is inserted in the default toolbar order before search;
-- removes the provider/module feature-flag gates while retaining native editor/context eligibility;
+- removes the direct `wqp` registration gate and the transitive `wgw` gate so the existing `Lwgv.a` minors-readiness producer can initialize;
+- preserves `wqp`'s `Lwgv.a` dependency and the native `Lwtu.J`/`Lahce.b` minors checks rather than forcing readiness;
+- removes the remaining provider/module feature-flag gates while retaining native editor/context eligibility;
 - labels the access point `AI 润色`;
 - sends the native Proofread event directly through `Lwtz.f(..., Lakhf.g, ...)`;
 - preserves the native result, replace, and undo flow;
@@ -163,6 +165,8 @@ Primary source/patch files:
 - `scripts/remove-required-split.py`
 - `scripts/verify-built-apk.sh`
 - `tests/test_static_contract.py`
+- `tests/test_smali_patch_regressions.py`
+- `tests/test_pinned_smali_patch_integration.py`
 - `tests/test_build_guards.py`
 
 ## Tests already passed
@@ -172,6 +176,7 @@ export JAVA_HOME=/var/tmp/toolchain/jdk
 export PATH=/var/tmp/toolchain/jdk/bin:/var/tmp/android-build-tools-35/android-15:$PATH
 python3 tests/test_static_contract.py
 python3 tests/test_smali_patch_regressions.py
+python3 tests/test_pinned_smali_patch_integration.py
 python3 tests/test_build_guards.py
 python3 tests/test_coexistence_resources.py
 python3 -m py_compile scripts/*.py tests/*.py
@@ -191,19 +196,18 @@ OUTPUT_APK="$PWD/build/MyBoard-AI-17.8.5.apk" \
   ./scripts/build-ai-gboard.sh
 ```
 
-The build passed apktool assembly, v3 signing, the full APK verifier, resource parity, resource closure, split-marker removal, ARM64-only ABI, 15 uncompressed libraries with 16 KiB ZIP alignment, and ELF `PT_LOAD >= 0x4000` checks.
+The build passed apktool assembly, v3 signing, the full APK verifier, resource parity, resource closure, split-marker removal, ARM64-only ABI, 15 uncompressed libraries with 16 KiB ZIP alignment, and ELF `PT_LOAD >= 0x4000` checks. Decoding the exact candidate confirmed both registration gates are absent while the `Lwgv.a` minors dependency/producer and native editor/context guards remain. Android 13 x86_64 installation succeeded, and its pulled installed `base.apk` matched the candidate by size, SHA-256, and `cmp`; this is package evidence only, not ARM64 UI evidence.
 
 ## Pending tasks
 
-1. Commit and push branch `vorflux/ai-translation-polish`.
-2. Update existing PR #1 with a coherent current description and exact testing commands; do not create another PR.
-3. Submit/update exactly one Test Report titled `Summary` with partial status until physical ARM64 testing.
-4. Publish the exact candidate APK, download it again from the public GitHub URL, and compare SHA-256 and size.
-5. Obtain real ARM64 Android 12L+ verification for MyBoard launch, keyboard enable/show, settings, model selection, translation debounce/progress, AI polish entry/styles, replace, and undo.
+1. Update existing PR #1 with a coherent current description and exact testing commands; do not create another PR.
+2. Submit/update exactly one Test Report titled `Summary` with partial status until physical ARM64 testing.
+3. Publish the exact candidate APK, download it again from the public GitHub URL, and compare SHA-256 and size.
+4. Obtain real ARM64 Android 12L+ verification for MyBoard launch, keyboard enable/show, settings, model selection, translation debounce/progress, AI polish entry/styles, replace, and undo.
 
 ## Risks and review questions
 
-- The earlier global `wtu.b(ZZ)=true` bypass and broad `wok.k()` replacement were removed because they affected unrelated Writing Tools call sites or bypassed native safety checks. Only the `wsc` polish provider bypasses the module gate after native editor/context eligibility passes. Verify visibility and password/incognito/unsupported-editor behavior on a physical device.
+- The earlier global `wtu.b(ZZ)=true` bypass and broad `wok.k()` replacement were removed because they affected unrelated Writing Tools call sites or bypassed native safety checks. Only the required `wqp`/`wgw` registration gates and the `wsc` polish-provider gate are bypassed. `wqp` still waits for the existing minors-readiness tag, and `wsc` still passes native editor/context eligibility before its targeted gate bypass. Verify visibility and password/incognito/unsupported-editor behavior on a physical device.
 - The native spinner is visible, but separate debounce-versus-network text is not implemented.
 - `gc()` does not have an independently patched spinner clear; teardown currently relies on `close()`/other UI stop paths. Verify on device.
 - Static source-string tests are not runtime timing tests. Physical-device tests must confirm burst coalescing and stale-response rejection against a deterministic API endpoint.

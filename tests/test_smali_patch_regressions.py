@@ -101,6 +101,160 @@ def test_polish_state_keeps_native_eligibility():
     assert "Lwqf;" not in patched
 
 
+def test_jarvis_provider_registration_removes_only_writing_helper_gate():
+    original = """.class public final Lwqp;
+.super Ljava/lang/Object;
+
+.method public final getModuleDef(Landroid/content/Context;)Lamyy;
+    .locals 5
+    const-class p0, Lwth;
+    const-class p1, Lwqo;
+    sget-object v0, Lamyx;->b:Lamyx;
+    new-instance v1, Lamyw;
+    const/16 v2, 0x6b
+    invoke-direct {v1, v2, p0, p1, v0}, Lamyw;-><init>(ILjava/lang/Class;Ljava/lang/Class;Lamyx;)V
+    new-instance p0, Lamym;
+    invoke-direct {p0}, Lamym;-><init>()V
+    const/4 p1, 0x4
+    new-array p1, p1, [Langv;
+    sget-object v0, Lagpi;->a:Langv;
+    sget-object v0, Lwgv;->a:Langv;
+    sget-object v4, Laodd;->g:Langv;
+    sget-object v4, Lcom/google/android/libraries/inputmethod/nativelib/NativeLibHelper;->a:Langv;
+    invoke-virtual {p0, p1}, Lamym;->h([Langv;)V
+    const-class v0, Lvjj;
+    invoke-virtual {p0, p1}, Lamym;->g([Ljava/lang/Class;)V
+    sget-object p1, Lwtu;->a:Lajoj;
+
+    .line 57
+    .line 58
+    invoke-virtual {p0, p1}, Lamym;->k(Lajoj;)V
+
+    .line 59
+    sget-object p1, Lwtu;->c:Lajoj;
+    invoke-virtual {p0, p1}, Lamym;->j(Lajoj;)V
+    new-instance p1, Lamyo;
+    sget-object v0, Lwtu;->b:Lajoj;
+    invoke-direct {p1, v0, v4, v4, v2}, Lamyo;-><init>(Lajoj;[Ljava/lang/String;Ljava/lang/String;Z)V
+    invoke-virtual {p0, p1}, Lamym;->d(Lamyo;)V
+    new-instance p1, Lamyo;
+    const-string v0, "morse_2"
+    invoke-direct {p1, v4, v4, v0, v3}, Lamyo;-><init>(Lajoj;[Ljava/lang/String;Ljava/lang/String;Z)V
+    invoke-virtual {p0, p1}, Lamym;->d(Lamyo;)V
+    iput-object p0, v1, Lamyw;->f:Lamym;
+    new-instance p0, Lamyy;
+    invoke-direct {p0, v1}, Lamyy;-><init>(Lamyw;)V
+    return-object p0
+.end method
+
+.method public final unrelated()V
+    sget-object p1, Lwtu;->a:Lajoj;
+    invoke-virtual {p0, p1}, Lamym;->k(Lajoj;)V
+    return-void
+.end method"""
+    gate = """    sget-object p1, Lwtu;->a:Lajoj;
+
+    .line 57
+    .line 58
+    invoke-virtual {p0, p1}, Lamym;->k(Lajoj;)V
+
+    .line 59
+"""
+    expected = original.replace(gate, "    .line 59\n")
+    patched = patcher.patch_jarvis_provider_registration(original)
+    assert patched == expected
+    assert "sget-object v0, Lwgv;->a:Langv;" in patched
+
+
+def test_registration_chain_keeps_minors_readiness_dependency_and_producer():
+    wgw = """.class public final Lwgw;
+.super Ljava/lang/Object;
+.implements Lamyd;
+
+.method public final a(Lamyb;)Lamyc;
+    .locals 0
+    new-instance p0, Lwgv;
+    invoke-direct {p0}, Lwgv;-><init>()V
+    return-object p0
+.end method
+
+.method public final getModuleDef(Landroid/content/Context;)Lamyy;
+    .locals 2
+    const-class p0, Lwgv;
+    sget-object p1, Lamyx;->b:Lamyx;
+    new-instance v0, Lamyw;
+    const/16 v1, 0x8d
+    invoke-direct {v0, v1, p0, p0, p1}, Lamyw;-><init>(ILjava/lang/Class;Ljava/lang/Class;Lamyx;)V
+    new-instance p0, Lamym;
+    invoke-direct {p0}, Lamym;-><init>()V
+    sget-object p1, Lwtu;->a:Lajoj;
+
+    .line 20
+    .line 21
+    invoke-virtual {p0, p1}, Lamym;->k(Lajoj;)V
+
+    .line 22
+    .line 23
+    .line 24
+    iput-object p0, v0, Lamyw;->f:Lamym;
+    new-instance p0, Lamyy;
+    invoke-direct {p0, v0}, Lamyy;-><init>(Lamyw;)V
+    return-object p0
+.end method"""
+    wgv = """.class public final Lwgv;
+.super Ljava/lang/Object;
+
+.method static constructor <clinit>()V
+    new-instance v0, Lwgu;
+    invoke-direct {v0}, Ljava/lang/Object;-><init>()V
+    sput-object v0, Lwgv;->a:Langv;
+    const-string v1, "MinorsCheckerPassedTag"
+    invoke-static {v1, v0}, Lanhc;->d(Ljava/lang/String;Langv;)V
+    return-void
+.end method
+
+.method public static a()V
+    sget-object v0, Lwtu;->J:Lajoj;
+    if-eqz v0, :cond_0
+    sget-object v0, Lwgv;->a:Langv;
+    invoke-static {v0}, Lanhc;->g(Langv;)V
+    return-void
+    :cond_0
+    sget-object v0, Lahce;->b:Langv;
+    invoke-static {v0}, Lanhc;->e(Langv;)Z
+    move-result v0
+    if-eqz v0, :cond_1
+    sget-object v0, Lwgv;->a:Langv;
+    invoke-static {v0}, Lanhc;->g(Langv;)V
+    return-void
+    :cond_1
+    sget-object v0, Lwgv;->a:Langv;
+    invoke-static {v0}, Lanhc;->h(Langv;)V
+    return-void
+.end method"""
+    gate = """    sget-object p1, Lwtu;->a:Lajoj;
+
+    .line 20
+    .line 21
+    invoke-virtual {p0, p1}, Lamym;->k(Lajoj;)V
+
+    .line 22
+"""
+    expected = wgw.replace(gate, "    .line 22\n")
+
+    patched = patcher.patch_minors_checker_provider_registration(wgw)
+    assert patched == expected
+    for readiness_behavior in (
+        'const-string v1, "MinorsCheckerPassedTag"',
+        "sget-object v0, Lwtu;->J:Lajoj;",
+        "sget-object v0, Lahce;->b:Langv;",
+        "invoke-static {v0}, Lanhc;->e(Langv;)Z",
+        "invoke-static {v0}, Lanhc;->g(Langv;)V",
+        "invoke-static {v0}, Lanhc;->h(Langv;)V",
+    ):
+        assert readiness_behavior in wgv
+
+
 def test_toolbar_fallback_normalizes_both_branches():
     simple = """    move-result-object v0
     check-cast v0, Ljava/lang/String;
@@ -150,5 +304,7 @@ def test_toolbar_fallback_normalizes_both_branches():
 
 if __name__ == "__main__":
     test_polish_state_keeps_native_eligibility()
+    test_jarvis_provider_registration_removes_only_writing_helper_gate()
+    test_registration_chain_keeps_minors_readiness_dependency_and_producer()
     test_toolbar_fallback_normalizes_both_branches()
     print("smali patch regression tests passed")
