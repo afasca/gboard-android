@@ -347,32 +347,8 @@ def patch_always_reachable_ai_settings(root: Path) -> tuple[Path, str]:
     )
 
 
-def patch_writing_tools_toolbar_flag(root: Path) -> tuple[Path, str]:
-    path = root / "smali/amaj.smali"
-    text = load(path)
-    needle = """    const-string v0, "enable_writing_tools_v2_on_toolbar"
-
-    .line 133
-    .line 134
-    invoke-static {v0, v1}, Lajom;->a(Ljava/lang/String;Z)Lajoj;
-"""
-    replacement = """    const-string v0, "enable_writing_tools_v2_on_toolbar"
-
-    .line 133
-    .line 134
-    const/4 v2, 0x1
-    invoke-static {v0, v2}, Lajom;->a(Ljava/lang/String;Z)Lajoj;
-"""
-    return path, replace_once(
-        text,
-        needle,
-        replacement,
-        "writing tools toolbar flag",
-    )
-
-
 def patch_polish_state_eligibility(text: str) -> str:
-    """Bypass the module gate only for the polish toolbar provider.
+    """Bypass the module gate only for the polish fixed-holder provider.
 
     The original editor/context checks remain authoritative. This avoids making
     Writing Tools available in password, incognito, or unsupported editors.
@@ -407,277 +383,291 @@ def patch_polish_state_eligibility(text: str) -> str:
     )
 
 
-def _patch_provider_registration_gate(
-    text: str,
-    needle: str,
-    replacement: str,
-    diagnostic: str,
-) -> str:
-    return update_method_once(
-        text,
-        ".method public final getModuleDef(Landroid/content/Context;)Lamyy;",
-        lambda method: replace_once(
-            method,
-            needle,
-            replacement,
-            diagnostic,
-        ),
-        diagnostic,
-    )
+def patch_polish_provider_module(text: str) -> str:
+    """Register the polish access point without the full Jarvis helper module."""
 
-
-def patch_jarvis_provider_registration(text: str) -> str:
-    """Register the Jarvis access-point provider without globally enabling it."""
-    needle = """    sget-object p1, Lwtu;->a:Lajoj;
-
-    .line 57
-    .line 58
-    invoke-virtual {p0, p1}, Lamym;->k(Lajoj;)V
-
-    .line 59
-"""
-    replacement = """    .line 59
-"""
-    diagnostic = "AI polish Jarvis provider registration gate"
-    return _patch_provider_registration_gate(
-        text,
-        needle,
-        replacement,
-        diagnostic,
-    )
-
-
-def patch_minors_checker_provider_registration(text: str) -> str:
-    """Initialize the existing minors-readiness producer without the global gate."""
-    needle = """    sget-object p1, Lwtu;->a:Lajoj;
+    def update(method: str) -> str:
+        dependency = """    const/4 p1, 0x1
 
     .line 20
+    new-array p1, p1, [Ljava/lang/Class;
+
     .line 21
-    invoke-virtual {p0, p1}, Lamym;->k(Lajoj;)V
-
     .line 22
+    const-class v1, Lwth;
+
+    .line 23
+    .line 24
+    const/4 v2, 0x0
+
+    .line 25
+    aput-object v1, p1, v2
+
+    .line 26
+    .line 27
+    invoke-virtual {p0, p1}, Lamym;->g([Ljava/lang/Class;)V
+
+    .line 28
+    .line 29
+    .line 30
 """
-    replacement = """    .line 22
-"""
-    diagnostic = "AI polish minors-checker provider registration gate"
-    return _patch_provider_registration_gate(
-        text,
-        needle,
-        replacement,
-        diagnostic,
-    )
-
-
-def patch_ai_polish_entry(root: Path) -> tuple[tuple[Path, str], ...]:
-    order_path = root / "smali/agpc.smali"
-    order = replace_once(
-        load(order_path),
-        'const-string v1, "search;sticker;gif_search;clipboard;settings;theme_setting;one_handed;textediting;share;translate;floating_keyboard"',
-        'const-string v1, "jarvis;search;sticker;gif_search;clipboard;settings;theme_setting;one_handed;textediting;share;translate;floating_keyboard"',
-        "AI polish access point default order",
-    )
-
-    registration_path = root / "smali/wqp.smali"
-    registration = patch_jarvis_provider_registration(load(registration_path))
-
-    minors_provider_path = root / "smali/wgw.smali"
-    minors_provider = patch_minors_checker_provider_registration(
-        load(minors_provider_path)
-    )
-
-    provider_path = root / "smali/wsf.smali"
-    provider = replace_once(
-        load(provider_path),
-        """    sget-object p1, Lwtu;->r:Lajoj;
+        gate = """    sget-object p1, Lwtu;->r:Lajoj;
 
     .line 31
     .line 32
     invoke-virtual {p0, p1}, Lamym;->k(Lajoj;)V
 
     .line 33
-""",
-        """    .line 33
-""",
-        "AI polish access point module feature gate",
+"""
+        method = replace_once(
+            method,
+            dependency,
+            "    .line 30\n",
+            "AI polish unused Jarvis helper dependency",
+        )
+        return replace_once(
+            method,
+            gate,
+            "    .line 33\n",
+            "AI polish access point module feature gate",
+        )
+
+    return update_method_once(
+        text,
+        ".method public final getModuleDef(Landroid/content/Context;)Lamyy;",
+        update,
+        "AI polish access point module",
     )
 
-    module_path = root / "smali/wej.smali"
-    module = replace_once(
-        load(module_path),
-        """    sget-object v0, Lwtu;->c:Lajoj;
+
+def patch_ai_writing_tools_module(text: str) -> str:
+    """Register the event consumer without requiring the circular Jarvis helper."""
+
+    def update(method: str) -> str:
+        dependency = """    new-array v0, v4, [Ljava/lang/Class;
+
+    .line 48
+    .line 49
+    const-class v1, Lwth;
+
+    .line 50
+    .line 51
+    aput-object v1, v0, v3
+
+    .line 52
+    .line 53
+    invoke-virtual {p1, v0}, Lamym;->g([Ljava/lang/Class;)V
+
+    .line 54
+    .line 55
+    .line 56
+"""
+        gate = """    sget-object v0, Lwtu;->c:Lajoj;
 
     .line 57
     .line 58
     invoke-virtual {p1, v0}, Lamym;->k(Lajoj;)V
 
     .line 59
-""",
-        """    .line 59
-""",
-        "AI writing tools module feature gate",
+"""
+        method = replace_once(
+            method,
+            dependency,
+            "    .line 56\n",
+            "AI writing tools unused Jarvis helper dependency",
+        )
+        return replace_once(
+            method,
+            gate,
+            "    .line 59\n",
+            "AI writing tools module feature gate",
+        )
+
+    return update_method_once(
+        text,
+        ".method public final getModuleDef(Landroid/content/Context;)Lamyy;",
+        update,
+        "AI writing tools module",
     )
 
-    state_path = root / "smali_classes2/wok.smali"
-    state = patch_polish_state_eligibility(load(state_path))
 
-    label_path = root / "smali/wse.smali"
-    label = load(label_path)
-    method_start = label.index(".method public final b(Ljava/lang/String;Z)Lagpb;")
-    method_end = label.index(".end method", method_start) + len(".end method")
-    label_method = """.method public final b(Ljava/lang/String;Z)Lagpb;
-    .locals 4
+def patch_ai_polish_definition(text: str) -> str:
+    """Relabel the native safe-state definition and keep its Runnable click route."""
+    replacement = """.method public final b(Ljava/lang/String;Z)Lagpb;
+    .locals 3
+
     new-instance v0, Lwsa;
     invoke-direct {v0, p0}, Lwsa;-><init>(Lwse;)V
+
     xor-int/lit8 v1, p2, 0x1
     invoke-static {v1}, Ljava/lang/Boolean;->valueOf(Z)Ljava/lang/Boolean;
     move-result-object v1
+
     const/4 v2, 0x0
     invoke-static {p1, v0, v2, v1}, Lwqw;->a(Ljava/lang/String;Lagpa;Lagox;Ljava/lang/Boolean;)Lagow;
     move-result-object p1
-    const/4 v0, 0x0
+
+    const v0, 0x7f1406b9
     invoke-virtual {p1, v0}, Lagow;->l(I)V
     invoke-virtual {p1, v0}, Lagow;->j(I)V
+
     const v0, 0x7f0804cc
     invoke-virtual {p1, v0}, Lagow;->k(I)V
+
     new-instance v0, Lwsb;
     invoke-direct {v0, p0, p2}, Lwsb;-><init>(Lwse;Z)V
     invoke-virtual {p1, v0}, Lagow;->u(Ljava/lang/Runnable;)V
+
     move-object v0, p1
     check-cast v0, Lagpt;
-    const-string v3, "AI 润色"
-    iput-object v3, v0, Lagpt;->d:Ljava/lang/String;
-    iput-object v3, v0, Lagpt;->e:Ljava/lang/String;
+    const-string v1, "AI 润色"
+    iput-object v1, v0, Lagpt;->d:Ljava/lang/String;
+    iput-object v1, v0, Lagpt;->e:Ljava/lang/String;
+
     invoke-virtual {p1}, Lagow;->b()Lagpb;
     move-result-object p0
     return-object p0
 .end method"""
-    label = label[:method_start] + label_method + label[method_end:]
+    return update_method_once(
+        text,
+        ".method public final b(Ljava/lang/String;Z)Lagpb;",
+        lambda _method: replacement,
+        "AI polish access point definition",
+    )
 
-    click_path = root / "smali_classes2/wsa.smali"
-    click = load(click_path)
-    click_start = click.index(".method public final a(Lagpe;Landroid/view/View;)V")
-    click_end = click.index(".end method", click_start) + len(".end method")
-    click_method = """.method public final a(Lagpe;Landroid/view/View;)V
+
+def patch_ai_polish_click(text: str) -> str:
+    """Dispatch polish from the embedded Runnable, never from attach callbacks."""
+    replacement = """.method public final run()V
     .locals 4
-    iget-object p0, p0, Lwsa;->a:Lwse;
-    iget-object p1, p0, Lwse;->b:Lamua;
-    iget-object p2, p0, Lwse;->c:Lj$/time/Instant;
-    invoke-static {p1, p2}, Lwqw;->e(Lamua;Lj$/time/Instant;)V
-    invoke-static {}, Lj$/time/Instant;->now()Lj$/time/Instant;
-    move-result-object p1
-    iput-object p1, p0, Lwse;->c:Lj$/time/Instant;
+
+    iget-object p0, p0, Lwsb;->a:Lwse;
+
     sget-object v0, Lajkj;->d:Lajkj;
     sget-object v1, Lbajq;->m:Lbajq;
     invoke-static {v1}, Laodi;->d(Lbajq;)Laodi;
     move-result-object v1
+
     invoke-virtual {p0}, Lajki;->ae()Lajlf;
     move-result-object v2
+    invoke-static {v2}, Lj$/util/Objects;->requireNonNull(Ljava/lang/Object;)Ljava/lang/Object;
     new-instance v3, Lwdz;
     invoke-direct {v3, v2}, Lwdz;-><init>(Lajlf;)V
+
     sget-object v2, Lakhf;->g:Lakhf;
     const/4 p0, 0x0
     invoke-static {v0, v1, p0, v2, v3}, Lwtz;->f(Lajkj;Laodi;ZLakhf;Ljava/util/function/Consumer;)V
     return-void
 .end method"""
-    click = click[:click_start] + click_method + click[click_end:]
-
-    return (
-        (order_path, order),
-        (registration_path, registration),
-        (minors_provider_path, minors_provider),
-        (provider_path, provider),
-        (module_path, module),
-        (state_path, state),
-        (label_path, label),
-        (click_path, click),
+    return update_method_once(
+        text,
+        ".method public final run()V",
+        lambda _method: replacement,
+        "AI polish Runnable click",
     )
 
 
-def patch_toolbar_jarvis_persistence(root: Path) -> tuple[Path, str]:
-    """Ensure jarvis survives every toolbar-order source, including upgrades."""
-    path = root / "smali/agsr.smali"
-    text = load(path)
+def patch_power_key_polish_default(text: str) -> str:
+    """Select jarvis in the fixed power-key holder and migrate the voice default."""
+    replacement = """.method private static N(Landroid/content/Context;Lanyg;ZLaivh;)Ljava/lang/String;
+    .locals 2
 
-    def inject(method: str, register: str, label: str) -> str:
-        needle = f"    check-cast {register}, Ljava/lang/String;\n"
-        replacement = needle + f"    invoke-static {{{register}}}, Lagsr;->z(Ljava/lang/String;)Ljava/lang/String;\n    move-result-object {register}\n"
-        return replace_once(method, needle, replacement, label)
+    const v0, 0x7f1404b3
 
-    for signature, register, label in (
-        (".method public static q(Lazha;)Lazfk;", "v0", "server toolbar order"),
-        (".method private static t(Lazha;)Lazfk;", "v0", "persisted toolbar order"),
-        (".method private static u(Lazha;)Lazfk;", "v0", "experiment toolbar order"),
-    ):
-        text = update_method_once(
-            text,
-            signature,
-            lambda method, r=register, l=label: inject(method, r, l),
-            label,
-        )
+    if-eqz p2, :vorflux_polish_without_persistence
 
-    def inject_fallback_join(method: str) -> str:
-        needle = """    :goto_0
-    invoke-static {p1}, Landroid/text/TextUtils;->isEmpty(Ljava/lang/CharSequence;)Z
-"""
-        replacement = """    :goto_0
-    invoke-static {p1}, Lagsr;->z(Ljava/lang/String;)Ljava/lang/String;
-    move-result-object p1
+    invoke-static {p3}, Lagxe;->M(Laivh;)I
+    move-result p2
 
-    invoke-static {p1}, Landroid/text/TextUtils;->isEmpty(Ljava/lang/CharSequence;)Z
+    invoke-virtual {p0, v0}, Landroid/content/Context;->getString(I)Ljava/lang/String;
+    move-result-object p3
+
+    invoke-virtual {p1, p2, p3}, Lanxc;->o(ILjava/lang/String;)Ljava/lang/String;
+    move-result-object v0
+
+    const-string v1, "voice"
+    invoke-virtual {v1, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+    move-result p0
+    if-eqz p0, :vorflux_polish_selection_ready
+
+    invoke-virtual {p1, p2, p3}, Lanxc;->t(ILjava/lang/String;)V
+    move-object v0, p3
+
+    :vorflux_polish_selection_ready
+    return-object v0
+
+    :vorflux_polish_without_persistence
+    invoke-virtual {p0, v0}, Landroid/content/Context;->getString(I)Ljava/lang/String;
+    move-result-object p0
+    return-object p0
+.end method"""
+    return update_method_once(
+        text,
+        ".method private static N(Landroid/content/Context;Lanyg;ZLaivh;)Ljava/lang/String;",
+        lambda _method: replacement,
+        "fixed power-key AI polish selection",
+    )
+
+
+def patch_voice_reserve_entry(text: str) -> str:
+    """Keep the native voice definition, but stop claiming the fixed holder."""
+
+    def update(method: str) -> str:
+        default_metadata = """    const/4 v1, 0x1
+
+    .line 36
+    invoke-static {v1}, Ljava/lang/Boolean;->valueOf(Z)Ljava/lang/Boolean;
+
+    .line 37
+    .line 38
+    .line 39
+    move-result-object v1
+
+    .line 40
+    const-string v2, "default"
+
+    .line 41
+    .line 42
+    invoke-virtual {v0, v2, v1}, Lagow;->e(Ljava/lang/String;Ljava/lang/Object;)V
+
+    .line 43
+    .line 44
+    .line 45
 """
         return replace_once(
             method,
-            needle,
-            replacement,
-            "fallback toolbar order join",
+            default_metadata,
+            "    .line 45\n",
+            "native voice fixed-holder default metadata",
         )
 
-    text = update_method_once(
+    return update_method_once(
         text,
-        ".method private static v(Lazha;Z)Lazfk;",
-        inject_fallback_join,
-        "fallback toolbar order",
+        ".method private final d(Z)Lagow;",
+        update,
+        "native voice reserve access point",
     )
 
-    helper = r'''
-.method private static z(Ljava/lang/String;)Ljava/lang/String;
-    .locals 3
 
-    invoke-static {p0}, Landroid/text/TextUtils;->isEmpty(Ljava/lang/CharSequence;)Z
-    move-result v0
-    if-eqz v0, :vorflux_jarvis_nonempty
-    const-string p0, "jarvis"
-    return-object p0
+def patch_ai_polish_entry(root: Path) -> tuple[tuple[Path, str], ...]:
+    provider_path = root / "smali/wsf.smali"
+    module_path = root / "smali/wej.smali"
+    state_path = root / "smali_classes2/wok.smali"
+    definition_path = root / "smali/wse.smali"
+    click_path = root / "smali_classes2/wsb.smali"
+    holder_path = root / "smali/agxe.smali"
+    voice_path = root / "smali/shb.smali"
 
-    :vorflux_jarvis_nonempty
-    new-instance v0, Ljava/lang/StringBuilder;
-    invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
-    const-string v1, ";"
-    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-    invoke-virtual {v0, p0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
-    move-result-object v0
-    const-string v2, ";jarvis;"
-    invoke-virtual {v0, v2}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
-    move-result v0
-    if-eqz v0, :vorflux_jarvis_missing
-    return-object p0
-
-    :vorflux_jarvis_missing
-    const-string v0, "jarvis;"
-    invoke-virtual {v0, p0}, Ljava/lang/String;->concat(Ljava/lang/String;)Ljava/lang/String;
-    move-result-object p0
-    return-object p0
-.end method
-'''
-    text = replace_once(
-        text,
-        "\n# virtual methods\n",
-        helper + "\n# virtual methods\n",
-        "toolbar jarvis normalization helper",
+    return (
+        (provider_path, patch_polish_provider_module(load(provider_path))),
+        (module_path, patch_ai_writing_tools_module(load(module_path))),
+        (state_path, patch_polish_state_eligibility(load(state_path))),
+        (definition_path, patch_ai_polish_definition(load(definition_path))),
+        (click_path, patch_ai_polish_click(load(click_path))),
+        (holder_path, patch_power_key_polish_default(load(holder_path))),
+        (voice_path, patch_voice_reserve_entry(load(voice_path))),
     )
-    return path, text
+
 
 def patch_translation_progress(root: Path, ui: str) -> tuple[Path, str, Path, str, Path, str]:
     ui_path = root / "smali/aciv.smali"
@@ -783,8 +773,6 @@ def main() -> None:
         patch_ai_polish_flow(root),
         patch_translation_settings(root),
         patch_always_reachable_ai_settings(root),
-        patch_writing_tools_toolbar_flag(root),
-        patch_toolbar_jarvis_persistence(root),
         *polish_entry,
         (progress[0], progress[1]),
         (progress[2], progress[3]),

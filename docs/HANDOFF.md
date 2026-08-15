@@ -1,6 +1,6 @@
 # MyBoard AI engineering handoff
 
-Last updated: 2026-08-14
+Last updated: 2026-08-15
 
 ## Repository and collaboration state
 
@@ -84,7 +84,7 @@ Configuration includes:
 
 Current implementation intercepts `akhf.PROOFREAD` in `wei.B(...)`, captures selected text or the full captured text, calls `AiWritingTools.polish(...)`, and reuses Gboard's result/accept/replace/undo pipeline.
 
-The `AI 润色` toolbar entry and six styles are implemented. The direct `wqp` registration gate and transitive `wgw` gate are removed so the existing `Lwgv.a` minors-readiness producer can initialize; `wqp` still requires that tag, and `Lwtu.J`/`Lahce.b` continue deciding readiness. The `wsc` toolbar-provider gate is bypassed only after the original editor/context eligibility checks. Physical ARM64 validation is still required for discoverability and interaction behavior.
+The six styles and fixed `AI 润色` entry are implemented in the current worktree. The fixed power-key holder selects `jarvis` and migrates a persisted `voice` default, while the single native `Lshb` voice definition remains in the customizable reserve toolbar with its original lifecycle and action events. The click dispatch now runs from `Lwsb.run()` through the native embedded-Runnable route; `Lwsa.a(...)` retains its attachment lifecycle event. Unused `Lwth` declarative dependencies were removed from `Lwsf` and `Lwej` to break their circular coupling to full Jarvis, while `wsc` still passes the original editor/context eligibility checks before its targeted final gate bypass. Physical ARM64 validation is still required.
 
 ## Current checkpoint: manual model picker
 
@@ -263,10 +263,10 @@ Do not mark the existing partial test report passed until these are confirmed.
 ## Current tested candidate
 
 - Local path: `build/MyBoard-AI-17.8.5.apk`
-- Size: `82,289,137 bytes`
-- SHA-256: `4fb9b745267416b16538b02f08f1126ebf452135fc4cb76727bf19171a3a3b24`
-- Static/build/APK verification: passed
-- Android 13 x86_64 installation and installed `base.apk` byte identity: passed
+- Size: `82,305,521 bytes`
+- SHA-256: `ccc871d4a577db712d8e9683a2b74d4415d1dc9d991e1c40adb46e1caf037492`
+- Static, pinned-input integration, build, full APK verification, and 39 decoded exact-candidate contracts: passed
+- Publication and public re-download byte identity: pending
 - ARM64 Android 12L+ toolbar/UI/safety acceptance: blocked pending a connected physical device
 
 ## Releases and prior artifacts
@@ -281,11 +281,7 @@ A checkpoint GitHub release for the manual model picker is optional. If one is c
 ## Immediate next steps for the next engineer
 
 1. Pull `vorflux/ai-translation-polish` and read this file plus `README.md`.
-2. Re-run all repository tests and inspect the checkpoint commit.
-3. Finish the four explicit user requirements: polish discoverability/styles, custom polish prompt, custom translation prompt, translation progress/debounce.
-4. Regenerate authoritative smali for every Java change.
-5. Build a naturally incremented update APK; do not use release labels as Android version names.
-6. Run independent review and full static/build/install tests.
-7. Update PR #1 description as a coherent full diff.
-8. Publish a candidate and verify its public re-download hash.
-9. Ask the user to validate all changed UI and request timing on a physical ARM64 phone, collecting logcat if anything fails.
+2. Re-run all repository tests and inspect the fixed-holder commit.
+3. Update PR #1 and the single `Summary` test report with the fixed-holder correction.
+4. Publish the exact signed candidate above and verify its public re-download hash, size, and byte identity.
+5. Ask the user to validate all changed UI and request timing on a physical ARM64 phone, collecting logcat if anything fails.

@@ -39,18 +39,18 @@ MyBoard should feel like Gboard with a reliable, user-controlled OpenAI-compatib
 - Proofread interception and OpenAI request.
 - Selected/full-text capture.
 - Existing Gboard result, acceptance, replacement, selection restoration, and undo pipeline.
-- Registered `AI 润色` toolbar access point with toolbar-order migration.
+- Fixed top `AI 润色` access point with persisted microphone-slot migration; native voice remains in the customizable reserve toolbar.
 - Presets: standard, concise, formal, natural/conversational, professional.
 - Custom style/prompt with restore-default behavior.
 
 ### Remaining
 
-- Physical ARM64 Android 12L+ confirmation that `AI 润色` is discoverable on fresh and upgraded installs.
+- Physical ARM64 Android 12L+ confirmation that fixed `AI 润色` and reserve native voice are discoverable on fresh and upgraded installs.
 - Physical verification of all style, replacement, undo, visual, and protected-editor safety behavior.
 
 ### Acceptance criteria
 
-- User can find AI polish without hidden feature flags or undocumented gestures.
+- The fixed top slot shows AI polish without hidden feature flags or undocumented gestures, and native voice remains available exactly once in customization.
 - Selected text is preferred; full captured text is used when no selection exists.
 - Every preset produces a distinct system instruction while preserving meaning.
 - Custom prompt persists privately and can be cleared.

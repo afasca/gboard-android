@@ -16,31 +16,14 @@ spec = spec_from_file_location("apply_smali_patches", PATCHER_PATH)
 patcher = module_from_spec(spec)
 spec.loader.exec_module(patcher)
 
-WQP_GATE = """    sget-object p1, Lwtu;->a:Lajoj;
-
-    .line 57
-    .line 58
-    invoke-virtual {p0, p1}, Lamym;->k(Lajoj;)V
-
-    .line 59
-"""
-WGW_GATE = """    sget-object p1, Lwtu;->a:Lajoj;
-
-    .line 20
-    .line 21
-    invoke-virtual {p0, p1}, Lamym;->k(Lajoj;)V
-
-    .line 22
-"""
 EXPECTED_PATCH_OUTPUTS = {
-    "smali/agpc.smali",
-    "smali/wqp.smali",
-    "smali/wgw.smali",
     "smali/wsf.smali",
     "smali/wej.smali",
     "smali_classes2/wok.smali",
     "smali/wse.smali",
-    "smali_classes2/wsa.smali",
+    "smali_classes2/wsb.smali",
+    "smali/agxe.smali",
+    "smali/shb.smali",
 }
 
 
@@ -102,38 +85,70 @@ def test_pinned_ai_polish_registration_patch() -> None:
             (decoded / relative).write_text(patched, encoding="utf-8")
             assert (decoded / relative).read_text(encoding="utf-8") == patched
 
-        wqp_before = originals["smali/wqp.smali"]
-        wqp_after = (decoded / "smali/wqp.smali").read_text(encoding="utf-8")
-        assert wqp_before.count(WQP_GATE) == 1
-        assert wqp_after == wqp_before.replace(WQP_GATE, "    .line 59\n")
-
-        wqp_module = method(
-            wqp_after,
+        wsf = method(
+            outputs["smali/wsf.smali"],
             ".method public final getModuleDef(Landroid/content/Context;)Lamyy;",
         )
-        assert "sget-object v0, Lwgv;->a:Langv;" in wqp_module
-        assert "invoke-virtual {p0, p1}, Lamym;->h([Langv;)V" in wqp_module
-
-        wgw_before = originals["smali/wgw.smali"]
-        wgw_after = (decoded / "smali/wgw.smali").read_text(encoding="utf-8")
-        assert wgw_before.count(WGW_GATE) == 1
-        assert wgw_after == wgw_before.replace(WGW_GATE, "    .line 22\n")
-
-        wgw_factory = method(wgw_after, ".method public final a(Lamyb;)Lamyc;")
-        assert "new-instance p0, Lwgv;" in wgw_factory
-        assert "invoke-direct {p0}, Lwgv;-><init>()V" in wgw_factory
-
-        wgw_module = method(
-            wgw_after,
+        wej = method(
+            outputs["smali/wej.smali"],
             ".method public final getModuleDef(Landroid/content/Context;)Lamyy;",
         )
-        assert "const-class p0, Lwgv;" in wgw_module
-        assert "const/16 v1, 0x8d" in wgw_module
+        assert "Lwtu;->r:Lajoj;" not in wsf
+        assert "const-class v1, Lwth;" not in wsf
+        assert "Lwtu;->c:Lajoj;" not in wej
+        assert "const-class v1, Lwth;" not in wej
+        assert "sget-object v1, Laliq;->c:Langv;" in wej
+
+        lifecycle = (decoded / "smali_classes2/wsa.smali").read_text(
+            encoding="utf-8"
+        )
+        lifecycle_method = method(
+            lifecycle,
+            ".method public final a(Lagpe;Landroid/view/View;)V",
+        )
+        assert "const/16 v1, -0x27f9" in lifecycle_method
+        assert "Lwtz;->f(" not in lifecycle_method
+        assert "Lakhf;->g:Lakhf;" not in lifecycle_method
+
+        definition = method(
+            outputs["smali/wse.smali"],
+            ".method public final b(Ljava/lang/String;Z)Lagpb;",
+        )
+        assert 'const-string v1, "AI 润色"' in definition
+        assert "const v0, 0x7f1406b9" in definition
+        assert "const v0, 0x7f0804cc" in definition
+        assert "new-instance v0, Lwsb;" in definition
+        assert "Lagow;->u(Ljava/lang/Runnable;)V" in definition
+
+        click = method(
+            outputs["smali_classes2/wsb.smali"],
+            ".method public final run()V",
+        )
+        assert "new-instance v3, Lwdz;" in click
+        assert "Lj$/util/Objects;->requireNonNull(Ljava/lang/Object;)Ljava/lang/Object;" in click
+        assert "invoke-direct {v3, v2}, Lwdz;-><init>(Lajlf;)V" in click
+        assert "sget-object v2, Lakhf;->g:Lakhf;" in click
         assert (
-            "invoke-direct {v0, v1, p0, p0, p1}, "
-            "Lamyw;-><init>(ILjava/lang/Class;Ljava/lang/Class;Lamyx;)V"
-            in wgw_module
+            "Lwtz;->f(Lajkj;Laodi;ZLakhf;Ljava/util/function/Consumer;)V"
+            in click
         )
+
+        holder = method(
+            outputs["smali/agxe.smali"],
+            ".method private static N(Landroid/content/Context;Lanyg;ZLaivh;)Ljava/lang/String;",
+        )
+        assert "const v0, 0x7f1404b3" in holder
+        assert 'const-string v1, "voice"' in holder
+        assert "Lanxc;->t(ILjava/lang/String;)V" in holder
+
+        voice = method(
+            outputs["smali/shb.smali"],
+            ".method private final d(Z)Lagow;",
+        )
+        assert "Latbs;->g(Lagow;)V" in voice
+        assert 'const-string v2, "default"' not in voice
+        assert "Lsgw;-><init>(Lshb;Z)V" in voice
+        assert "Lsgx;-><init>(Lshb;Z)V" in voice
 
 
 if __name__ == "__main__":

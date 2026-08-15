@@ -10,7 +10,7 @@ Engineering handoff and detailed roadmap:
 ## Changes
 
 - Replaces the built-in translation provider with an OpenAI-compatible AI translator.
-- Reuses Gboard Writing Tools' existing **Proofread** toolbar flow as AI polish, including a registered **AI 润色** toolbar access point, selected-text capture, loading/error UI, result confirmation, replacement, and undo.
+- Reuses Gboard Writing Tools' existing **Proofread** flow as AI polish: the fixed top microphone slot becomes **AI 润色**, native voice remains in the customizable reserve toolbar, and selected-text capture, loading/error UI, result confirmation, replacement, and undo stay native.
 - Adds an **OpenAI-compatible settings** row to Gboard's Translation settings.
 - Keeps automatic model discovery as the default, and lets users fetch the filtered/ranked `GET /v1/models` list to choose a model or return to automatic mode.
 - Scopes automatic and manual model choices to the exact normalized API Base URL. A missing manually selected model produces a useful error instead of silently changing the choice.

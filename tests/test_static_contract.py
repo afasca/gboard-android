@@ -97,27 +97,35 @@ assert ':vorflux_input_progress_cleared' in patcher
 assert ':vorflux_stop_progress_cleared' in patcher
 assert '0x7f140d8c' in patcher
 
-# Proofread entry bypasses only its module gate, preserves native editor/context
-# eligibility, and keeps the native result/replace/undo flow.
+# Polish replaces the fixed power-key microphone while the native voice access
+# point remains in the customizable reserve list. The real click uses the
+# embedded Runnable; attachment keeps the original native lifecycle event.
 assert 'def patch_always_available_proofread' not in patcher
 assert 'def patch_ai_polish_entry' in patcher
 assert '.method public static b(ZZ)Z' not in patcher
+assert 'def patch_ai_polish_click' in patcher
+assert 'smali_classes2/wsb.smali' in patcher
 assert 'Lakhf;->g:Lakhf;' in patcher
-assert 'enable_writing_tools_v2_on_toolbar' in patcher
-assert 'jarvis;search;sticker;gif_search' in patcher
-assert 'def patch_toolbar_jarvis_persistence' in patcher
-for signature in ('.method public static q(Lazha;)Lazfk;', '.method private static t(Lazha;)Lazfk;', '.method private static u(Lazha;)Lazfk;', '.method private static v(Lazha;Z)Lazfk;'):
-    assert signature in patcher
-assert 'def inject_fallback_join' in patcher
-assert 'fallback toolbar order join' in patcher
-assert '.method private static z(Ljava/lang/String;)Ljava/lang/String;' in patcher
-assert 'const-string v2, ";jarvis;"' in patcher
-assert 'smali/wqp.smali' in patcher
-assert 'smali/wgw.smali' in patcher
-assert 'AI polish access point module feature gate' in patcher
-assert 'AI writing tools module feature gate' in patcher
-assert 'const-string v3, "AI 润色"' in patcher
 assert 'Lwtz;->f(Lajkj;Laodi;ZLakhf;Ljava/util/function/Consumer;)V' in patcher
+assert 'def patch_power_key_polish_default' in patcher
+assert 'smali/agxe.smali' in patcher
+assert 'const v0, 0x7f1404b3' in patcher
+assert 'const-string v1, "voice"' in patcher
+assert 'Lanxc;->t(ILjava/lang/String;)V' in patcher
+assert 'def patch_voice_reserve_entry' in patcher
+assert 'smali/shb.smali' in patcher
+assert 'native voice fixed-holder default metadata' in patcher
+assert 'def patch_toolbar_jarvis_persistence' not in patcher
+assert 'smali/agpc.smali' not in patcher
+assert 'smali/wqp.smali' not in patcher
+assert 'smali/wgw.smali' not in patcher
+assert 'AI polish access point module feature gate' in patcher
+assert 'AI polish unused Jarvis helper dependency' in patcher
+assert 'AI writing tools module feature gate' in patcher
+assert 'AI writing tools unused Jarvis helper dependency' in patcher
+assert 'const-string v1, "AI 润色"' in patcher
+assert 'const v0, 0x7f1406b9' in patcher
+assert 'const v0, 0x7f0804cc' in patcher
 assert 'def patch_polish_state_eligibility' in patcher
 assert 'instance-of v1, p0, Lwsc;' in patcher
 assert ':vorflux_polish_original_gate' in patcher
@@ -148,7 +156,7 @@ for index in range(8):
 
 assert 'Lcom/vorflux/gboardai/AiTranslateProvider;' in patcher
 translation_settings_patch = patcher[patcher.index('def patch_translation_settings'):patcher.index('def patch_always_reachable_ai_settings')]
-preferences_patch = patcher[patcher.index('def patch_always_reachable_ai_settings'):patcher.index('def patch_writing_tools_toolbar_flag')]
+preferences_patch = patcher[patcher.index('def patch_always_reachable_ai_settings'):patcher.index('def patch_polish_state_eligibility')]
 assert 'AutoTranslatePreferenceFragment.smali' in translation_settings_patch
 assert 'PreferencesSettingsFragment.smali' in preferences_patch
 for settings_patch in (translation_settings_patch, preferences_patch):

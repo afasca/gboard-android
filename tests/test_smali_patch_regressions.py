@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 from importlib.util import module_from_spec, spec_from_file_location
 from pathlib import Path
-import tempfile
 
 ROOT = Path(__file__).resolve().parents[1]
 PATCHER_PATH = ROOT / "scripts/apply-smali-patches.py"
+FIXTURES = ROOT / "tests/fixtures/gboard_17_8_5"
 spec = spec_from_file_location("apply_smali_patches", PATCHER_PATH)
 patcher = module_from_spec(spec)
 spec.loader.exec_module(patcher)
@@ -101,210 +101,100 @@ def test_polish_state_keeps_native_eligibility():
     assert "Lwqf;" not in patched
 
 
-def test_jarvis_provider_registration_removes_only_writing_helper_gate():
-    original = """.class public final Lwqp;
-.super Ljava/lang/Object;
-
-.method public final getModuleDef(Landroid/content/Context;)Lamyy;
-    .locals 5
-    const-class p0, Lwth;
-    const-class p1, Lwqo;
-    sget-object v0, Lamyx;->b:Lamyx;
-    new-instance v1, Lamyw;
-    const/16 v2, 0x6b
-    invoke-direct {v1, v2, p0, p1, v0}, Lamyw;-><init>(ILjava/lang/Class;Ljava/lang/Class;Lamyx;)V
-    new-instance p0, Lamym;
-    invoke-direct {p0}, Lamym;-><init>()V
-    const/4 p1, 0x4
-    new-array p1, p1, [Langv;
-    sget-object v0, Lagpi;->a:Langv;
-    sget-object v0, Lwgv;->a:Langv;
-    sget-object v4, Laodd;->g:Langv;
-    sget-object v4, Lcom/google/android/libraries/inputmethod/nativelib/NativeLibHelper;->a:Langv;
-    invoke-virtual {p0, p1}, Lamym;->h([Langv;)V
-    const-class v0, Lvjj;
-    invoke-virtual {p0, p1}, Lamym;->g([Ljava/lang/Class;)V
-    sget-object p1, Lwtu;->a:Lajoj;
-
-    .line 57
-    .line 58
-    invoke-virtual {p0, p1}, Lamym;->k(Lajoj;)V
-
-    .line 59
-    sget-object p1, Lwtu;->c:Lajoj;
-    invoke-virtual {p0, p1}, Lamym;->j(Lajoj;)V
-    new-instance p1, Lamyo;
-    sget-object v0, Lwtu;->b:Lajoj;
-    invoke-direct {p1, v0, v4, v4, v2}, Lamyo;-><init>(Lajoj;[Ljava/lang/String;Ljava/lang/String;Z)V
-    invoke-virtual {p0, p1}, Lamym;->d(Lamyo;)V
-    new-instance p1, Lamyo;
-    const-string v0, "morse_2"
-    invoke-direct {p1, v4, v4, v0, v3}, Lamyo;-><init>(Lajoj;[Ljava/lang/String;Ljava/lang/String;Z)V
-    invoke-virtual {p0, p1}, Lamym;->d(Lamyo;)V
-    iput-object p0, v1, Lamyw;->f:Lamym;
-    new-instance p0, Lamyy;
-    invoke-direct {p0, v1}, Lamyy;-><init>(Lamyw;)V
-    return-object p0
-.end method
-
-.method public final unrelated()V
-    sget-object p1, Lwtu;->a:Lajoj;
-    invoke-virtual {p0, p1}, Lamym;->k(Lajoj;)V
-    return-void
-.end method"""
-    gate = """    sget-object p1, Lwtu;->a:Lajoj;
-
-    .line 57
-    .line 58
-    invoke-virtual {p0, p1}, Lamym;->k(Lajoj;)V
-
-    .line 59
-"""
-    expected = original.replace(gate, "    .line 59\n")
-    patched = patcher.patch_jarvis_provider_registration(original)
-    assert patched == expected
-    assert "sget-object v0, Lwgv;->a:Langv;" in patched
-
-
-def test_registration_chain_keeps_minors_readiness_dependency_and_producer():
-    wgw = """.class public final Lwgw;
-.super Ljava/lang/Object;
-.implements Lamyd;
-
-.method public final a(Lamyb;)Lamyc;
-    .locals 0
-    new-instance p0, Lwgv;
-    invoke-direct {p0}, Lwgv;-><init>()V
-    return-object p0
-.end method
-
-.method public final getModuleDef(Landroid/content/Context;)Lamyy;
-    .locals 2
-    const-class p0, Lwgv;
-    sget-object p1, Lamyx;->b:Lamyx;
-    new-instance v0, Lamyw;
-    const/16 v1, 0x8d
-    invoke-direct {v0, v1, p0, p0, p1}, Lamyw;-><init>(ILjava/lang/Class;Ljava/lang/Class;Lamyx;)V
-    new-instance p0, Lamym;
-    invoke-direct {p0}, Lamym;-><init>()V
-    sget-object p1, Lwtu;->a:Lajoj;
-
-    .line 20
-    .line 21
-    invoke-virtual {p0, p1}, Lamym;->k(Lajoj;)V
-
-    .line 22
-    .line 23
-    .line 24
-    iput-object p0, v0, Lamyw;->f:Lamym;
-    new-instance p0, Lamyy;
-    invoke-direct {p0, v0}, Lamyy;-><init>(Lamyw;)V
-    return-object p0
-.end method"""
-    wgv = """.class public final Lwgv;
-.super Ljava/lang/Object;
-
-.method static constructor <clinit>()V
-    new-instance v0, Lwgu;
-    invoke-direct {v0}, Ljava/lang/Object;-><init>()V
-    sput-object v0, Lwgv;->a:Langv;
-    const-string v1, "MinorsCheckerPassedTag"
-    invoke-static {v1, v0}, Lanhc;->d(Ljava/lang/String;Langv;)V
-    return-void
-.end method
-
-.method public static a()V
-    sget-object v0, Lwtu;->J:Lajoj;
-    if-eqz v0, :cond_0
-    sget-object v0, Lwgv;->a:Langv;
-    invoke-static {v0}, Lanhc;->g(Langv;)V
-    return-void
-    :cond_0
-    sget-object v0, Lahce;->b:Langv;
-    invoke-static {v0}, Lanhc;->e(Langv;)Z
-    move-result v0
-    if-eqz v0, :cond_1
-    sget-object v0, Lwgv;->a:Langv;
-    invoke-static {v0}, Lanhc;->g(Langv;)V
-    return-void
-    :cond_1
-    sget-object v0, Lwgv;->a:Langv;
-    invoke-static {v0}, Lanhc;->h(Langv;)V
-    return-void
-.end method"""
-    gate = """    sget-object p1, Lwtu;->a:Lajoj;
-
-    .line 20
-    .line 21
-    invoke-virtual {p0, p1}, Lamym;->k(Lajoj;)V
-
-    .line 22
-"""
-    expected = wgw.replace(gate, "    .line 22\n")
-
-    patched = patcher.patch_minors_checker_provider_registration(wgw)
-    assert patched == expected
-    for readiness_behavior in (
-        'const-string v1, "MinorsCheckerPassedTag"',
-        "sget-object v0, Lwtu;->J:Lajoj;",
-        "sget-object v0, Lahce;->b:Langv;",
-        "invoke-static {v0}, Lanhc;->e(Langv;)Z",
-        "invoke-static {v0}, Lanhc;->g(Langv;)V",
-        "invoke-static {v0}, Lanhc;->h(Langv;)V",
-    ):
-        assert readiness_behavior in wgv
-
-
-def test_toolbar_fallback_normalizes_both_branches():
-    simple = """    move-result-object v0
-    check-cast v0, Ljava/lang/String;
-    return-object v0
-"""
-    fallback_body = """    if-eqz p1, :cond_0
-    const-string p1, "sticker;settings;translate;"
-    goto :goto_0
-    :cond_0
-    move-result-object p1
-    check-cast p1, Ljava/lang/String;
-    :goto_0
-    invoke-static {p1}, Landroid/text/TextUtils;->isEmpty(Ljava/lang/CharSequence;)Z
-    move-result v0
-    invoke-static {p1, p0}, Lagsr;->e(Ljava/lang/String;Lazha;)Lazfk;
-    move-result-object p0
-    return-object p0
-"""
-    source = (
-        ".method public static q(Lazha;)Lazfk;\n" + simple + ".end method\n\n"
-        ".method private static t(Lazha;)Lazfk;\n" + simple + ".end method\n\n"
-        ".method private static u(Lazha;)Lazfk;\n" + simple + ".end method\n\n"
-        ".method private static v(Lazha;Z)Lazfk;\n" + fallback_body + ".end method\n\n"
-        "# virtual methods\n"
+def test_polish_click_uses_runnable_and_preserves_lifecycle_callback():
+    lifecycle = (FIXTURES / "wsa_attach.smali").read_text(encoding="utf-8")
+    lifecycle_method = method(
+        lifecycle,
+        ".method public final a(Lagpe;Landroid/view/View;)V",
     )
-    with tempfile.TemporaryDirectory() as directory:
-        root = Path(directory)
-        (root / "smali").mkdir()
-        (root / "smali/agsr.smali").write_text(source)
-        _, patched = patcher.patch_toolbar_jarvis_persistence(root)
+    assert "const/16 v1, -0x27f9" in lifecycle_method
+    assert "Lwtz;->f(" not in lifecycle_method
+    assert "Lakhf;->g:Lakhf;" not in lifecycle_method
 
-    fallback = method(patched, ".method private static v(Lazha;Z)Lazfk;")
-    assert fallback.count("Lagsr;->z(Ljava/lang/String;)Ljava/lang/String;") == 1
-    join = fallback.index("    :goto_0\n")
-    normalize = fallback.index("Lagsr;->z(Ljava/lang/String;)Ljava/lang/String;")
-    empty_check = fallback.index("Landroid/text/TextUtils;->isEmpty")
-    parse = fallback.index("Lagsr;->e(Ljava/lang/String;Lazha;)Lazfk;")
-    assert join < normalize < empty_check < parse
-    assert fallback.rindex("check-cast p1, Ljava/lang/String;", 0, join) < join
-    for signature in (
-        ".method public static q(Lazha;)Lazfk;",
-        ".method private static t(Lazha;)Lazfk;",
-        ".method private static u(Lazha;)Lazfk;",
+    definition = (FIXTURES / "wse_definition.smali").read_text(encoding="utf-8")
+    patched_definition = patcher.patch_ai_polish_definition(definition)
+    definition_method = method(
+        patched_definition,
+        ".method public final b(Ljava/lang/String;Z)Lagpb;",
+    )
+    assert 'const-string v1, "AI 润色"' in definition_method
+    assert "const v0, 0x7f1406b9" in definition_method
+    assert "const v0, 0x7f0804cc" in definition_method
+    assert "new-instance v0, Lwsb;" in definition_method
+    assert "Lagow;->u(Ljava/lang/Runnable;)V" in definition_method
+
+    runnable = (FIXTURES / "wsb_run.smali").read_text(encoding="utf-8")
+    click = method(patcher.patch_ai_polish_click(runnable), ".method public final run()V")
+    assert "invoke-virtual {p0}, Lajki;->ae()Lajlf;" in click
+    assert "new-instance v3, Lwdz;" in click
+    assert "Lj$/util/Objects;->requireNonNull(Ljava/lang/Object;)Ljava/lang/Object;" in click
+    assert "sget-object v2, Lakhf;->g:Lakhf;" in click
+    assert "Lwtz;->f(Lajkj;Laodi;ZLakhf;Ljava/util/function/Consumer;)V" in click
+
+
+def test_polish_registration_removes_only_unused_helper_dependencies_and_gates():
+    wsf = (FIXTURES / "wsf_module.smali").read_text(encoding="utf-8")
+    wej = (FIXTURES / "wej_module.smali").read_text(encoding="utf-8")
+    patched_wsf = method(
+        patcher.patch_polish_provider_module(wsf),
+        ".method public final getModuleDef(Landroid/content/Context;)Lamyy;",
+    )
+    patched_wej = method(
+        patcher.patch_ai_writing_tools_module(wej),
+        ".method public final getModuleDef(Landroid/content/Context;)Lamyy;",
+    )
+    assert "const-class p0, Lwse;" in patched_wsf
+    assert "const-class v1, Lwth;" not in patched_wsf
+    assert "Lwtu;->r:Lajoj;" not in patched_wsf
+    assert "const-class p1, Lwtj;" in patched_wej
+    assert "const-class v1, Lwth;" not in patched_wej
+    assert "Lwtu;->c:Lajoj;" not in patched_wej
+    assert "sget-object v1, Laliq;->c:Langv;" in patched_wej
+    assert "sget-object v1, Laooc;->a:Laooc;" in patched_wej
+
+
+def test_fixed_holder_migrates_voice_while_native_voice_remains_intact():
+    holder = (FIXTURES / "agxe_power_key.smali").read_text(encoding="utf-8")
+    patched_holder = method(
+        patcher.patch_power_key_polish_default(holder),
+        ".method private static N(Landroid/content/Context;Lanyg;ZLaivh;)Ljava/lang/String;",
+    )
+    assert "const v0, 0x7f1404b3" in patched_holder
+    assert 'const-string v1, "voice"' in patched_holder
+    assert "Lanxc;->o(ILjava/lang/String;)Ljava/lang/String;" in patched_holder
+    assert "Lanxc;->t(ILjava/lang/String;)V" in patched_holder
+
+    voice = (FIXTURES / "shb_voice.smali").read_text(encoding="utf-8")
+    patched_voice = patcher.patch_voice_reserve_entry(voice)
+    voice_builder = method(patched_voice, ".method private final d(Z)Lagow;")
+    assert "Latbs;->g(Lagow;)V" in voice_builder
+    assert 'const-string v2, "default"' not in voice_builder
+    assert "Lsgw;-><init>(Lshb;Z)V" in voice_builder
+    assert "Lsgx;-><init>(Lshb;Z)V" in voice_builder
+    for native_contract in (
+        "const/16 v6, -0x273a",
+        "const/16 v6, -0x275b",
+        "Latbs;->f(Lagow;Z)V",
     ):
-        assert method(patched, signature).count("Lagsr;->z(Ljava/lang/String;)Ljava/lang/String;") == 1
+        assert native_contract in voice
+        assert native_contract in patched_voice
+
+
+def test_polish_stays_out_of_customizable_active_order():
+    patcher_source = PATCHER_PATH.read_text()
+    polish_section = patcher_source[
+        patcher_source.index("def patch_ai_polish_entry") :
+        patcher_source.index("def patch_translation_progress")
+    ]
+    assert "agpc.smali" not in polish_section
+    assert "agsr.smali" not in polish_section
+    assert "patch_toolbar_jarvis_persistence" not in patcher_source
 
 
 if __name__ == "__main__":
     test_polish_state_keeps_native_eligibility()
-    test_jarvis_provider_registration_removes_only_writing_helper_gate()
-    test_registration_chain_keeps_minors_readiness_dependency_and_producer()
-    test_toolbar_fallback_normalizes_both_branches()
+    test_polish_click_uses_runnable_and_preserves_lifecycle_callback()
+    test_polish_registration_removes_only_unused_helper_dependencies_and_gates()
+    test_fixed_holder_migrates_voice_while_native_voice_remains_intact()
+    test_polish_stays_out_of_customizable_active_order()
     print("smali patch regression tests passed")
