@@ -17,7 +17,7 @@ The worktree now implements the requested fixed-holder polish design. A new sign
 - Candidate: `build/MyBoard-AI-17.8.5.apk`
 - Size: `82,305,521 bytes`
 - SHA-256: `ccc871d4a577db712d8e9683a2b74d4415d1dc9d991e1c40adb46e1caf037492`
-- Status: fixed-holder candidate; not yet published or physically ARM64-validated
+- Status: fixed-holder prerelease published; not yet physically ARM64-validated
 - Package: `com.vorflux.gboard.inputmethod.latin`
 - Label: `MyBoard`
 - versionCode: `175894496`
@@ -27,7 +27,7 @@ The worktree now implements the requested fixed-holder polish design. A new sign
 - ABI: ARM64 only (`arm64-v8a`)
 - Signature: APK Signature Scheme v3; certificate SHA-256 `72f35793e9f17aba292fe6dd1607eca6b783cf779ca52b1561f03e5bc411ebeb`
 
-Static tests, pinned-input integration, signed build, and full verifier pass for these exact bytes. Physical ARM64 UI validation, publication, and public re-download identity verification remain pending.
+Static tests, pinned-input integration, signed build, full verifier, prerelease publication, and public re-download byte identity pass for these exact bytes. Physical ARM64 UI validation remains pending.
 
 ## Product design
 
@@ -202,9 +202,8 @@ The build passed apktool assembly, v3 signing, the full APK verifier, resource p
 
 ## Pending tasks
 
-1. Update existing PR #1 and the single `Summary` test report; do not create another PR.
-2. Publish the exact new candidate, download it again from the public GitHub URL, and compare SHA-256 and size.
-3. Obtain real ARM64 Android 12L+ verification for fresh and upgrade installs, fixed `AI 润色`, reserve voice, settings, translation, protected editors, replace, and undo.
+1. Update the single `Summary` test report with the fixed-holder candidate; do not create another report.
+2. Obtain real ARM64 Android 12L+ verification for fresh and upgrade installs, fixed `AI 润色`, reserve voice, settings, translation, protected editors, replace, and undo.
 
 ## Risks and review questions
 
@@ -232,4 +231,4 @@ The build passed apktool assembly, v3 signing, the full APK verifier, resource p
 
 ## Handoff prompt
 
-When handing off again, point the next engineer to the current Pending tasks. Until publication is complete, the local signed candidate hash and size above are authoritative. After publication, require the public re-download to match those exact bytes. Do not rebuild or substitute different APK bytes without updating the candidate metadata and rerunning all gates.
+When handing off again, point the next engineer to the current Pending tasks. The published prerelease asset and local signed candidate match exactly; require any future public re-download to keep matching the hash and size above. Do not rebuild or substitute different APK bytes without updating the candidate metadata and rerunning all gates.

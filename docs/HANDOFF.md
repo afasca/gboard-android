@@ -266,7 +266,7 @@ Do not mark the existing partial test report passed until these are confirmed.
 - Size: `82,305,521 bytes`
 - SHA-256: `ccc871d4a577db712d8e9683a2b74d4415d1dc9d991e1c40adb46e1caf037492`
 - Static, pinned-input integration, build, full APK verification, and 39 decoded exact-candidate contracts: passed
-- Publication and public re-download byte identity: pending
+- Prerelease publication and public re-download byte identity: passed
 - ARM64 Android 12L+ toolbar/UI/safety acceptance: blocked pending a connected physical device
 
 ## Releases and prior artifacts
@@ -282,6 +282,5 @@ A checkpoint GitHub release for the manual model picker is optional. If one is c
 
 1. Pull `vorflux/ai-translation-polish` and read this file plus `README.md`.
 2. Re-run all repository tests and inspect the fixed-holder commit.
-3. Update PR #1 and the single `Summary` test report with the fixed-holder correction.
-4. Publish the exact signed candidate above and verify its public re-download hash, size, and byte identity.
-5. Ask the user to validate all changed UI and request timing on a physical ARM64 phone, collecting logcat if anything fails.
+3. Update the single `Summary` test report with the fixed-holder correction.
+4. Ask the user to validate all changed UI and request timing on a physical ARM64 phone, collecting logcat if anything fails.
