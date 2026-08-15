@@ -267,8 +267,9 @@ Do not mark the existing partial test report passed until these are confirmed.
 - Size: `82,305,521 bytes`
 - SHA-256: `cd9633d26e0c9b063cea44cdddaa605c75795944e6587c0d0b797a1c75b896b5`
 - Commit: `b02a3e9d3869e894cbe26e0c1e40fbedfbb08d76`
-- Static, pinned-input integration, signed build, packaging checks, and composed decoded behavior contracts: passed
-- Release asset replacement and public re-download byte identity: pending
+- Static, pinned-input integration, signed build, packaging checks, composed decoded behavior contracts, and bounded Android 13 x86_64 install/installed-byte identity: passed
+- Release `myboard-ai-v6` replacement and cache-busted public re-download byte identity: passed
+- Public APK: `https://github.com/afasca/gboard-android/releases/download/myboard-ai-v6/MyBoard-AI-17.8.5.apk`
 - ARM64 Android 12L+ toolbar/UI/safety acceptance: blocked pending a connected physical device
 
 ## Releases and prior artifacts
@@ -283,6 +284,5 @@ A checkpoint GitHub release for the manual model picker is optional. If one is c
 ## Immediate next steps for the next engineer
 
 1. Pull `vorflux/ai-translation-polish` and read this file plus `README.md`.
-2. Replace the `myboard-ai-v6` asset with the exact candidate and verify a cache-busted public re-download.
-3. Update the single `Summary` test report; do not create a second report.
-4. Ask the user to validate all changed UI and request timing on a physical ARM64 phone, collecting logcat if anything fails.
+2. Ask the user to validate all changed UI and request timing on a physical ARM64 phone, collecting logcat if anything fails.
+3. Update the single `Summary` test report from partial to passed only after physical ARM64 acceptance; do not create a second report.

@@ -1,6 +1,6 @@
 # MyBoard AI translation and polish handoff
 
-Updated: 2026-08-15 (fixed-holder candidate)
+Updated: 2026-08-15 (published fixed-holder candidate)
 
 ## Repository and pull request
 
@@ -18,7 +18,7 @@ The branch implements the requested fixed-holder polish design and blocks Jarvis
 - Size: `82,305,521 bytes`
 - SHA-256: `cd9633d26e0c9b063cea44cdddaa605c75795944e6587c0d0b797a1c75b896b5`
 - Commit: `b02a3e9d3869e894cbe26e0c1e40fbedfbb08d76`
-- Status: final static candidate built; release replacement and physical ARM64 validation pending
+- Status: exact candidate published and publicly byte-verified; physical ARM64 validation pending
 - Package: `com.vorflux.gboard.inputmethod.latin`
 - Label: `MyBoard`
 - versionCode: `175894496`
@@ -28,7 +28,10 @@ The branch implements the requested fixed-holder polish design and blocks Jarvis
 - ABI: ARM64 only (`arm64-v8a`)
 - Signature: APK Signature Scheme v3; certificate SHA-256 `72f35793e9f17aba292fe6dd1607eca6b783cf779ca52b1561f03e5bc411ebeb`
 
-Static tests, pinned-input integration, signed build, full verifier, prerelease publication, and public re-download byte identity pass for these exact bytes. Physical ARM64 UI validation remains pending.
+Static tests, pinned-input integration, signed build, full verifier, prerelease publication, Android 13 x86_64 install/installed-byte identity, and a cache-busted public re-download pass for these exact bytes. Physical ARM64 UI validation remains pending.
+
+- Release: `https://github.com/afasca/gboard-android/releases/tag/myboard-ai-v6`
+- Public APK: `https://github.com/afasca/gboard-android/releases/download/myboard-ai-v6/MyBoard-AI-17.8.5.apk`
 
 ## Product design
 
@@ -205,9 +208,8 @@ The exact signed candidate passed apktool assembly, v3 signing, resource parity 
 
 ## Pending tasks
 
-1. Replace the `myboard-ai-v6` asset with the exact signed candidate and verify a cache-busted public re-download.
-2. Update the single `Summary` test report; do not create another report.
-3. Obtain real ARM64 Android 12L+ verification for fresh and upgrade installs, fixed `AI 润色`, reserve voice, settings, translation, protected editors, replace, and undo.
+1. Obtain real ARM64 Android 12L+ verification for fresh and upgrade installs, fixed `AI 润色`, reserve voice, settings, translation, protected editors, replace, and undo.
+2. After that device run, update the single `Summary` test report from partial to passed; do not create another report.
 
 ## Risks and review questions
 
